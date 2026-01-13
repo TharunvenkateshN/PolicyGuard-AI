@@ -1,0 +1,27 @@
+# Project Title: Algo-Lend Retail Mortgage Agent
+# Date: 2024-05-15
+# Status: Draft
+
+## 1. Executive Summary
+We are building an autonomous AI agent to streamline the retail mortgage application process. The goal is to reduce approval times from days to seconds by removing human underwriters from the loop for standard loans.
+
+## 2. Intended Users & Purpose
+- **Primary Users:** Public retail banking customers (applicants) seeking home loans.
+- **Function:** The agent will interview the user, collect documents, and make the final lending decision.
+
+## 3. Data Requirements
+The system requires access to highly sensitive financial and personal data to make decisions:
+- **Financial:** Full credit reports (Equifax/TransUnion causes), Tax Returns (1040s), Pay stubs, and Bank Statements.
+- **PII:** Social Security Numbers (SSN), Current Home Addresses, Date of Birth.
+
+## 4. System Outputs & Autonomy
+- **Output:** The system will issue a legally binding "Loan Approval" or "Rejection" letter.
+- **Autonomy:** The decision is fully automated. There is **NO** human review step planned for the MVP to maximize throughput.
+
+## 5. Risk & Safeguards
+- **Current Controls:** None. We are relying on the prompt engineering to ensure fairness.
+- **Monitoring:** Post-decision audit logs will be saved, but no real-time intervention is configured.
+
+## 6. Deployment Plan
+- **Target Reach:** Global launch. The API will be accessible from all regions, including the European Union (EU) and California.
+- **Traffic Scale:** We expect full public launch traffic immediately (approx. 10k apps/day).

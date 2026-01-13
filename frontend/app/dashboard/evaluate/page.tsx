@@ -5,7 +5,7 @@ import { GuardrailTimeline, StepStatus } from '@/components/GuardrailTimeline';
 import { ReadinessScorecard, ComplianceReport } from '@/components/ReadinessScorecard';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Play } from 'lucide-react';
+import { Play, FileText as FileIcon } from 'lucide-react';
 
 export default function EvaluatePage() {
     const [evaluationStatus, setEvaluationStatus] = useState<'idle' | 'running' | 'done'>('idle');
@@ -96,6 +96,39 @@ export default function EvaluatePage() {
         });
     }
 
+    const [isAutoGenerateOn, setIsAutoGenerateOn] = useState(false);
+    const [isAnalyzingDoc, setIsAnalyzingDoc] = useState(false);
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsAnalyzingDoc(true);
+        // Simulate AI Parsing
+        setTimeout(() => {
+            setWorkflowData({
+                intent: {
+                    purpose: 'Automated mortgage approval agent for retail banking',
+                    users: 'Public applicants seeking home loans'
+                },
+                data: {
+                    types: 'Credit scores, Income statements, Tax returns, PII (SSN, Address)'
+                },
+                decision: {
+                    output: 'Final loan approval/rejection decision without human review'
+                },
+                safeguards: {
+                    controls: 'None currently configured'
+                },
+                deployment: {
+                    region: 'Global (including EU/GDPR zones)',
+                    scale: 'Full public launch'
+                }
+            });
+            setIsAnalyzingDoc(false);
+        }, 1500);
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -117,11 +150,49 @@ export default function EvaluatePage() {
                             <h3 className="text-lg font-semibold">Workflow Specification</h3>
                             <div className="flex items-center gap-2">
                                 <span className="text-sm text-gray-500">Auto-generate from docs</span>
-                                <Button variant="outline" size="sm" disabled title="Coming Soon">
-                                    Off
+                                <Button
+                                    variant={isAutoGenerateOn ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => setIsAutoGenerateOn(!isAutoGenerateOn)}
+                                    className={isAutoGenerateOn ? "bg-blue-600 hover:bg-blue-700 text-white" : ""}
+                                >
+                                    {isAutoGenerateOn ? "ON" : "OFF"}
                                 </Button>
                             </div>
                         </div>
+
+                        {/* File Upload Zone */}
+                        {isAutoGenerateOn && (
+                            <div className="mb-6 p-6 border-2 border-dashed border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center transition-all">
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className="p-3 bg-white dark:bg-zinc-800 rounded-full shadow-sm">
+                                        <FileIcon className="w-6 h-6 text-blue-500" />
+                                    </div>
+                                    <div className="font-medium text-blue-900 dark:text-blue-200">
+                                        {isAnalyzingDoc ? "AI Analysis in progress..." : "Upload PRD or Architecture Doc"}
+                                    </div>
+                                    {!isAnalyzingDoc && (
+                                        <>
+                                            <p className="text-xs text-blue-700 dark:text-blue-300 mb-2">
+                                                We'll automatically extract intent, data flows, and safeguards.
+                                            </p>
+                                            <input
+                                                type="file"
+                                                className="hidden"
+                                                id="doc-upload"
+                                                accept=".pdf,.docx,.txt,.md"
+                                                onChange={handleFileUpload}
+                                            />
+                                            <label htmlFor="doc-upload">
+                                                <Button size="sm" variant="secondary" className="cursor-pointer" asChild>
+                                                    <span>Select File</span>
+                                                </Button>
+                                            </label>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="space-y-6 h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                             {/* 1. AI System Intent */}
