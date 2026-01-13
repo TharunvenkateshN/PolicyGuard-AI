@@ -16,13 +16,7 @@ export default function EvaluatePage() {
         { id: 'verdict', label: 'Compliance Verdict', status: 'pending' as StepStatus, description: 'Generating report' },
     ]);
 
-    const [workflowInput, setWorkflowInput] = useState(`{
-  "name": "HR Benefits Assistant",
-  "model": "gemini-1.5-pro",
-  "capabilities": ["read_employee_db", "send_email", "access_salary_data"],
-  "restrictions": ["no_external_api_calls"],
-  "user_access": "all_employees"
-}`);
+    const [workflowInput, setWorkflowInput] = useState('');
 
     const [realResult, setRealResult] = useState<{
         verdict: 'PASS' | 'BLOCK' | 'WARN' | 'FAIL' | 'pass' | 'block' | 'warn' | 'fail',
@@ -130,7 +124,14 @@ export default function EvaluatePage() {
                         <h3 className="text-lg font-semibold mb-3">Workflow Specification</h3>
                         <textarea
                             className="w-full h-64 p-4 text-sm bg-gray-50 dark:bg-zinc-950 border rounded-md font-mono focus:ring-2 focus:ring-blue-500 outline-none"
-                            placeholder='Describe the AI workflow or paste JSON...'
+                            placeholder={`Enter the AI Agent Workflow description here. 
+Example:
+{
+  "name": "HR Assistant",
+  "model": "gemini-1.5-pro",
+  "capabilities": ["access_employee_data"],
+  "restrictions": ["no_external_emails"]
+}`}
                             value={workflowInput}
                             onChange={(e) => setWorkflowInput(e.target.value)}
                         />
