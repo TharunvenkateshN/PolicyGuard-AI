@@ -86,7 +86,16 @@ async def evaluate_workflow(workflow: WorkflowDefinition):
         print(f"Gemini Response Length: {len(analysis_json_str)}")
         
         # Clean JSON string (remove markdown fences if present - though handled by SDK mostly)
-        clean_json = analysis_json_str.replace("```json", "").replace("```", "").strip()
+        # Robust cleaning using regex
+        import re
+        # Find the first JSON object or array
+        match = re.search(r'(\{.*\}|\[.*\])', analysis_json_str, re.DOTALL)
+        if match:
+            clean_json = match.group(1)
+        else:
+            clean_json = analysis_json_str.strip()
+            
+        print(f"Cleaned JSON Preview: {clean_json[:100]}...")
         
         try:
             result_data = json.loads(clean_json)

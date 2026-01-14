@@ -12,79 +12,85 @@ class GeminiService:
         
     async def analyze_policy_conflict(self, policy_text: str, workflow_desc: str) -> str:
         prompt = f"""
-        You are PolicyGuard AI, an expert AI Governance Officer.
-        
+        You are PolicyGuard AI, a Senior AI Governance Auditor & Legal Compliance Specialist.
+
         YOUR GOAL:
-        Analyze the PROPOSED AI WORKFLOW against the provided CORPORATE POLICIES.
-        Produce a comprehensive "AI Deployment Risk & Compliance Report" as a structured JSON object.
-        
+        Conduct a rigorous forensic audit of the PROPOSED AI WORKFLOW against the CORPORATE POLICIES.
+        You must identify explicitly where the workflow violates specific legal or policy requirements.
+
         INPUT CONTEXT:
-        
-        --- CORPORATE POLICIES ---
+
+        --- CORPORATE POLICY DOCUMENT ---
         {policy_text}
-        
+
         --- PROPOSED AI WORKFLOW (USER INPUT) ---
         {workflow_desc}
-        
-        --- INSTRUCTIONS ---
-        1. INFER the system specification from the user input (even if brief).
-        2. DETECT all data categories and flows.
-        3. MAP system behavior to policy clauses.
-        4. ASSESS risk severity.
-        5. EXTRACT specific evidence quotes from input.
-        6. RECOMMEND actionable headers.
-        
-        OUTPUT FORMAT (Strict JSON):
+
+        --- AUDITOR INSTRUCTIONS ---
+        1. **System Inference**: Deduce the full technical architecture from the user's description.
+        2. **Legal Mapping**: For every policy clause, check if the workflow explicitly or implicitly contradicts it.
+        3. **Evidence Extraction**: You MUST quote the exact line/section from the Policy and the exact part of the Workflow that conflicts.
+        4. **Severity Scoring**:
+           - **High**: Illegal, blocks deployment (e.g., GDPR violation, unencrypted secrets).
+           - **Medium**: Risky, requires mitigation (e.g., missing logging, weak auth).
+           - **Low**: Best practice violation.
+        5. **Verdict**: If ANY "High" severity issues are found, status must be "Not Approved".
+
+        OUTPUT FORMAT (Strict JSON, no markdown):
         {{
             "system_spec": {{
-                "summary": "One sentence summary of what the system does.",
+                "summary": "Technical summary of the inferred system.",
                 "primary_purpose": "...",
-                "decision_authority": "...",
-                "automation_level": "...",
-                "deployment_stage": "...",
-                "geographic_exposure": ["List of regions"]
+                "decision_authority": "Human vs AI",
+                "automation_level": "Fully/Semi/None",
+                "deployment_stage": "Prototype/Prod",
+                "geographic_exposure": ["US", "EU", "Global"]
             }},
             "data_map": {{
-                "data_categories_detected": ["List specific data types"],
-                "data_flow_source": "...",
-                "data_storage_retention": "...",
-                "cross_border_transfer": "..."
+                "data_categories_detected": ["PII", "Financial", "Health"],
+                "data_flow_source": "User Upload/API",
+                "data_storage_retention": "Inferred retention policy",
+                "cross_border_transfer": "Yes/No (and where)"
             }},
             "policy_matrix": [
                 {{
-                    "policy_area": "Name of policy/area (e.g. Data Minimization)",
-                    "status": "Compliant" | "Partial Compliance" | "At Risk" | "Non-Compliant",
-                    "reason": "Why?"
+                    "policy_area": "e.g. Data Residency",
+                    "status": "Compliant" | "Non-Compliant" | "At Risk" | "Cannot Be Assessed",
+                    "reason": "Short reason"
                 }}
             ],
             "risk_assessment": {{
-                "overall_score": 0-100, #(100 = Safe, 0 = Critical Risk)
+                "overall_score": 0-100, #(0=Critical fail, 100=Perfect)
                 "overall_rating": "High" | "Medium" | "Low",
                 "breakdown": {{
-                    "Regulatory": "High" | "Medium" | "Low",
-                    "User Harm": "High" | "Medium" | "Low",
-                    "Reputational": "High" | "Medium" | "Low"
+                    "Regulatory": "High/Medium/Low",
+                    "User Harm": "High/Medium/Low",
+                    "Reputational": "High/Medium/Low"
                 }},
-                "confidence_score": "High" | "Medium" | "Low"
+                "confidence_score": "High"
             }},
             "evidence": [
                 {{
-                    "source_doc": "Workflow Input" | "Policy",
-                    "snippet": "Exact text quote supporting findings"
+                    "source_doc": "Policy vs Workflow",
+                    "policy_section": "Section 2.1: Key Management",
+                    "workflow_component": "Prompt Template",
+                    "issue_description": "User is hardcoding API keys in the prompt text.",
+                    "severity": "High",
+                    "snippet": "Exact quote from input causing the issue"
                 }}
             ],
             "recommendations": [
                 {{
-                    "title": "Short generic title",
-                    "type": "Blocking" | "Advisory" | "Informational",
-                    "description": "Specific action required",
-                    "related_policy": "Policy name"
+                    "title": "Actionable Title",
+                    "type": "Blocking" | "Advisory",
+                    "description": "What to do to fix it.",
+                    "related_policy": "Policy Name"
                 }}
             ],
             "verdict": {{
                 "approved": boolean,
-                "status_label": "Approved for Pilot" | "Not Approved",
-                "approval_conditions": ["Condition 1", "Condition 2"]
+                "status_label": "Approved" | "Rejected",
+                "approval_conditions": ["List of conditions"]
             }}
         }}
         """

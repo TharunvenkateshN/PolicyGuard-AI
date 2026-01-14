@@ -40,6 +40,10 @@ interface RiskScore {
 
 interface EvidenceTrace {
     source_doc: string;
+    policy_section: string;
+    workflow_component: string;
+    issue_description: string;
+    severity: string;
     snippet: string;
 }
 
@@ -97,6 +101,7 @@ export function ReadinessScorecard({ report }: ReadinessScorecardProps) {
             case 'Partial Compliance': return 'text-amber-600 bg-amber-50 border-amber-200';
             case 'At Risk': return 'text-orange-600 bg-orange-50 border-orange-200';
             case 'Non-Compliant': return 'text-red-600 bg-red-50 border-red-200';
+            case 'Cannot Be Assessed': return 'text-zinc-600 bg-zinc-100 border-zinc-300 dark:bg-zinc-800 dark:border-zinc-700';
             default: return 'text-gray-600 bg-gray-50 border-gray-200';
         }
     };
@@ -286,19 +291,59 @@ export function ReadinessScorecard({ report }: ReadinessScorecardProps) {
                 </Card>
 
                 {/* 5. Evidence */}
-                <div className="p-4 bg-gray-100 dark:bg-zinc-900 rounded-lg text-sm">
-                    <h4 className="font-semibold mb-3 flex items-center gap-2">
-                        <FileText className="w-4 h-4" /> Evidence Traceability
-                    </h4>
-                    <div className="space-y-3">
-                        {report.evidence.map((ev, i) => (
-                            <div key={i} className="pl-3 border-l-2 border-gray-300">
-                                <p className="italic text-gray-600">"{ev.snippet}"</p>
-                                <p className="text-xs text-blue-600 font-medium mt-1">Source: {ev.source_doc}</p>
+                <Card className="col-span-1 lg:col-span-2">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                            <FileText className="w-5 h-5 text-red-500" />
+                            Forensic Evidence & Traceability
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {report.evidence.length === 0 ? (
+                            <p className="text-sm text-gray-500 italic">No direct violation evidence found.</p>
+                        ) : (
+                            <div className="relative overflow-x-auto rounded-md border">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-zinc-900 border-b">
+                                        <tr>
+                                            <th className="px-4 py-3">Severity</th>
+                                            <th className="px-4 py-3">Policy Clause</th>
+                                            <th className="px-4 py-3">Workflow Component</th>
+                                            <th className="px-4 py-3">Forensic Finding</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {report.evidence.map((ev, i) => (
+                                            <tr key={i} className="bg-white dark:bg-zinc-950 border-b last:border-0 hover:bg-gray-50 dark:hover:bg-zinc-900/50">
+                                                <td className="px-4 py-4 font-medium">
+                                                    <Badge variant="outline" className={cn(
+                                                        ev.severity === 'High' ? "border-red-500 text-red-600 bg-red-50" :
+                                                            ev.severity === 'Medium' ? "border-amber-500 text-amber-600 bg-amber-50" :
+                                                                "border-blue-500 text-blue-600 bg-blue-50"
+                                                    )}>
+                                                        {ev.severity}
+                                                    </Badge>
+                                                </td>
+                                                <td className="px-4 py-4 max-w-xs">
+                                                    <div className="font-semibold text-gray-900 dark:text-gray-100">{ev.policy_section}</div>
+                                                </td>
+                                                <td className="px-4 py-4 text-gray-500">
+                                                    {ev.workflow_component}
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    <div className="text-gray-900 dark:text-gray-200 mb-1">{ev.issue_description}</div>
+                                                    <div className="text-xs text-gray-500 italic bg-gray-100 dark:bg-zinc-900 p-2 rounded border-l-2 border-red-300">
+                                                        "{ev.snippet}"
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
-                        ))}
-                    </div>
-                </div>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
         </div>
     )

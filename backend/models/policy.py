@@ -33,6 +33,7 @@ class PolicyStatus(str, Enum):
     PARTIAL = "Partial Compliance"
     RISK = "At Risk"
     NON_COMPLIANT = "Non-Compliant"
+    CANNOT_ASSESS = "Cannot Be Assessed"
 
 class PolicyAlignment(BaseModel):
     policy_area: str
@@ -51,8 +52,12 @@ class RiskScore(BaseModel):
     confidence_score: str # "High", "Medium", "Low"
 
 class EvidenceTrace(BaseModel):
-    source_doc: str # "PRD v2.1", "Architecture Diagram"
-    snippet: str # "Section 3.2: Bot may suggest..."
+    source_doc: str # "PRD", "Policy"
+    policy_section: str # "Section 3.1: GDPR Data Residency"
+    workflow_component: str # "Data Storage Layer"
+    issue_description: str # "Architecture allows US-based processing..."
+    severity: str # "High", "Medium", "Low"
+    snippet: str # Exact quote
 
 class RecommendationType(str, Enum):
     BLOCKING = "Blocking"
