@@ -41,6 +41,14 @@ class PolicyStorage:
         self._policies = []
         self._save_to_disk()
 
+    def delete_policy(self, policy_id: str) -> bool:
+        initial_count = len(self._policies)
+        self._policies = [p for p in self._policies if p.id != policy_id]
+        if len(self._policies) < initial_count:
+            self._save_to_disk()
+            return True
+        return False
+
     # --- Settings Management ---
     def get_settings(self) -> PolicySettings:
         if os.path.exists(SETTINGS_FILE):

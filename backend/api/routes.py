@@ -32,7 +32,11 @@ async def upload_policy(file: UploadFile = File(...)):
         # traceback.print_exc()
         summary = "Summary unavailable (AI Error)"
     
+    import uuid
+    policy_id = str(uuid.uuid4())
+    
     policy = PolicyDocument(
+        id=policy_id,
         name=file.filename,
         content=cleaned_text,
         summary=summary
@@ -46,6 +50,13 @@ async def upload_policy(file: UploadFile = File(...)):
 @router.get("/policies", response_model=list[PolicyDocument])
 async def get_policies():
     return policy_db.get_all_policies()
+
+@router.delete("/policies/{policy_id}")
+async def delete_policy(policy_id: str):
+    success = policy_db.delete_policy(policy_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Policy not found")
+    return {"status": "deleted", "id": policy_id}
 
 @router.post("/evaluate", response_model=ComplianceReport)
 async def evaluate_workflow(workflow: WorkflowDefinition):

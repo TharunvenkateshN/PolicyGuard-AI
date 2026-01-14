@@ -3,10 +3,12 @@
 import { PolicyUploadPanel } from '@/components/PolicyUploadPanel';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { FileText, Calendar, CheckCircle2 } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { FileText, Calendar, CheckCircle2, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react';
 
 type Policy = {
+    id: string;
     name: string;
     content: string;
     summary: string;
@@ -35,6 +37,23 @@ export default function PoliciesPage() {
         fetchPolicies();
     }, []);
 
+    const handleDelete = async (id: string, name: string) => {
+        if (!confirm(`Are you sure you want to delete policy: ${name}?`)) return;
+
+        try {
+            const res = await fetch(`http://localhost:8000/api/v1/policies/${id}`, {
+                method: 'DELETE',
+            });
+            if (res.ok) {
+                fetchPolicies(); // Refresh
+            } else {
+                alert("Failed to delete policy");
+            }
+        } catch (error) {
+            console.error("Delete failed", error);
+        }
+    }
+
     return (
         <div className="space-y-6 pb-20">
             <div>
@@ -61,8 +80,8 @@ export default function PoliciesPage() {
                     </div>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {policies.map((policy, idx) => (
-                            <Card key={idx} className="hover:shadow-md transition-shadow">
+                        {policies.map((policy) => (
+                            <Card key={policy.id} className="hover:shadow-md transition-shadow">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                     <div className="flex items-center space-x-2">
                                         <FileText className="h-4 w-4 text-blue-500" />
@@ -73,12 +92,23 @@ export default function PoliciesPage() {
                                     <CheckCircle2 className="h-4 w-4 text-green-500" />
                                 </CardHeader>
                                 <CardContent>
-                                    <CardDescription className="line-clamp-3 text-xs mt-2">
+                                    <CardDescription className="line-clamp-3 text-xs mt-2 min-h-[40px]">
                                         {policy.summary || "No summary available."}
                                     </CardDescription>
-                                    <div className="mt-4 flex items-center text-xs text-muted-foreground">
-                                        <Calendar className="mr-1 h-3 w-3" />
-                                        <span>Active</span>
+                                    <div className="mt-4 flex items-center justify-between">
+                                        <div className="flex items-center text-xs text-muted-foreground">
+                                            <Calendar className="mr-1 h-3 w-3" />
+                                            <span>Active</span>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                            onClick={() => handleDelete(policy.id, policy.name)}
+                                            title="Delete Policy"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
                                     </div>
                                 </CardContent>
                             </Card>
