@@ -1,99 +1,70 @@
-# PolicyGuard AI
+# PolicyGuard AI 🛡️
 
-**PolicyGuard AI** is a pre-deployment policy governance control plane designed to ensure AI workflows comply with organizational policies before they go live. It serves as actionable middleware that intercepts, evaluates, and safeguards AI interactions.
+**"The Firewall for your AI Deployments"**
+
+PolicyGuard AI is a forensic compliance engine designed to catch risky AI workflows *before* they go live. Built for the **Gemini 3 Global Hackathon**, it leverages the reasoning power of **Gemini 3 Pro** to act as a "Hostile Auditor"—hunting for policy violations with legal precision.
+
+![PolicyGuard Dashboard](https://github.com/TharunvenkateshN/PolicyGuard-AI/assets/screenshot-placeholder.png)
 
 ## 🚀 Key Features
 
-*   **Policy Analysis**: Upload and analyze policy documents to extract rule sets.
-*   **Guardrail Timeline**: Visual timeline of policy checks and compliance verdicts.
-*   **Compliance Reports**: Detailed reports on AI workflow adherence to specific policies.
-*   **Settings Management**: Configure API keys and backend connections easily.
+*   **🕵️‍♂️ Hostile Auditor Mode**: Uses **Gemini 3 Pro** to rigorously cross-examine your AI workflow against corporate policy documents.
+*   **⚖️ Forensic Evidence**: Doesn't just say "Rejected"—it provides a detailed evidence table citing specific policy sections and the exact violating text.
+*   **📜 Policy Manager**: Upload, manage, and version-control your organization's PDF/TXT guardrails.
+*   **📊 Risk Scorecard**: A visual dashboard showing Compliance Scores, Risk Classifications (Regulatory, Reputational, User Harm), and remediation steps.
+*   **🔒 Safe Deletion**: Robust management of policy documents with unique ID tracking.
 
 ## 🛠 Tech Stack
 
-### Frontend
-*   **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
-*   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-*   **UI Components**: [Shadcn UI](https://ui.shadcn.com/) / [Radix UI](https://www.radix-ui.com/)
-*   **Animations**: [Framer Motion](https://www.framer.com/motion/)
+*   **AI Engine**: Google **Gemini 3 Pro Preview** (`gemini-3-pro-preview`)
+*   **Frontend**: Next.js 14, Tailwind CSS, Shadcn UI, Framer Motion
+*   **Backend**: FastAPI, Python 3.10+, Pydantic
+*   **Orchestration**: Custom Logic (Forensic Prompt Engineering)
 
-### Backend
-*   **Framework**: [FastAPI](https://fastapi.tiangolo.com/)
-*   **AI Models**: Google Gemini Pro (via `google-generativeai`)
-*   **Orchestration**: LangGraph
-*   **Vector Database**: Weaviate
-*   **Language**: Python 3.10+
+## ⚡ Quick Start
 
-## 🏁 Getting Started
-
-Follow these instructions to set up the project locally.
-
-### Prerequisites
-*   Node.js 18+ and npm
-*   Python 3.10+
-*   Google Gemini API Key
-
-### 1. clone the repository
+### 1. Clone & Setup
 ```bash
 git clone https://github.com/TharunvenkateshN/PolicyGuard-AI.git
 cd PolicyGuard-AI
 ```
 
-### 2. Backend Setup
-
-Navigate to the backend directory:
+### 2. Backend (The Brain)
 ```bash
 cd backend
-```
-
-Create a virtual environment:
-```bash
 python -m venv venv
-# Windows
-.\venv\Scripts\activate
-# Mac/Linux
-source venv/bin/activate
-```
-
-Install dependencies:
-```bash
+# Windows: .\venv\Scripts\activate | Mac/Linux: source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Create a `.env` file in the `backend` directory:
+Create `backend/.env` with your Gemini 3 key:
 ```env
-GOOGLE_API_KEY=your_gemini_api_key_here
+# Get key from aistudio.google.com
+GOOGLE_API_KEY=your_key_here
+GEMINI_MODEL=gemini-3-pro-preview
 ```
 
-Run the backend server:
+Run it:
 ```bash
 uvicorn main:app --reload
 ```
-The backend API will be available at `http://localhost:8000`.
 
-### 3. Frontend Setup
-
-Open a new terminal and navigate to the frontend directory:
+### 3. Frontend (The Dashboard)
 ```bash
 cd ../frontend
-```
-
-Install dependencies:
-```bash
 npm install
-```
-
-Create a `.env.local` file in the `frontend` directory:
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
-```
-
-Run the development server:
-```bash
 npm run dev
 ```
-The frontend application will be available at `http://localhost:3000`.
+
+Visit `http://localhost:3000` to start auditing! 🔎
+
+## 🧪 How to Test
+
+1.  **Upload Policy**: Use the provided `sample_policy_privacy.txt` (The Law).
+2.  **Evaluate**: Navigate to "Evaluation".
+3.  **Input Workflow**: Copy content from `sample_mortgage_agent_prd.txt` (The Violation) into the workflow description.
+4.  **Run Analysis**: Watch Gemini 3 detect the "Human-in-the-Loop" violation!
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Built with ❤️ for the Google Gemini 3 Hackathon.
