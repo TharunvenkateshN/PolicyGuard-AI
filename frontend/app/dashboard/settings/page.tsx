@@ -107,26 +107,39 @@ export default function SettingsPage() {
     const [isSaving, setIsSaving] = useState(false);
 
     // Load settings from localStorage
+    // Load settings from API
     useEffect(() => {
-        const saved = localStorage.getItem('policyguard_settings');
-        if (saved) {
+        const fetchSettings = async () => {
             try {
-                setSettings(JSON.parse(saved));
-            } catch (e) {
-                console.error("Failed to parse settings", e);
+                const res = await fetch('http://localhost:8000/api/v1/settings');
+                if (res.ok) {
+                    const data = await res.json();
+                    setSettings(data);
+                }
+            } catch (error) {
+                console.error("Failed to load settings:", error);
             }
-        }
+        };
+        fetchSettings();
     }, []);
 
     // Save handler
-    const handleSave = () => {
+    const handleSave = async () => {
         setIsSaving(true);
-        // Simulate API call
-        setTimeout(() => {
-            localStorage.setItem('policyguard_settings', JSON.stringify(settings));
+        try {
+            const res = await fetch('http://localhost:8000/api/v1/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(settings),
+            });
+            if (!res.ok) throw new Error("Failed to save");
+            // Optional: Toast success
+        } catch (error) {
+            console.error("Save failed:", error);
+            alert("Failed to save settings");
+        } finally {
             setIsSaving(false);
-            // Could add a toast here
-        }, 800);
+        }
     };
 
     // Helper for updating nested settings
@@ -148,8 +161,21 @@ export default function SettingsPage() {
         }));
     };
 
-    const handleSimulation = () => {
-        alert("Policy Simulation Mode: Running mock evaluation...\n\nResult: 2 Critical Risks Found if deployed today.\n- Data Privacy (PII in prompt)\n- Region Mismatch (EU Data in US Server)");
+    const handleSimulation = async () => {
+        const btn = document.getElementById('sim-btn') as HTMLButtonElement;
+        if (btn) btn.disabled = true;
+        if (btn) btn.textContent = "Running Simulation...";
+
+        try {
+            const res = await fetch('http://localhost:8000/api/v1/simulate', { method: 'POST' });
+            const data = await res.json();
+            alert(`Simulation Complete!\n\n${data.risks_found} Risks Found:\n` + data.details.join('\n- '));
+        } catch (e) {
+            alert("Simulation failed to run.");
+        } finally {
+            if (btn) btn.disabled = false;
+            if (btn) btn.textContent = "Simulation Mode";
+        }
     };
 
     return (
@@ -162,7 +188,7 @@ export default function SettingsPage() {
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800" onClick={handleSimulation}>
+                    <Button id="sim-btn" variant="outline" className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800" onClick={handleSimulation}>
                         <Activity className="mr-2 h-4 w-4" />
                         Simulation Mode
                     </Button>

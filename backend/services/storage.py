@@ -3,7 +3,10 @@ import os
 from typing import List
 from models.policy import PolicyDocument
 
+from models.settings import PolicySettings
+
 STORAGE_FILE = "policy_store.json"
+SETTINGS_FILE = "settings_store.json"
 
 class PolicyStorage:
     def __init__(self):
@@ -37,6 +40,24 @@ class PolicyStorage:
     def clear(self):
         self._policies = []
         self._save_to_disk()
+
+    # --- Settings Management ---
+    def get_settings(self) -> PolicySettings:
+        if os.path.exists(SETTINGS_FILE):
+            try:
+                with open(SETTINGS_FILE, 'r') as f:
+                    data = json.load(f)
+                    return PolicySettings(**data)
+            except Exception as e:
+                print(f"Failed to load settings: {e}")
+        return PolicySettings() # Default
+
+    def save_settings(self, settings: PolicySettings):
+        try:
+            with open(SETTINGS_FILE, 'w') as f:
+                json.dump(settings.model_dump(), f, indent=2)
+        except Exception as e:
+            print(f"Failed to save settings: {e}")
 
 # Global instance
 policy_db = PolicyStorage()

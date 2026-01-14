@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from models.policy import PolicyDocument, WorkflowDefinition, ComplianceReport
+from models.settings import PolicySettings
 from services.ingest import PolicyIngestor
 from services.gemini import GeminiService
 from services.storage import policy_db
@@ -95,3 +96,28 @@ async def evaluate_workflow(workflow: WorkflowDefinition):
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/settings", response_model=PolicySettings)
+async def get_settings():
+    return policy_db.get_settings()
+
+@router.post("/settings", response_model=PolicySettings)
+async def update_settings(settings: PolicySettings):
+    policy_db.save_settings(settings)
+    return settings
+
+@router.post("/simulate")
+async def run_simulation():
+    # In a real scenario, this would trigger a test eval against a known "bad" input
+    # For the MVP, we mock the delay and return the structured result for the frontend
+    import asyncio
+    await asyncio.sleep(2) # Simulate processing time
+    
+    return {
+        "status": "completed",
+        "risks_found": 2,
+        "details": [
+            "Data Privacy Violation: PII detected in prompt template without encryption flag.",
+            "Region Mismatch: Accessing EU user data from US server region."
+        ]
+    }
