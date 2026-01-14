@@ -1,0 +1,19 @@
+# GLOBAL IT SECURITY & DATA PRIVACY POLICY
+Version: 4.2
+Effective Date: 2024-01-01
+
+## 1. Data Classification & Handling
+All customer financial data, including credit scores, income statements, and tax returns, is classified as **RESTRICTED**.
+- **Requirement 1.1**: restricted data must never be processed by public LLM endpoints without enterprise contractual agreements.
+- **Requirement 1.2**: All PII (Personally Identifiable Information) must be masked or tokenized before entering any inference pipeline.
+
+## 2. Encryption Key Management
+- **Requirement 2.1**: You must NOT hardcode API keys, secrets, or passwords in source code, configuration files, or prompt templates.
+- **Requirement 2.2**: All secrets must be retrieved from the approved Vault service at runtime.
+
+## 3. Geographic Restrictions (GDPR/CCPA)
+- **Requirement 3.1**: European Union citizen data must strictly remain within EU-based servers. Cross-border transfer to US regions is **PROHIBITED** without explicit user consent and standard contractual clauses.
+
+## 4. AI & Automations
+- **Requirement 4.1**: Any AI agent making financial decisions (e.g., loan approval) requires a **Human-in-the-Loop (HITL)** for final sign-off if the confidence score is below 99%.
+- **Requirement 4.2**: Fully autonomous rejection of loan applications is strictly forbidden to prevent algorithmic bias.

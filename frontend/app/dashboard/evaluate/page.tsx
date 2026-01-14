@@ -10,12 +10,32 @@ import { Play, FileText as FileIcon } from 'lucide-react';
 export default function EvaluatePage() {
     const [evaluationStatus, setEvaluationStatus] = useState<'idle' | 'running' | 'done'>('idle');
     const [timelineSteps, setTimelineSteps] = useState([
-        { id: 'ingest', label: 'Policy Context Load', status: 'pending' as StepStatus, description: 'Loading 14 active policies' },
+        { id: 'ingest', label: 'Policy Context Load', status: 'pending' as StepStatus, description: 'Checking active policies...' },
         { id: 'intent', label: 'Workflow Analysis', status: 'pending' as StepStatus, description: 'Parsing workflow capabilities' },
         { id: 'simulate', label: 'Trace Simulation', status: 'pending' as StepStatus, description: 'Generating synthetic post-deployment traffic' },
         { id: 'conflict', label: 'Guardrail Checks', status: 'pending' as StepStatus, description: 'Gemini 3 Pro reasoning on traces' },
         { id: 'verdict', label: 'Compliance Verdict', status: 'pending' as StepStatus, description: 'Generating report' },
     ]);
+
+    // Initial Policy Check
+    React.useEffect(() => {
+        const checkPolicies = async () => {
+            try {
+                const res = await fetch('http://localhost:8000/api/v1/policies');
+                if (res.ok) {
+                    const policies = await res.json();
+                    setTimelineSteps(prev => {
+                        const newSteps = [...prev];
+                        newSteps[0].description = `Ready with ${policies.length} active policies`;
+                        return newSteps;
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to check policies", e);
+            }
+        };
+        checkPolicies();
+    }, []);
 
     const [workflowData, setWorkflowData] = useState({
         intent: { purpose: '', users: '' },

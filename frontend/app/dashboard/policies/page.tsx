@@ -1,18 +1,91 @@
 "use client"
 
 import { PolicyUploadPanel } from '@/components/PolicyUploadPanel';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { FileText, Calendar, CheckCircle2 } from 'lucide-react'
+import { useEffect, useState } from 'react';
+
+type Policy = {
+    name: string;
+    content: string;
+    summary: string;
+    is_active?: boolean;
+}
 
 export default function PoliciesPage() {
+    const [policies, setPolicies] = useState<Policy[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchPolicies = async () => {
+        try {
+            const res = await fetch('http://localhost:8000/api/v1/policies');
+            if (res.ok) {
+                const data = await res.json();
+                setPolicies(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch policies");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchPolicies();
+    }, []);
+
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 pb-20">
             <div>
                 <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Policy Management</h1>
                 <p className="text-gray-500 dark:text-gray-400">Upload and manage organization guardrails.</p>
             </div>
 
-            <PolicyUploadPanel />
+            <PolicyUploadPanel onUpload={(files) => {
+                // Wait small delay for processing then refresh
+                setTimeout(fetchPolicies, 1000);
+            }} />
 
-            {/* We can add a list of existing policies here later */}
+            <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                    Active Policies
+                    <Badge variant="secondary" className="rounded-full">{policies.length}</Badge>
+                </h3>
+
+                {loading ? (
+                    <div className="flex justify-center p-8 text-muted-foreground">Loading policies...</div>
+                ) : policies.length === 0 ? (
+                    <div className="text-center p-12 border-2 border-dashed rounded-lg text-muted-foreground">
+                        No policies uploaded yet. Upload a document above to get started.
+                    </div>
+                ) : (
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {policies.map((policy, idx) => (
+                            <Card key={idx} className="hover:shadow-md transition-shadow">
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <div className="flex items-center space-x-2">
+                                        <FileText className="h-4 w-4 text-blue-500" />
+                                        <CardTitle className="text-sm font-medium truncate max-w-[180px]" title={policy.name}>
+                                            {policy.name}
+                                        </CardTitle>
+                                    </div>
+                                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                </CardHeader>
+                                <CardContent>
+                                    <CardDescription className="line-clamp-3 text-xs mt-2">
+                                        {policy.summary || "No summary available."}
+                                    </CardDescription>
+                                    <div className="mt-4 flex items-center text-xs text-muted-foreground">
+                                        <Calendar className="mr-1 h-3 w-3" />
+                                        <span>Active</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
