@@ -121,6 +121,10 @@ async def evaluate_workflow(workflow: WorkflowDefinition):
             result_data = json.loads(clean_json)
             # Direct Pydantic validation
             report = ComplianceReport(**result_data)
+            
+            # Save Report to History
+            policy_db.add_evaluation(report.model_dump())
+            
             return report
             
         except json.JSONDecodeError as e:
@@ -136,6 +140,10 @@ async def evaluate_workflow(workflow: WorkflowDefinition):
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/dashboard/stats")
+async def get_dashboard_stats():
+    return policy_db.get_dashboard_stats()
 
 @router.get("/settings", response_model=PolicySettings)
 async def get_settings():
