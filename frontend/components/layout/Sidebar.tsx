@@ -1,8 +1,8 @@
 "use client"
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Home, Shield, Activity, Settings, FileText, ChevronRight, BarChart3 } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
+import { Home, Shield, Activity, Settings, FileText, ChevronRight, BarChart3, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/context/UserContext';
 
@@ -21,7 +21,13 @@ interface SidebarProps {
 
 export function Sidebar({ className, onNavigate }: SidebarProps) {
     const pathname = usePathname();
+    const router = useRouter();
     const { profile } = useUser();
+
+    const handleLogout = () => {
+        // Clear any auth tokens if they existed (mock)
+        router.push('/');
+    };
 
     return (
         <div className={cn("flex h-full w-64 flex-col border-r border-gray-200 bg-white dark:border-zinc-800 dark:bg-zinc-950", className)}>
@@ -62,16 +68,24 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
                 </nav>
             </div>
 
-            <div className="border-t border-gray-100 p-4 dark:border-zinc-800">
+            <div className="border-t border-gray-100 p-4 dark:border-zinc-800 space-y-2">
                 <Link href="/dashboard/profile" onClick={onNavigate} className="flex items-center hover:bg-gray-50 dark:hover:bg-zinc-900 rounded-md p-2 transition-colors">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500"></div>
-                    <div className="ml-3">
-                        <div className="ml-3">
-                            <p className="text-sm font-medium text-gray-700 dark:text-gray-200">{profile.name}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-500">{profile.jobTitle}</p>
-                        </div>
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 overflow-hidden flex items-center justify-center text-white text-xs font-bold">
+                        {profile.name.charAt(0)}
+                    </div>
+                    <div className="ml-3 flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">{profile.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 truncate">{profile.jobTitle}</p>
                     </div>
                 </Link>
+
+                <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center px-2 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/10 rounded-md transition-colors"
+                >
+                    <LogOut className="mr-3 h-5 w-5" />
+                    Sign Out
+                </button>
             </div>
         </div>
     );

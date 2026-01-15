@@ -1,6 +1,7 @@
 "use client"
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -14,9 +15,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Shield, Lock, Users } from 'lucide-react'
+import { Shield, Lock, Users, LogOut } from 'lucide-react'
 
 export default function ProfilePage() {
+    const router = useRouter();
     const { profile, updateProfile } = useUser();
 
     return (
@@ -131,7 +133,16 @@ export default function ProfilePage() {
                             </div>
                             <Switch checked={true} />
                         </div>
-                        <Button variant="outline" className="w-full mt-2">Change Password</Button>
+                        <div className="pt-4 space-y-2">
+                            <Button variant="outline" className="w-full">Change Password</Button>
+                            <Button
+                                variant="destructive"
+                                className="w-full"
+                                onClick={() => router.push('/')}
+                            >
+                                <LogOut className="mr-2 h-4 w-4" /> Sign Out
+                            </Button>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
