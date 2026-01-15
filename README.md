@@ -29,8 +29,31 @@ PolicyGuard AI is a forensic compliance engine designed to catch risky AI workfl
 git clone https://github.com/TharunvenkateshN/PolicyGuard-AI.git
 cd PolicyGuard-AI
 ```
+```
 
-### 2. Backend (The Brain)
+### 🐳 Run with Docker (Recommended)
+The easiest way to get started is using Docker Compose.
+
+1.  **Configure Environment**:
+    ```bash
+    cd backend
+    # Create .env from example (Windows Powershell)
+    copy .env.example .env
+    # OR Mac/Linux
+    cp .env.example .env
+    ```
+    *Edit `.env` and add your `GOOGLE_API_KEY`.*
+
+2.  **Launch**:
+    ```bash
+    cd ..
+    docker compose up --build
+    ```
+    Access the app at `http://localhost:3000`.
+
+### 🔧 Manual Setup (Alternative)
+
+#### Backend (The Brain)
 ```bash
 cd backend
 python -m venv venv
@@ -49,8 +72,9 @@ Run it:
 ```bash
 uvicorn main:app --reload
 ```
+```
 
-### 3. Frontend (The Dashboard)
+#### Frontend (The Dashboard)
 ```bash
 cd ../frontend
 npm install
