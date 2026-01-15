@@ -75,3 +75,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom Override for Floating Cards */
+@media (max-width: 1535px) {
+  .desktop-only-card {
+    display: none !important;
+  }
+}

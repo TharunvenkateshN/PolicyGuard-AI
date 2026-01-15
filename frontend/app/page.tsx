@@ -61,16 +61,16 @@ export default function LandingPage() {
 
                         <div className="flex flex-col sm:flex-row gap-4">
                             <Link href="/signup">
-                                <Button size="lg" className="h-14 px-8 text-lg rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20">
+                                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20">
                                     Start Free Audit <ArrowRight className="ml-2 w-5 h-5" />
                                 </Button>
                             </Link>
-                            <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-full border-2">
+                            <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 text-lg rounded-full border-2">
                                 <Play className="mr-2 w-5 h-5" /> Watch Demo
                             </Button>
                         </div>
 
-                        <div className="flex items-center gap-6 pt-4 text-sm text-gray-500 font-medium">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 pt-4 text-sm text-gray-500 font-medium">
                             <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> SOC2 Compliant</span>
                             <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> No Latency Impact</span>
                         </div>
@@ -81,7 +81,7 @@ export default function LandingPage() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
-                        className="relative lg:h-[600px] w-full"
+                        className="relative h-[500px] md:h-[600px] w-full mt-24 lg:mt-0"
                     >
                         <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-purple-500/10 rounded-3xl blur-3xl"></div>
 
@@ -128,7 +128,7 @@ export default function LandingPage() {
                         <motion.div
                             animate={{ y: [0, -10, 0] }}
                             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute -left-12 bottom-20 bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-zinc-800 flex items-center gap-4 max-w-xs z-20"
+                            className="hidden 2xl:flex desktop-only-card absolute -left-12 bottom-20 bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-zinc-800 items-center gap-4 max-w-xs z-20"
                         >
                             <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
                                 <Lock className="w-6 h-6 text-red-600 dark:text-red-400" />
@@ -141,7 +141,7 @@ export default function LandingPage() {
                         <motion.div
                             animate={{ y: [0, 10, 0] }}
                             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                            className="absolute -right-8 top-40 bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-zinc-800 flex items-center gap-4 max-w-xs z-20"
+                            className="hidden 2xl:flex desktop-only-card absolute -right-8 top-40 bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-zinc-800 items-center gap-4 max-w-xs z-20"
                         >
                             <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
                                 <Activity className="w-6 h-6 text-blue-600 dark:text-blue-400" />
