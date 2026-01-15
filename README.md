@@ -13,6 +13,7 @@ PolicyGuard AI is a forensic compliance engine designed to catch risky AI workfl
 *   **📜 Policy Manager**: Upload, manage, and version-control your organization's PDF/TXT guardrails.
 *   **📊 Risk Scorecard**: A visual dashboard showing Compliance Scores, Risk Classifications (Regulatory, Reputational, User Harm), and remediation steps.
 *   **🔒 Safe Deletion**: Robust management of policy documents with unique ID tracking.
+*   **📈 SLA Guard AI**: A predictive risk engine that forecasts operational breaches (Latency, Burn Rate) using real-time telemetry simulation and **Gemini** insights.
 
 ## 🛠 Tech Stack
 
