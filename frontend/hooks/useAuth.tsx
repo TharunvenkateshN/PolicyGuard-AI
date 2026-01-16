@@ -53,20 +53,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         router.push('/dashboard');
     };
 
+    const loginAsGuest = async () => {
+        // Mock User for Hackathon Test Mode
+        const mockUser: any = {
+            uid: 'guest_judge_1',
+            email: 'judge@hackathon.com',
+            displayName: 'Hackathon Judge',
+            emailVerified: true,
+            isAnonymous: true,
+        };
+        setUser(mockUser);
+        router.push('/dashboard');
+    };
+
     const signup = async (email: string, password: string, name: string) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        // Ideally update profile here with name
-        // await updateProfile(userCredential.user, { displayName: name });
         router.push('/dashboard');
     };
 
     const logout = async () => {
         await signOut(auth);
+        setUser(null); // Explicitly clear for guest mode
         router.push('/login');
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, signup, logout, isLoading }}>
+        <AuthContext.Provider value={{ user, login, signup, logout, isLoading, loginAsGuest }}>
             {children}
         </AuthContext.Provider>
     );

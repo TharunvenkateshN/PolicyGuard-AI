@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import { InfiniteMovingCards } from '@/components/ui/infinite-cards';
 import { Shield, CheckCircle2, Zap, Lock, ArrowRight, Play, Activity, Globe, Terminal, MessageSquare, Cpu } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function LandingPage() {
+    const { loginAsGuest } = useAuth() as any;
     return (
         <div className="min-h-screen bg-white dark:bg-zinc-950 text-slate-900 dark:text-slate-50 selection:bg-blue-500/30">
 
@@ -19,6 +21,13 @@ export default function LandingPage() {
                         <span>PolicyGuard AI</span>
                     </div>
                     <div className="flex items-center gap-4">
+                        <Button
+                            variant="outline"
+                            className="font-medium hidden sm:flex border-dashed border-2 text-blue-600 border-blue-200 hover:bg-blue-50"
+                            onClick={() => loginAsGuest()}
+                        >
+                            🧪 Test Mode
+                        </Button>
                         <Link href="/login">
                             <Button variant="ghost" className="font-medium">Sign In</Button>
                         </Link>

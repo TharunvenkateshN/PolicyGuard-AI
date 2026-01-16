@@ -5,6 +5,7 @@ import { MobileNav } from '@/components/layout/MobileNav';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { HackathonTour } from '@/components/onboarding/HackathonTour';
 
 export default function DashboardLayout({
     children,
@@ -24,6 +25,7 @@ export default function DashboardLayout({
 
     return (
         <div className="flex flex-col lg:flex-row bg-gray-50 dark:bg-zinc-950 h-screen overflow-hidden">
+            <HackathonTour />
             {/* Mobile Navigation */}
             <MobileNav />
 

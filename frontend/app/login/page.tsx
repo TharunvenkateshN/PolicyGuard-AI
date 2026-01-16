@@ -9,7 +9,7 @@ import { Shield, ArrowRight, Activity, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function LoginPage() {
-    const { login } = useAuth();
+    const { login, loginAsGuest } = useAuth() as any;
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -142,6 +142,26 @@ export default function LoginPage() {
                             )}
                         </Button>
                     </form>
+
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-gray-200 dark:border-zinc-800" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-white dark:bg-zinc-950 px-2 text-gray-500">Hackathon Judge?</span>
+                        </div>
+                    </div>
+
+                    <Button
+                        variant="outline"
+                        type="button"
+                        onClick={() => loginAsGuest()}
+                        className="w-full h-11 border-dashed border-2 text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all"
+                    >
+                        🧪 Enter Test Mode (No Login Required)
+                    </Button>
+
+
 
                     <p className="text-center text-sm text-gray-500">
                         Don't have an account? <a href="/signup" className="font-medium text-blue-600 hover:text-blue-500">Sign up</a>
