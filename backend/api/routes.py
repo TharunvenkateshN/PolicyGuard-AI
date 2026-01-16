@@ -334,3 +334,29 @@ async def chat_with_policy(request: ChatRequest):
         answer=answer,
         citations=list(set(citations))
     )
+
+from models.redteam import ThreatReport
+@router.post("/redteam/simulate", response_model=ThreatReport)
+async def simulate_red_team_attack(workflow: WorkflowDefinition):
+    print(f"Red Team Attack Simulation starting for: {workflow.name}")
+    try:
+        # 1. Call Gemini Red Team Persona
+        analysis_json = await gemini.generate_threat_model(workflow.description)
+        
+        # 2. Clean JSON
+        import re
+        match = re.search(r'(\{.*\}|\[.*\])', analysis_json, re.DOTALL)
+        if match:
+            clean_json = match.group(1)
+        else:
+            clean_json = analysis_json.strip()
+            
+        print(f"Red Team JSON: {clean_json[:100]}...")
+        
+        # 3. Parse & Return
+        result = json.loads(clean_json)
+        return ThreatReport(**result)
+        
+    except Exception as e:
+        print(f"Red Team Simulation Failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Simulation Failed: {str(e)}")

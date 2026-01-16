@@ -315,3 +315,55 @@ class GeminiService:
                 print(f"Error Message: {e.message}")
             return f"⚠️ **System Notification**: The AI service returned an error: {str(e)}. (Model: {self.model_name})"
 
+    async def generate_threat_model(self, workflow_context: str) -> str:
+        prompt = f"""
+        You are an elite "Red Team" security researcher specializing in GenAI vulnerabilities (OWASP Top 10 for LLM Applications).
+        
+        YOUR MISSION:
+        Analyze the provided AI SYSTEM SPECIFICATION and identify concrete ATTACK VECTORS that malicious actors could exploit.
+        You must think like an adversary (Black Hat Persona).
+        
+        INPUT SYSTEM SPECIFICATION:
+        {workflow_context}
+        
+        THREAT MODELING FRAMEWORK:
+        1. **Prompt Injection / Jailbreaking**: Can inputs manipulate the model behavior?
+        2. **Data Exfiltration**: Can the model be tricked into revealing training data or PII?
+        3. **Insecure Output Handling**: Do outputs execute code or XSS downstream?
+        4. **Denial of Wallet (DoS)**: Can expensive queries drain the budget?
+        
+        OUTPUT FORMAT (Strict JSON):
+        {{
+            "system_profile_analyzed": "Brief summary of the target",
+            "overall_resilience_score": 0-100, #(0=Vulnerable, 100=Fort Knox)
+            "critical_finding": "The single most dangerous vulnerability found.",
+            "attack_vectors": [
+                {{
+                    "name": "e.g. Indirect Prompt Injection",
+                    "category": "Prompt Injection",
+                    "method": "Attacker hides instructions in the 'resume' document text which the AI summarizes.",
+                    "likelihood": "High",
+                    "impact": "High",
+                    "severity_score": 85,
+                    "mitigation_suggestion": "Sandboxing and human-in-the-loop for document parsing."
+                }},
+                {{
+                     "name": "e.g. Model Theft via API",
+                     "category": "Intellectual Property",
+                     "method": "Extracting model weights via logits.",
+                     "likelihood": "Low",
+                     "impact": "Medium",
+                     "severity_score": 40,
+                     "mitigation_suggestion": "Rate limiting and API monitoring."
+                }}
+            ]
+        }}
+        """
+        
+        response = await self._generate_with_retry(
+            model=self.model_name,
+            contents=prompt,
+            config={'response_mime_type': 'application/json'}
+        )
+        return response.text
+
