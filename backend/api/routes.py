@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from models.policy import PolicyDocument, WorkflowDefinition, ComplianceReport
+from models.chat import ChatRequest, ChatResponse
 from models.settings import PolicySettings
 from services.ingest import PolicyIngestor
 from services.gemini import GeminiService
@@ -265,3 +266,40 @@ async def analyze_sla_metrics(metrics: SLAMetricsInput):
         print(f"SLA Analysis Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@router.post("/chat", response_model=ChatResponse)
+async def chat_with_policy(request: ChatRequest):
+    print(f"Chat Request: {request.message[:50]}...")
+    
+    # 1. Generate Context via RAG
+    query_vec = await gemini.create_embedding(request.message)
+    context_text = ""
+    citations = []
+    
+    if query_vec:
+        # Search relevant policies
+        # Use top_k=3 to keep context concise
+        relevant_items = policy_db.search_relevant_policies(query_vec, top_k=3)
+        relevant_chunks = [item['chunk_text'] for item in relevant_items]
+        
+        # Build Citations
+        for item in relevant_items:
+            citations.append(f"Policy Doc: {item.get('policy_id', 'Unknown')}")
+            
+        if relevant_chunks:
+            context_text = "\n\n".join(relevant_chunks)
+            print(f"Chat Context: Found {len(relevant_chunks)} chunks.")
+        else:
+            print("Chat Context: No relevant vector matches.")
+    
+    # 2. Get AI Response
+    answer = await gemini.chat_compliance(
+        query=request.message,
+        context=context_text,
+        history=request.history
+    )
+    
+    return ChatResponse(
+        answer=answer,
+        citations=list(set(citations))
+    )

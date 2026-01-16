@@ -255,3 +255,40 @@ class GeminiService:
         )
         return response.text
 
+    async def chat_compliance(self, query: str, context: str, history: list = []) -> str:
+        """
+        Answers a user question based on RAG context.
+        """
+        
+        # Format history for context (optional, but good for flow)
+        conversation_context = ""
+        if history:
+            conversation_context = "PREVIOUS CONVERSATION:\n" + "\n".join([f"{msg.role}: {msg.content}" for msg in history[-3:]]) + "\n\n"
+
+        prompt = f"""
+        You are "PolicyGuard AI Assistant", an expert Compliance Officer.
+        
+        YOUR GOAL:
+        Answer the user's question based strictly on the provided CORPORATE POLICY CONTEXT.
+        
+        RULES:
+        1. If the answer is found in the context, provide it clearly.
+        2. Cite the specific policy section or paragraph if possible.
+        3. If the answer is NOT in the context, politely state: "I cannot find specific information about that in the uploaded policies."
+        4. Be helpful, professional, and concise.
+        
+        --- RELEVANT POLICY EXCERPTS ---
+        {context}
+        
+        {conversation_context}
+        
+        USER QUESTION:
+        {query}
+        """
+        
+        response = await self._generate_with_retry(
+            model=self.model_name,
+            contents=prompt
+        )
+        return response.text
+
