@@ -9,3 +9,4 @@ httpx
 weaviate-client
 
 numpy
+fpdf2
