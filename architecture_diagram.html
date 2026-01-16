@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PolicyGuard AI Architecture</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .mermaid {
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+        }
+
+        .download-hint {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ffe0b2;
+            border-radius: 5px;
+            border: 1px solid #ffcc80;
+            color: #e65100;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>PolicyGuard AI - System Architecture</h1>
+    <div class="download-hint">
+        💡 <strong>To Download:</strong> Right-click the diagram below and select "Take Screenshot" (if available) or
+        Print this page to PDF (Ctrl+P / Cmd+P).
+    </div>
+
+    <div class="mermaid">
+        %%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '16px', 'fontFamily': 'arial', 'primaryColor':
+        '#e3f2fd', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#f3e5f5'}}}%%
+        graph TD
+        %% Styling
+        classDef frontend fill:#e1f5fe,stroke:#01579b,stroke-width:2px,rx:10,ry:10;
+        classDef backend fill:#fff3e0,stroke:#e65100,stroke-width:2px,rx:5,ry:5;
+        classDef database fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px,rx:5,ry:5;
+        classDef external fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,rx:5,ry:5;
+        classDef component fill:#ffffff,stroke:#666,stroke-width:1px,stroke-dasharray: 5 5;
+        classDef highlight fill:#fff9c4,stroke:#fbc02d,stroke-width:3px,font-weight:bold;
+
+        subgraph User_Client ["💻 User Client (Browser)"]
+        UI[Next.js Frontend]:::frontend
+
+        subgraph Dashboard_Modules ["Dashboard Modules"]
+        PM[Policy Manager]:::component
+        AE[Agent Evaluator]:::component
+        SLA[SLA Designer]:::component
+        MON[Risk Monitor]:::component
+        end
+
+        UI --> PM
+        UI --> AE
+        UI --> SLA
+        UI --> MON
+        end
+
+        subgraph Backend_Server ["⚙️ Backend API (FastAPI)"]
+        API[FastAPI Router]:::backend
+
+        subgraph Core_Services ["Core Services"]
+        ING[Policy Ingestor]:::component
+        GEM[Gemini Service]:::component
+        PRED[SLA Predictor]:::component
+        STORE[Policy Storage]:::component
+        end
+
+        API --> ING
+        API --> GEM
+        API --> PRED
+        API --> STORE
+        end
+
+        subgraph Data_Layer ["Data Persistence"]
+        FIREBASE[(Firebase Firestore)]:::database
+
+        subgraph Collections
+        C_POL[Policies]
+        C_EVAL[Evaluations]
+        C_SET[Settings]
+        end
+
+        FIREBASE --- C_POL
+        FIREBASE --- C_EVAL
+        FIREBASE --- C_SET
+        end
+
+        subgraph External_Cloud ["☁️ External Services"]
+        GOOGLE_GEM[(Google AI API)]:::external
+
+        subgraph Models
+        M_MAIN["Gemini 1.5 Pro<br />(Forensic Audits)"]
+        M_SLA["Gemini 3 Pro<br />(Preview Branding)<br /><i>Powered by 2.5 Flash</i>"]:::highlight
+        end
+
+        GOOGLE_GEM --- M_MAIN
+        GOOGLE_GEM --- M_SLA
+        end
+
+        %% Data Flow Connections
+        PM -- "Upload/Manage" --> API
+        AE -- "Submit Workflow" --> API
+        SLA -- "Simulate Metrics" --> API
+        MON -- "Fetch History" --> API
+
+        ING -- "Parses Text" --> GEM
+        GEM -- "Audit / Analysis" --> GOOGLE_GEM
+        PRED -- "Calculation Logic" --> GEM
+
+        STORE -- "Read/Write" --> FIREBASE
+    </div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</body>
+
+</html>
