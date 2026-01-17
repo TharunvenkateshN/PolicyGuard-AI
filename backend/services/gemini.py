@@ -45,7 +45,7 @@ class GeminiService:
                 print(f"Gemini API Attempt {attempt+1} failed: {e}")
                 if attempt == retries - 1:
                     raise e
-                await asyncio.sleep(1 * (attempt + 1)) # Backoff
+                await asyncio.sleep(4 * (attempt + 1)) # Backoff (Increased for 429s)
 
     async def analyze_policy_conflict(self, policy_text: str, workflow_desc: str, settings) -> str:
         # 1. Dynamic Persona

@@ -10,3 +10,4 @@ weaviate-client
 
 numpy
 fpdf2
+firebase-admin
