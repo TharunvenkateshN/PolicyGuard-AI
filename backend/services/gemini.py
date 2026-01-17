@@ -365,3 +365,43 @@ class GeminiService:
         )
         return response.text
 
+    async def analyze_workflow_document_text(self, text: str) -> str:
+        prompt = f"""
+        You are an expert System Architect.
+        
+        TASK:
+        Extract technical specifications from the following Product Requirements Document (PRD) or System Description.
+        Populate the fields exactly as requested.
+        
+        INPUT TEXT:
+        {text[:10000]}
+        
+        OUTPUT FORMAT (Strict JSON):
+        {{
+            "intent": {{
+                "purpose": "One sentence summary of what the AI does",
+                "users": "Who is the end user?"
+            }},
+            "data": {{
+                "types": "List specific data types (e.g. Health Records, Financial Data, PII)"
+            }},
+            "decision": {{
+                "output": "What is the final output? (e.g. Diagnosis, Loan Approval, Chat Response)"
+            }},
+            "safeguards": {{
+                "controls": "List ANY mentioned safeguards (e.g. Human Review, Encryption) or 'None'"
+            }},
+            "deployment": {{
+                "region": "e.g. US, EU, Global",
+                "scale": "e.g. Pilot, Internal, Public Launch"
+            }}
+        }}
+        """
+        
+        response = await self._generate_with_retry(
+            model=settings.GEMINI_MODEL,
+            contents=prompt,
+            config={'response_mime_type': 'application/json'}
+        )
+        return response.text
+

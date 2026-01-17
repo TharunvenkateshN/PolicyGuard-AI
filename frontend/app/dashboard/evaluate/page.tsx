@@ -166,34 +166,52 @@ export default function EvaluatePage() {
     const [isAutoGenerateOn, setIsAutoGenerateOn] = useState(false);
     const [isAnalyzingDoc, setIsAnalyzingDoc] = useState(false);
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         setIsAnalyzingDoc(true);
-        // Simulate AI Parsing
-        setTimeout(() => {
-            setWorkflowData({
-                intent: {
-                    purpose: 'Automated mortgage approval agent for retail banking',
-                    users: 'Public applicants seeking home loans'
-                },
-                data: {
-                    types: 'Credit scores, Income statements, Tax returns, PII (SSN, Address)'
-                },
-                decision: {
-                    output: 'Final loan approval/rejection decision without human review'
-                },
-                safeguards: {
-                    controls: 'None currently configured'
-                },
-                deployment: {
-                    region: 'Global (including EU/GDPR zones)',
-                    scale: 'Full public launch'
-                }
+
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const res = await fetch('http://localhost:8000/api/v1/analyze-workflow-doc', {
+                method: 'POST',
+                body: formData,
             });
+
+            if (res.ok) {
+                const data = await res.json();
+                setWorkflowData({
+                    intent: {
+                        purpose: data.intent?.purpose || '',
+                        users: data.intent?.users || ''
+                    },
+                    data: {
+                        types: data.data?.types || ''
+                    },
+                    decision: {
+                        output: data.decision?.output || ''
+                    },
+                    safeguards: {
+                        controls: data.safeguards?.controls || 'None detected'
+                    },
+                    deployment: {
+                        region: data.deployment?.region || '',
+                        scale: data.deployment?.scale || ''
+                    }
+                });
+            } else {
+                console.error("Analysis failed");
+                alert("Failed to analyze document. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error analyzing doc:", error);
+            alert("Error uploading document.");
+        } finally {
             setIsAnalyzingDoc(false);
-        }, 1500);
+        }
     };
 
     const handleExportPDF = () => {

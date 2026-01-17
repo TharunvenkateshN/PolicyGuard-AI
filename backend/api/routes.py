@@ -372,3 +372,35 @@ async def simulate_red_team_attack(workflow: WorkflowDefinition):
     except Exception as e:
         print(f"Red Team Simulation Failed: {e}")
         raise HTTPException(status_code=500, detail=f"Simulation Failed: {str(e)}")
+
+@router.post("/analyze-workflow-doc")
+async def analyze_workflow_doc(file: UploadFile = File(...)):
+    if not file.filename.endswith(('.txt', '.pdf', '.docx', '.md')):
+        raise HTTPException(status_code=400, detail="Invalid file type. Please upload .txt, .pdf, or .docx")
+    
+    content = await file.read()
+    # Simple text decoding for hackathon (Production would need pdf/docx parsing libs)
+    # Re-use the ingestor logic if possible, or just decode if text
+    try:
+        text_content = content.decode('utf-8', errors='ignore')
+    except:
+        text_content = str(content)
+        
+    # Call Gemini to extract fields
+    try:
+        json_str = await gemini.analyze_workflow_document_text(text_content)
+        
+        # Clean JSON
+        import re
+        match = re.search(r'(\{[\s\S]*\})', json_str)
+        if match:
+            clean_json = match.group(1)
+        else:
+            clean_json = json_str
+            
+        print(f"Workflow Analysis Result: {clean_json[:100]}...")
+        return json.loads(clean_json)
+        
+    except Exception as e:
+        print(f"Workflow Analysis Failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Analysis Failed: {str(e)}")
