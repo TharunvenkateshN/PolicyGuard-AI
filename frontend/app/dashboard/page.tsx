@@ -45,6 +45,14 @@ export default function OverviewPage() {
         compliance_trend: []
     });
 
+    const [selectedRisk, setSelectedRisk] = useState<{
+        title: string;
+        icon: string;
+        text: string;
+        subtext: string;
+        type: string;
+    } | null>(null);
+
     useEffect(() => {
         const fetchStats = async () => {
             try {
@@ -103,7 +111,7 @@ export default function OverviewPage() {
                         <p className="text-xs text-gray-500">Blocked high-risk deployments</p>
                     </CardContent>
                 </Card>
-                <Card className="shadow-sm">
+                <Card className="shadow-sm border-l-4 border-l-indigo-500">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Active Policies</CardTitle>
                         <FileText className="h-4 w-4 text-gray-500" />
@@ -128,7 +136,16 @@ export default function OverviewPage() {
             {/* Business Impact Signals (BizOps) */}
             {stats.top_business_risks && (
                 <div className="grid gap-4 md:grid-cols-3">
-                    <Card className="bg-gradient-to-br from-white to-red-50 dark:from-zinc-900 dark:to-red-950/20 shadow-sm border-l-4 border-l-orange-500">
+                    <Card
+                        className="bg-gradient-to-br from-white to-red-50 dark:from-zinc-900 dark:to-red-950/20 shadow-sm border-l-4 border-l-orange-500 cursor-pointer hover:opacity-90 transition-opacity"
+                        onClick={() => setSelectedRisk({
+                            title: "Financial Exposure",
+                            icon: "💰",
+                            text: stats.top_business_risks!.financial,
+                            subtext: stats.top_business_risks!.financial_cost,
+                            type: "Cost Estimate"
+                        })}
+                    >
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium flex items-center text-orange-700 dark:text-orange-400">
                                 <span className="mr-2">💰</span> Financial Exposure
@@ -138,32 +155,55 @@ export default function OverviewPage() {
                             <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.top_business_risks.financial}</div>
                             <p className="text-sm font-semibold text-red-600 mt-1">{stats.top_business_risks.financial_cost}</p>
                             <p className="text-xs text-gray-500 mt-1">Est. Remediation Cost</p>
+                            <button className="text-xs text-blue-600 dark:text-blue-400 underline mt-2">Read full report</button>
                         </CardContent>
                     </Card>
-                    <Card className="bg-gradient-to-br from-white to-blue-50 dark:from-zinc-900 dark:to-blue-950/20 shadow-sm border-l-4 border-l-blue-500">
+
+                    <Card
+                        className="bg-gradient-to-br from-white to-blue-50 dark:from-zinc-900 dark:to-blue-950/20 shadow-sm border-l-4 border-l-blue-500 cursor-pointer hover:opacity-90 transition-opacity"
+                        onClick={() => setSelectedRisk({
+                            title: "Regulatory Penalty",
+                            icon: "⚖️",
+                            text: stats.top_business_risks!.regulatory,
+                            subtext: "Legal Liability Analysis",
+                            type: "Compliance Impact"
+                        })}
+                    >
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium flex items-center text-blue-700 dark:text-blue-400">
                                 <span className="mr-2">⚖️</span> Regulatory Penalty
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-2 md:line-clamp-3">
+                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-3">
                                 {stats.top_business_risks.regulatory}
                             </div>
                             <p className="text-xs text-gray-500 mt-2">Legal Liability</p>
+                            <button className="text-xs text-blue-600 dark:text-blue-400 underline mt-2">Read full report</button>
                         </CardContent>
                     </Card>
-                    <Card className="bg-gradient-to-br from-white to-purple-50 dark:from-zinc-900 dark:to-purple-950/20 shadow-sm border-l-4 border-l-purple-500">
+
+                    <Card
+                        className="bg-gradient-to-br from-white to-purple-50 dark:from-zinc-900 dark:to-purple-950/20 shadow-sm border-l-4 border-l-purple-500 cursor-pointer hover:opacity-90 transition-opacity"
+                        onClick={() => setSelectedRisk({
+                            title: "Brand Reputation",
+                            icon: "📢",
+                            text: stats.top_business_risks!.brand,
+                            subtext: "Public Trust Impact Analysis",
+                            type: "Reputation Impact"
+                        })}
+                    >
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium flex items-center text-purple-700 dark:text-purple-400">
                                 <span className="mr-2">📢</span> Brand Reputation
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-2">
+                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-3">
                                 {stats.top_business_risks.brand}
                             </div>
                             <p className="text-xs text-gray-500 mt-2">Public Trust Impact</p>
+                            <button className="text-xs text-blue-600 dark:text-blue-400 underline mt-2">Read full report</button>
                         </CardContent>
                     </Card>
                 </div>
@@ -271,6 +311,49 @@ export default function OverviewPage() {
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Risk Detail Modal */}
+            {selectedRisk && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200" onClick={() => setSelectedRisk(null)}>
+                    <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-200 dark:border-zinc-800" onClick={e => e.stopPropagation()}>
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="text-3xl">{selectedRisk.icon}</div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{selectedRisk.title}</h3>
+                                        <p className="text-sm text-gray-500">{selectedRisk.type}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setSelectedRisk(null)}
+                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                >
+                                    <span className="sr-only">Close</span>
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div className="bg-gray-50 dark:bg-zinc-800/50 p-4 rounded-lg mb-6 max-h-[60vh] overflow-y-auto">
+                                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+                                    {selectedRisk.text}
+                                </p>
+                            </div>
+
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={() => setSelectedRisk(null)}
+                                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-gray-900 dark:text-gray-100 rounded-md text-sm font-medium transition-colors"
+                                >
+                                    Close Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
