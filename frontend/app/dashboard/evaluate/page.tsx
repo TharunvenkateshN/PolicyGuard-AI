@@ -227,9 +227,9 @@ export default function EvaluatePage() {
                         </Button>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                         {/* Left: Input */}
-                        <div className="lg:col-span-3 space-y-6">
+                        <div className="lg:col-span-4 space-y-6">
                             <div className="p-6 bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-sm">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-lg font-semibold">Workflow Specification</h3>

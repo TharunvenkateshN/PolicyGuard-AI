@@ -13,21 +13,15 @@ class GeminiService:
         self.client = genai.Client(api_key=settings.GOOGLE_API_KEY)
         self.model_name = settings.GEMINI_MODEL
 
-    async def _generate_with_retry(self, model, contents, config=None, retries=3):
-        """Helper to retry API calls on transient network errors"""
+    async def _generate_with_retry(self, model, contents, config=None, retries=5):
+        """Helper to retry API calls on transient network errors. 
+           Aggressive handling for 429 Resource Exhausted."""
+        
+        base_delay = 5 # Start wait time
+        
         for attempt in range(retries):
             try:
-                # Run the synchronous SDK call in a thread to avoid blocking the event loop
-                # The google.genai client might be sync or async depending on usage. 
-                # Assuming standard sync client usage here for safety in fastAPI with run_in_executor
-                # BUT the original code was 'await self.client...'. 
-                # Wait, 'genai.Client' from Google GenAI SDK v0.1+ usually has async methods or we wrap them.
-                # The previous code treated it as sync blocking call inside an async def?
-                # "response = self.client.models.generate_content(...)" isn't awaited in previous code!
-                # That is BLOCKING the event loop. This causes WinError 10053 if the heartbeat is missed.
-                # We MUST wrap this in run_in_executor or use the async client properly.
-                
-                # Let's wrap it to be safe.
+                # Wrap sync call in executor
                 import functools
                 loop = asyncio.get_running_loop()
                 
@@ -42,10 +36,23 @@ class GeminiService:
                 return response
                 
             except Exception as e:
-                print(f"Gemini API Attempt {attempt+1} failed: {e}")
+                error_str = str(e)
+                # Check for 429 / Resource Exhausted
+                is_rate_limit = "429" in error_str or "RESOURCE_EXHAUSTED" in error_str
+                
                 if attempt == retries - 1:
+                    print(f"Gemini API Final Failure after {retries} attempts: {e}")
                     raise e
-                await asyncio.sleep(4 * (attempt + 1)) # Backoff (Increased for 429s)
+                
+                if is_rate_limit:
+                    wait_time = base_delay * (2 ** attempt) # 5, 10, 20, 40, 80...
+                    # Add jitter? Maybe not needed for single user app.
+                    print(f"⚠️ Rate Limit Hit (429). Waiting {wait_time}s before retry {attempt+2}/{retries}...")
+                    await asyncio.sleep(wait_time)
+                else:
+                    # Generic error, shorter backoff
+                    print(f"Gemini API Error (Attempt {attempt+1}): {e}. Retrying in 2s...")
+                    await asyncio.sleep(2)
 
     async def analyze_policy_conflict(self, policy_text: str, workflow_desc: str, settings) -> str:
         # 1. Dynamic Persona

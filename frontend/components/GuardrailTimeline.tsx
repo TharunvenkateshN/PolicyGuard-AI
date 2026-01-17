@@ -36,7 +36,7 @@ export function GuardrailTimeline({ steps }: GuardrailTimelineProps) {
     };
 
     return (
-        <Card className="h-full">
+        <Card>
             <CardHeader>
                 <CardTitle className="text-xl flex items-center gap-2">
                     <Activity className="w-5 h-5" />
