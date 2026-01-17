@@ -5,7 +5,7 @@ import { GuardrailTimeline, StepStatus } from '@/components/GuardrailTimeline';
 import { ReadinessScorecard, ComplianceReport } from '@/components/ReadinessScorecard';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Play, FileText as FileIcon, ShieldCheck, CheckCircle, Activity } from 'lucide-react';
+import { Play, FileText as FileIcon, ShieldCheck, CheckCircle, Activity, Target as TargetIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,6 +14,9 @@ import { AlertTriangle, Lock, Terminal } from 'lucide-react';
 export default function EvaluatePage() {
     const [evaluationStatus, setEvaluationStatus] = useState<'idle' | 'running' | 'done'>('idle');
     const [activeTab, setActiveTab] = useState("compliance");
+
+    // UI State for Red Team
+    const [isThreatModalOpen, setIsThreatModalOpen] = useState(false);
 
     // ... (keep usage of timelineSteps)
 
@@ -486,84 +489,185 @@ export default function EvaluatePage() {
                 </TabsContent>
 
                 <TabsContent value="redteam">
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <div className="lg:col-span-2 space-y-6">
-                                <div className="p-6 bg-zinc-950 text-green-400 rounded-lg border border-zinc-800 font-mono shadow-2xl">
-                                    <div className="flex justify-between items-center mb-6 border-b border-zinc-800 pb-4">
-                                        <div className="flex items-center gap-2">
-                                            <Terminal className="w-5 h-5" />
-                                            <span className="font-bold tracking-wider">RED_TEAM_CONSOLE_V1.0</span>
+                    <div className="space-y-6 relative">
+                        {/* Custom Modal for Threat Profile */}
+                        <AnimatePresence>
+                            {isThreatModalOpen && redTeamReport && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                                    onClick={() => setIsThreatModalOpen(false)}
+                                >
+                                    <motion.div
+                                        initial={{ scale: 0.95, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        exit={{ scale: 0.95, opacity: 0 }}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="bg-zinc-950 border border-red-500/30 rounded-xl shadow-2xl max-w-2xl w-full overflow-hidden"
+                                    >
+                                        <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
+                                            <h3 className="font-bold text-xl text-red-400 flex items-center gap-2">
+                                                <AlertTriangle className="w-5 h-5" />
+                                                Threat Profile Analysis
+                                            </h3>
+                                            <button onClick={() => setIsThreatModalOpen(false)} className="text-zinc-500 hover:text-white transition-colors">
+                                                ✕
+                                            </button>
                                         </div>
-                                        {redTeamStatus === 'idle' && (
-                                            <Button onClick={handleRedTeamAttack} variant="destructive" size="sm" className="bg-red-600 hover:bg-red-700 text-white font-bold">
-                                                <Lock className="w-3 h-3 mr-2" /> INITIATE_ATTACK_SIM
-                                            </Button>
-                                        )}
-                                        {redTeamStatus === 'attacking' && (
-                                            <span className="animate-pulse text-red-500 font-bold">ATTACK_IN_PROGRESS...</span>
-                                        )}
+
+                                        <div className="p-8 space-y-8">
+                                            {/* Score */}
+                                            <div className="flex flex-col items-center">
+                                                <div className="relative w-40 h-40 flex items-center justify-center">
+                                                    <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+                                                        <circle className="text-zinc-800" strokeWidth="8" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" />
+                                                        <circle
+                                                            className={`${redTeamReport.overall_resilience_score < 50 ? 'text-red-500' : 'text-yellow-500'}`}
+                                                            strokeWidth="8"
+                                                            strokeDasharray={251.2}
+                                                            strokeDashoffset={251.2 - (251.2 * redTeamReport.overall_resilience_score) / 100}
+                                                            strokeLinecap="round"
+                                                            stroke="currentColor"
+                                                            fill="transparent"
+                                                            r="40"
+                                                            cx="50"
+                                                            cy="50"
+                                                        />
+                                                    </svg>
+                                                    <div className="text-center">
+                                                        <div className={`text-4xl font-bold ${redTeamReport.overall_resilience_score < 50 ? 'text-red-500' : 'text-yellow-500'}`}>
+                                                            {redTeamReport.overall_resilience_score}
+                                                        </div>
+                                                        <div className="text-xs text-zinc-500 uppercase tracking-widest mt-1">Resilience</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Details */}
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
+                                                    <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2">Vectors Detected</div>
+                                                    <div className="text-2xl font-mono text-white">{redTeamReport.attack_vectors.length}</div>
+                                                </div>
+                                                <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
+                                                    <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2">Target Status</div>
+                                                    <div className="text-2xl font-mono text-red-400">COMPROMISED</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-zinc-900/30 p-4 rounded-lg border border-zinc-800">
+                                                <h4 className="text-sm font-semibold text-zinc-300 mb-2">Target Analysis</h4>
+                                                <p className="text-sm text-zinc-400 leading-relaxed font-mono">
+                                                    {redTeamReport.system_profile_analyzed}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Full Width Console */}
+                        <div className="w-full">
+                            <div className="p-6 bg-zinc-950 text-green-400 rounded-xl border border-zinc-800 font-mono shadow-2xl relative overflow-hidden group">
+                                {/* Decor effects */}
+                                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-green-500/50 to-transparent opacity-50" />
+                                <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-green-500/20 to-transparent opacity-30" />
+
+                                <div className="flex justify-between items-center mb-6 border-b border-zinc-900 pb-4 relative z-10">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
+                                        <span className="font-bold tracking-widest text-lg text-zinc-300">RED_TEAM_CONSOLE<span className="text-zinc-600">_V2.0</span></span>
                                     </div>
 
-                                    <div className="space-y-4 min-h-[400px]">
-                                        {!redTeamReport && redTeamStatus === 'idle' && (
-                                            <div className="text-zinc-500 italic">
-                                                {">"} Awaiting target specification...<br />
-                                                {">"} Ready to launch adversarial probes.<br />
-                                                {">"} Click command button to start.
-                                            </div>
+                                    <div className="flex items-center gap-4">
+                                        {redTeamStatus === 'idle' && (
+                                            <Button onClick={handleRedTeamAttack} className="bg-red-600 hover:bg-red-700 text-white font-bold border-0 shadow-[0_0_20px_rgba(220,38,38,0.5)] transition-all hover:scale-105">
+                                                <Lock className="w-4 h-4 mr-2" /> INITIATE_ATTACK
+                                            </Button>
                                         )}
+                                        {redTeamStatus === 'done' && (
+                                            <Button
+                                                onClick={() => setIsThreatModalOpen(true)}
+                                                variant="outline"
+                                                className="border-red-500/50 text-red-400 hover:bg-red-950 hover:text-red-300"
+                                            >
+                                                <Activity className="w-4 h-4 mr-2" /> THREAT_PROFILE
+                                            </Button>
+                                        )}
+                                    </div>
+                                </div>
 
-                                        {redTeamReport && (
-                                            <div className="space-y-6 animate-in fade-in duration-500">
-                                                <div className="border border-red-900/50 bg-red-900/10 p-4 rounded text-red-300">
-                                                    <h4 className="font-bold mb-2">CRITICAL_FINDING:</h4>
-                                                    <p>{redTeamReport.critical_finding}</p>
+                                <div className="min-h-[600px] font-mono text-sm relative z-10">
+                                    {/* Scanlines */}
+                                    <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-0 bg-[length:100%_2px,3px_100%] opacity-20" />
+
+                                    {!redTeamReport && redTeamStatus === 'idle' && (
+                                        <div className="flex flex-col items-center justify-center h-[500px] text-zinc-600 space-y-4">
+                                            <TargetIcon className="w-24 h-24 opacity-20 animate-pulse" />
+                                            <div className="text-center">
+                                                <p className="typing-effect">AWAITING_TARGET_DESIGNATION...</p>
+                                                <p className="text-xs mt-2">Ready to deploy adversarial agents.</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {redTeamStatus === 'attacking' && (
+                                        <div className="p-8 space-y-2">
+                                            <p className="text-green-500">{">"} Initializing attack vectors...</p>
+                                            <p className="text-green-500/80">{">"} Probing endpoint vulnerabilities...</p>
+                                            <p className="text-green-500/60">{">"} Attempting prompt injection...</p>
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: "100%" }}
+                                                transition={{ duration: 2 }}
+                                                className="h-1 bg-green-500 mt-4"
+                                            />
+                                        </div>
+                                    )}
+
+                                    {redTeamReport && (
+                                        <div className="space-y-4 animate-in fade-in duration-500 p-4">
+                                            <div className="flex items-center gap-2 text-red-400 mb-6">
+                                                <span className="animate-ping w-2 h-2 bg-red-500 rounded-full inline-block" />
+                                                <span>ATTACK_COMPLETE :: {redTeamReport.attack_vectors.length} VECTORS EXPLOITED</span>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 gap-4">
+                                                <div className="border-l-4 border-red-500 bg-red-500/5 p-4 pl-6">
+                                                    <h4 className="font-bold text-red-400 mb-2 text-xs uppercase tracking-widest">Critical Finding</h4>
+                                                    <p className="text-zinc-300 text-lg md:text-xl font-light">{redTeamReport.critical_finding}</p>
                                                 </div>
 
-                                                <div className="space-y-4">
+                                                <div className="space-y-3 mt-4">
                                                     {redTeamReport.attack_vectors.map((attack: any, i: number) => (
-                                                        <div key={i} className="border border-zinc-800 p-3 rounded hover:bg-zinc-900/50 transition-colors">
-                                                            <div className="flex justify-between items-start mb-2">
-                                                                <span className="font-bold text-yellow-400">[{attack.category.toUpperCase()}]</span>
-                                                                <span className="text-red-500 text-xs border border-red-900 px-2 py-0.5 rounded">SEV: {attack.severity_score}</span>
+                                                        <div key={i} className="group border border-zinc-800 bg-zinc-900/30 p-4 rounded hover:border-green-500/30 hover:bg-zinc-900/80 transition-all duration-300">
+                                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
+                                                                <span className="font-bold text-green-400 flex items-center gap-2">
+                                                                    <span className="text-zinc-600">[{i.toString().padStart(2, '0')}]</span>
+                                                                    {attack.name}
+                                                                </span>
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-xs px-2 py-1 rounded bg-zinc-900 border border-zinc-700 text-zinc-400">{attack.category}</span>
+                                                                    <span className={`text-xs px-2 py-1 rounded border font-bold ${attack.severity_score > 80 ? 'border-red-900 text-red-500 bg-red-950/30' : 'border-yellow-900 text-yellow-500 bg-yellow-950/30'
+                                                                        }`}>
+                                                                        SEV: {attack.severity_score}
+                                                                    </span>
+                                                                </div>
                                                             </div>
-                                                            <p className="font-semibold mb-1">{attack.name}</p>
-                                                            <p className="text-sm text-zinc-400 mb-2">{">"} Method: {attack.method}</p>
-                                                            <div className="text-xs text-blue-400 mt-2 bg-blue-900/10 p-2 rounded">
-                                                                MITIGATION: {attack.mitigation_suggestion}
+                                                            <div className="pl-0 md:pl-8 space-y-2">
+                                                                <p className="text-sm text-zinc-400"><span className="text-zinc-600">{">"} Method:</span> {attack.method}</p>
+                                                                <div className="text-xs text-blue-400/80 mt-2 flex items-start gap-2">
+                                                                    <ShieldCheck className="w-4 h-4 shrink-0" />
+                                                                    <span>MITIGATION: {attack.mitigation_suggestion}</span>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     ))}
                                                 </div>
                                             </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="lg:col-span-1">
-                                <div className="p-6 bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800">
-                                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                                        <AlertTriangle className="w-5 h-5 text-yellow-500" />
-                                        Threat Profile
-                                    </h3>
-                                    {redTeamReport ? (
-                                        <div className="space-y-4">
-                                            <div className="text-center p-6 bg-gray-50 dark:bg-zinc-950 rounded-lg">
-                                                <div className="text-sm text-gray-500 mb-1">Resilience Score</div>
-                                                <div className={`text-4xl font-bold ${redTeamReport.overall_resilience_score < 50 ? 'text-red-500' : 'text-yellow-500'}`}>
-                                                    {redTeamReport.overall_resilience_score}/100
-                                                </div>
-                                            </div>
-                                            <div className="text-sm space-y-2">
-                                                <p className="text-sm leading-relaxed"><span className="font-semibold block mb-1">Target Analysis:</span> {(redTeamReport.system_profile_analyzed || "")}</p>
-                                                <p><span className="font-semibold">Vectors Found:</span> {redTeamReport.attack_vectors.length}</p>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="text-center text-gray-500 py-10">
-                                            No data available.
                                         </div>
                                     )}
                                 </div>
