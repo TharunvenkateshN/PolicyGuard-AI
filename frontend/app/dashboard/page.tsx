@@ -254,9 +254,9 @@ export default function OverviewPage() {
             </div>
 
             {/* Bottom Row: Recent & Distribution */}
-            <div className="grid gap-4 md:grid-cols-7">
+            <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
                 {/* Recent Activity */}
-                <Card className="col-span-4 lg:col-span-5 shadow-sm">
+                <Card className="col-span-1 lg:col-span-5 shadow-sm border-0 ring-1 ring-gray-200 dark:ring-zinc-800">
                     <CardHeader>
                         <CardTitle>Recent Evaluations</CardTitle>
                         <CardDescription>Latest audit logs from the AI Gatekeeper</CardDescription>
@@ -288,7 +288,7 @@ export default function OverviewPage() {
                 </Card>
 
                 {/* Risk Distribution Chart (3 cols) */}
-                <Card className="col-span-3 lg:col-span-2 shadow-sm">
+                <Card className="col-span-1 lg:col-span-2 shadow-sm border-0 ring-1 ring-gray-200 dark:ring-zinc-800">
                     <CardHeader>
                         <CardTitle className="flex items-center">
                             <AlertTriangle className="mr-2 h-5 w-5 text-orange-500" />
@@ -296,8 +296,8 @@ export default function OverviewPage() {
                         </CardTitle>
                         <CardDescription>Breakdown of detected issues</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <div className="h-[300px] w-full flex items-center justify-center">
+                    <CardContent className="flex flex-col items-center justify-center">
+                        <div className="h-[250px] w-full relative">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
@@ -305,56 +305,46 @@ export default function OverviewPage() {
                                         cx="50%"
                                         cy="50%"
                                         innerRadius={60}
-                                        outerRadius={80}
+                                        outerRadius={85}
                                         paddingAngle={5}
                                         dataKey="value"
+                                        stroke="none"
+                                        cornerRadius={5}
                                     >
-                                        {stats.risk_distribution?.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
+                                        {/* Use specific colors: High (Red), Medium (Orange), Low (Green/Blue) */}
+                                        {stats.risk_distribution?.map((entry, index) => {
+                                            let color = '#3b82f6'; // Default Blue
+                                            if (entry.name === 'High') color = '#ef4444'; // Red
+                                            if (entry.name === 'Medium') color = '#f97316'; // Orange
+                                            if (entry.name === 'Low') color = '#22c55e'; // Green
+                                            return <Cell key={`cell-${index}`} fill={color} />;
+                                        })}
                                     </Pie>
                                     <Tooltip
-                                        contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                                        contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                                        itemStyle={{ fontSize: '12px', fontWeight: 'bold', color: '#374151' }}
                                     />
-                                    <Legend verticalAlign="bottom" height={36} />
+                                    <Legend
+                                        verticalAlign="bottom"
+                                        height={36}
+                                        iconType="circle"
+                                        formatter={(value, entry: any) => <span className="text-xs font-medium text-gray-600 ml-1">{value}</span>}
+                                    />
                                 </PieChart>
                             </ResponsiveContainer>
+                            {/* Center Text Overlay */}
+                            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-8">
+                                <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                                    {stats.risk_distribution?.reduce((a, b) => a + b.value, 0) || 0}
+                                </span>
+                                <span className="text-xs text-gray-500 uppercase tracking-wider">Risks</span>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
             </div>
 
-            {/* Recent Activity */}
-            <Card className="col-span-4 shadow-sm">
-                <CardHeader>
-                    <CardTitle>Recent Evaluations</CardTitle>
-                    <CardDescription>Latest audit logs from the AI Gatekeeper</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-4">
-                        {stats.recent_evaluations.length === 0 ? (
-                            <div className="text-center py-8 text-gray-500 bg-gray-50 dark:bg-zinc-900 rounded-lg border border-dashed border-gray-200">
-                                No evaluations yet. Run an audit to populate this feed.
-                            </div>
-                        ) : (
-                            stats.recent_evaluations.map((item, i) => (
-                                <div key={i} className="flex items-center justify-between p-4 bg-white border border-gray-100 dark:bg-zinc-900 dark:border-zinc-800 rounded-lg hover:shadow-md transition-shadow">
-                                    <div className="flex items-center">
-                                        <div className={`h-2 w-2 rounded-full mr-3 ${item.verdict === 'PASS' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                                        <div>
-                                            <p className="font-medium text-gray-900 dark:text-gray-100">{item.workflow_name}</p>
-                                            <p className="text-xs text-gray-500">{getRelativeTime(item.timestamp)}</p>
-                                        </div>
-                                    </div>
-                                    <div className={`px-3 py-1 rounded-full text-xs font-bold ${item.verdict === 'PASS' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                        {item.verdict}
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
+
 
             {/* Risk Detail Modal */}
             {selectedRisk && (
