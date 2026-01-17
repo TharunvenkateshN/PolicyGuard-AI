@@ -21,7 +21,31 @@ export default function ProfilePage() {
     const router = useRouter();
     const { profile, updateProfile } = useUser();
 
+    // Local state for "Edit -> Save" flow
+    const [formData, setFormData] = React.useState(profile);
+    const [isSaving, setIsSaving] = React.useState(false);
+    const [lastSaved, setLastSaved] = React.useState<Date | null>(null);
 
+    // Sync local state if profile changes externally (mostly on first load)
+    React.useEffect(() => {
+        setFormData(profile);
+    }, [profile]);
+
+    const handleSave = async () => {
+        setIsSaving(true);
+
+        // Simulate network delay for "Real" feel
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        // Persist
+        updateProfile(formData);
+        setLastSaved(new Date());
+        setIsSaving(false);
+    };
+
+    const handleChange = (field: string, value: any) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
 
     return (
         <div className="space-y-6 pb-20">
@@ -31,6 +55,26 @@ export default function ProfilePage() {
                     <p className="text-muted-foreground">
                         Manage your personal details, role, and security settings.
                     </p>
+                </div>
+                <div className="flex items-center gap-4">
+                    {lastSaved && (
+                        <span className="text-xs text-green-600 animate-in fade-in slide-in-from-right-4">
+                            Details saved successfully!
+                        </span>
+                    )}
+                    <Button
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className={isSaving ? "w-32" : "w-32"}
+                    >
+                        {isSaving ? (
+                            <>
+                                <span className="animate-spin mr-2">⟳</span> Saving...
+                            </>
+                        ) : (
+                            "Save Changes"
+                        )}
+                    </Button>
                 </div>
             </div>
 
@@ -44,22 +88,22 @@ export default function ProfilePage() {
                         <div className="space-y-2">
                             <Label>Full Name</Label>
                             <Input
-                                value={profile.name}
-                                onChange={(e) => updateProfile({ name: e.target.value })}
+                                value={formData.name}
+                                onChange={(e) => handleChange('name', e.target.value)}
                             />
                         </div>
                         <div className="space-y-2">
                             <Label>Job Title</Label>
                             <Input
-                                value={profile.jobTitle}
-                                onChange={(e) => updateProfile({ jobTitle: e.target.value })}
+                                value={formData.jobTitle}
+                                onChange={(e) => handleChange('jobTitle', e.target.value)}
                             />
                         </div>
                         <div className="space-y-2">
                             <Label>Team</Label>
                             <Input
-                                value={profile.team}
-                                onChange={(e) => updateProfile({ team: e.target.value })}
+                                value={formData.team}
+                                onChange={(e) => handleChange('team', e.target.value)}
                             />
                         </div>
                     </CardContent>
@@ -74,15 +118,15 @@ export default function ProfilePage() {
                         <div className="space-y-2">
                             <Label>Organization</Label>
                             <Input
-                                value={profile.organization}
-                                onChange={(e) => updateProfile({ organization: e.target.value })}
+                                value={formData.organization}
+                                onChange={(e) => handleChange('organization', e.target.value)}
                             />
                         </div>
                         <div className="space-y-2">
                             <Label>System Role</Label>
                             <Select
-                                value={profile.systemRole}
-                                onValueChange={(val: any) => updateProfile({ systemRole: val })}
+                                value={formData.systemRole}
+                                onValueChange={(val: any) => handleChange('systemRole', val)}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select role" />
@@ -98,8 +142,8 @@ export default function ProfilePage() {
                         <div className="space-y-2">
                             <Label>Region</Label>
                             <Select
-                                value={profile.region}
-                                onValueChange={(val) => updateProfile({ region: val })}
+                                value={formData.region}
+                                onValueChange={(val) => handleChange('region', val)}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select region" />
@@ -124,19 +168,12 @@ export default function ProfilePage() {
                         <div className="flex items-center justify-between">
                             <div className="space-y-0.5">
                                 <Label>2FA Authentication</Label>
-                                <p className="text-xs text-muted-foreground">Require code on login</p>
+                                <p className="text-xs text-muted-foreground">Require code on login (Mock)</p>
                             </div>
                             <Switch checked={true} disabled />
                         </div>
-                        <div className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                                <Label>Session Timeout</Label>
-                                <p className="text-xs text-muted-foreground">Auto-logout after 30m</p>
-                            </div>
-                            <Switch checked={true} />
-                        </div>
-                        <div className="pt-4 space-y-2">
 
+                        <div className="pt-4 space-y-2">
                             <Button
                                 variant="destructive"
                                 className="w-full"
