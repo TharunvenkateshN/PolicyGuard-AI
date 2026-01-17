@@ -8,14 +8,15 @@ class Settings(BaseModel):
     
     # AI Config
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
-    GEMINI_MODEL: str = "gemini-2.5-flash" # High rate limit model
+    GEMINI_MODEL: str = "gemini-2.5-flash-lite" # Updated for higher 10 RPM limit
+    EMBEDDING_MODEL: str = "text-embedding-004"
     
     # DB Config
     DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/policyguard")
     WEAVIATE_URL: str = os.getenv("WEAVIATE_URL", "http://localhost:8080")
     
     # SLA Config
-    SLA_MODEL: str = "gemini-2.5-flash" # High rate limit model
+    SLA_MODEL: str = "gemini-2.5-flash-lite" # High rate limit model
     
     # Firestore Config
     FIREBASE_CREDENTIALS: str = "serviceAccountKey.json"

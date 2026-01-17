@@ -71,6 +71,7 @@ class PDFGenerator:
 
         # --- Business Impact ---
         if biz:
+            pdf.ln(5) # Add spacing
             pdf.set_font("Arial", "B", 14)
             pdf.cell(0, 10, clean_text("Business Impact Analysis"), 0, 1)
             pdf.set_font("Arial", "", 10)
@@ -82,27 +83,54 @@ class PDFGenerator:
                 if "medium" in t or "moderate" in t: return "Medium"
                 if "low" in t: return "Low"
                 return "Info"
-
-            data = [
+            
+            # Prepare data
+            table_data = [
+                ("Category", "Level", "Details"), # Header
                 ("Financial Exposure", biz.get("financial_exposure", "-"), biz.get("estimated_cost", "-")),
-                ("Regulatory Penalty", get_level(biz.get("regulatory_penalty", "")), str(biz.get("regulatory_penalty", "-"))[:100]),
-                ("Brand Reputation", get_level(biz.get("brand_reputation", "")), str(biz.get("brand_reputation", "-"))[:100]),
+                ("Regulatory Penalty", get_level(biz.get("regulatory_penalty", "")), str(biz.get("regulatory_penalty", "-"))),
+                ("Brand Reputation", get_level(biz.get("brand_reputation", "")), str(biz.get("brand_reputation", "-"))),
             ]
             
-            # Table: 50+30+110 = 190
-            pdf.set_font("Arial", "B", 10)
-            pdf.cell(50, 8, clean_text("Category"), 1)
-            pdf.cell(30, 8, clean_text("Level"), 1)
-            pdf.cell(0, 8, clean_text("Details"), 1) # Use remaining width
-            pdf.ln()
-            
-            pdf.set_font("Arial", "", 10)
-            for row in data:
-                pdf.cell(50, 8, clean_text(row[0]), 1)
-                pdf.cell(30, 8, clean_text(row[1]), 1)
-                pdf.cell(0, 8, clean_text(row[2]), 1)
+            # Use fpdf2 table for automatic wrapping
+            try:
+                with pdf.table() as table:
+                    for i, data_row in enumerate(table_data):
+                        row = table.row()
+                        # Style Header
+                        if i == 0:
+                            pdf.set_font("Arial", "B", 10)
+                        else:
+                            pdf.set_font("Arial", "", 10)
+                            
+                        # Add cells
+                        row.cell(clean_text(data_row[0]))
+                        row.cell(clean_text(data_row[1]))
+                        row.cell(clean_text(data_row[2]))
+            except AttributeError:
+                # Fallback for older fpdf2 without table()
+                pdf.set_font("Arial", "B", 10)
+                pdf.cell(50, 8, clean_text("Category"), 1)
+                pdf.cell(30, 8, clean_text("Level"), 1)
+                pdf.cell(0, 8, clean_text("Details"), 1)
                 pdf.ln()
+                pdf.set_font("Arial", "", 10)
+                for row in table_data[1:]:
+                     # Basic truncation fallback
+                    pdf.cell(50, 8, clean_text(row[0]), 1)
+                    pdf.cell(30, 8, clean_text(row[1]), 1)
+                    pdf.cell(0, 8, clean_text(row[2])[:60] + "...", 1) # Force truncation to avoid overflow
+                    pdf.ln()
+
             pdf.ln(10)
+
+        # Helper to clean JSON syntax from snippets
+        def clean_json_snippet(text):
+            t = clean_text(text)
+            # Remove braces, brackets, quotes
+            for char in ['{', '}', '[', ']', '"', "'"]:
+                t = t.replace(char, '')
+            return t
 
         # --- Policy Violations ---
         pdf.set_font("Arial", "B", 14)
@@ -125,12 +153,12 @@ class PDFGenerator:
                 
                 pdf.set_font("Arial", "", 9)
                 desc = clean_text(item.get('issue_description', ''))
-                pdf.set_x(10) # FORCE RESET X
+                pdf.set_x(10)
                 pdf.multi_cell(190, 6, f"Issue: {desc}")
                 
                 pdf.set_font("Courier", "", 8)
-                snip = clean_text(item.get('snippet', ''))
-                pdf.set_x(10) # FORCE RESET X
+                snip = clean_json_snippet(item.get('snippet', ''))
+                pdf.set_x(10)
                 pdf.multi_cell(190, 6, f"Snippet: \"{snip}\"")
                 pdf.ln(3)
 
