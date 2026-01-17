@@ -85,23 +85,40 @@ class PDFGenerator:
             pdf.ln(10)
 
         # --- Policy Violations ---
+        # Helper to clean text for PDF (latin-1 only for core fonts)
+        def clean_text(text):
+            if not isinstance(text, str): return str(text)
+            # Encode to latin-1, ignoring errors (strips emojis/unsupported chars), then decode back
+            return text.encode('latin-1', 'ignore').decode('latin-1')
+
+        # --- Policy Violations ---
         pdf.set_font("Arial", "B", 14)
-        pdf.cell(0, 10, "Key Policy Violations", 0, 1)
+        pdf.cell(0, 10, clean_text("Key Policy Violations"), 0, 1)
         
         evidence = report.get("evidence", [])
         if not evidence:
             pdf.set_font("Arial", "I", 10)
-            pdf.cell(0, 10, "No major violations detected.", 0, 1)
+            pdf.cell(0, 10, clean_text("No major violations detected."), 0, 1)
         else:
             for item in evidence:
                 pdf.set_font("Arial", "B", 10)
-                pdf.cell(0, 8, f"{item.get('severity', 'WARN')} - {item.get('policy_section', 'General')}", 0, 1)
+                sev = clean_text(item.get('severity', 'WARN'))
+                sect = clean_text(item.get('policy_section', 'General'))
+                pdf.cell(0, 8, f"{sev} - {sect}", 0, 1)
                 
                 pdf.set_font("Arial", "", 9)
-                pdf.multi_cell(0, 6, f"Issue: {item.get('issue_description', '')}")
+                desc = clean_text(item.get('issue_description', ''))
+                pdf.multi_cell(0, 6, f"Issue: {desc}")
+                
                 pdf.set_font("Courier", "", 8)
-                pdf.multi_cell(0, 6, f"Snippet: \"{item.get('snippet', '')}\"")
+                snip = clean_text(item.get('snippet', ''))
+                pdf.multi_cell(0, 6, f"Snippet: \"{snip}\"")
                 pdf.ln(3)
 
         # Output
-        return bytes(pdf.output())
+        # fpdf2 `output()` returns bytes if no dest provided, or use `output(dest='S')`
+        try:
+            return pdf.output()
+        except TypeError: # Older versions might need dest='S'.encode('latin-1') logic manually
+            # Fallback for some versions
+            return getattr(pdf, 'output')(dest='S').encode('latin-1')

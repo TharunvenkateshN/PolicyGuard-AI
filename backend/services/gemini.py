@@ -332,7 +332,7 @@ class GeminiService:
         3. **Insecure Output Handling**: Do outputs execute code or XSS downstream?
         4. **Denial of Wallet (DoS)**: Can expensive queries drain the budget?
         
-        OUTPUT FORMAT (Strict JSON):
+        OUTPUT FORMAT (Strict JSON, NO MARKDOWN, NO ```json FENCES):
         {{
             "system_profile_analyzed": "Brief summary of the target",
             "overall_resilience_score": 0-100, #(0=Vulnerable, 100=Fort Knox)
@@ -346,22 +346,13 @@ class GeminiService:
                     "impact": "High",
                     "severity_score": 85,
                     "mitigation_suggestion": "Sandboxing and human-in-the-loop for document parsing."
-                }},
-                {{
-                     "name": "e.g. Model Theft via API",
-                     "category": "Intellectual Property",
-                     "method": "Extracting model weights via logits.",
-                     "likelihood": "Low",
-                     "impact": "Medium",
-                     "severity_score": 40,
-                     "mitigation_suggestion": "Rate limiting and API monitoring."
                 }}
             ]
         }}
         """
         
         response = await self._generate_with_retry(
-            model=self.model_name,
+            model=settings.GEMINI_MODEL, # Use the main reasoning model
             contents=prompt,
             config={'response_mime_type': 'application/json'}
         )

@@ -344,10 +344,15 @@ async def simulate_red_team_attack(workflow: WorkflowDefinition):
         analysis_json = await gemini.generate_threat_model(workflow.description)
         
         # 2. Clean JSON
+        # 2. Clean JSON
         import re
-        match = re.search(r'(\{.*\}|\[.*\])', analysis_json, re.DOTALL)
+        # Try to find the first valid JSON block.
+        # This regex looks for { ... } ensuring it starts at a root level potentially
+        match = re.search(r'(\{[\s\S]*\})', analysis_json)
         if match:
             clean_json = match.group(1)
+            # Remove any trailing markdown fences inside the capture if strict regex missed it
+            clean_json = clean_json.replace("```json", "").replace("```", "")
         else:
             clean_json = analysis_json.strip()
             
