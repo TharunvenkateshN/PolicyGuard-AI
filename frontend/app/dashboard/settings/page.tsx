@@ -1,13 +1,11 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { useUser, UserProfileEnhanced } from '@/context/UserContext';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useUser } from '@/context/UserContext';
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import {
@@ -17,8 +15,24 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { Shield, Search, Bell, Lock, Activity, Users, Globe, Scale, AlertTriangle, FileText, Bot } from 'lucide-react'
+import {
+    Shield,
+    Bell,
+    Lock,
+    Activity,
+    Globe,
+    Scale,
+    FileText,
+    Bot,
+    LayoutDashboard,
+    Network,
+    CheckCircle2,
+    AlertTriangle,
+    Zap,
+    ChevronRight
+} from 'lucide-react'
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 // --- Types for Local Settings ---
 interface PolicySettings {
@@ -30,11 +44,11 @@ interface PolicySettings {
         compliance: boolean;
     };
     region: string;
-    sensitivity: string; // 'Conservative', 'Balanced', 'Aggressive'
-    riskThreshold: string; // 'Block Any', 'Warn Medium', 'Allow Low'
-    minConfidence: number; // 0-100
-    strictness: number; // 0-100
-    guardrailAction: string; // 'Block', 'Approve', 'Suggest', 'Log'
+    sensitivity: string;
+    riskThreshold: string;
+    minConfidence: number;
+    strictness: number;
+    guardrailAction: string;
     guardrailExplain: boolean;
     guardrailCite: boolean;
     sources: {
@@ -54,11 +68,11 @@ interface PolicySettings {
             blocked: boolean;
         }
     };
-    auditLevel: string; // 'Summary', 'Detailed', 'Full'
-    auditRetention: string; // '30', '90', '180'
+    auditLevel: string;
+    auditRetention: string;
     aiReasoning: boolean;
     aiConflict: boolean;
-    deploymentMode: string; // 'Sandbox', 'Staging', 'Production'
+    deploymentMode: string;
 }
 
 const defaultSettings: PolicySettings = {
@@ -101,13 +115,22 @@ const defaultSettings: PolicySettings = {
     deploymentMode: 'Staging'
 };
 
+const sections = [
+    { id: 'general', label: 'General', icon: LayoutDashboard },
+    { id: 'risk', label: 'Risk Engine', icon: Shield },
+    { id: 'guardrails', label: 'Guardrails', icon: Lock },
+    { id: 'integrations', label: 'Integrations', icon: Network },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'audit', label: 'Audit', icon: FileText },
+    { id: 'ai', label: 'AI Model', icon: Bot },
+];
+
 export default function SettingsPage() {
-    const { profile, updateProfile } = useUser();
+    const { profile } = useUser();
     const [settings, setSettings] = useState<PolicySettings>(defaultSettings);
     const [isSaving, setIsSaving] = useState(false);
+    const [activeSection, setActiveSection] = useState('general');
 
-    // Load settings from localStorage
-    // Load settings from API
     useEffect(() => {
         const fetchSettings = async () => {
             try {
@@ -123,7 +146,6 @@ export default function SettingsPage() {
         fetchSettings();
     }, []);
 
-    // Save handler
     const handleSave = async () => {
         setIsSaving(true);
         try {
@@ -133,16 +155,13 @@ export default function SettingsPage() {
                 body: JSON.stringify(settings),
             });
             if (!res.ok) throw new Error("Failed to save");
-            // Optional: Toast success
         } catch (error) {
             console.error("Save failed:", error);
-            alert("Failed to save settings");
         } finally {
             setIsSaving(false);
         }
     };
 
-    // Helper for updating nested settings
     const updateSetting = (section: keyof PolicySettings, key: string, value: any) => {
         setSettings(prev => ({
             ...prev,
@@ -153,7 +172,6 @@ export default function SettingsPage() {
         }));
     };
 
-    // Helper for direct property update
     const updateDirect = (key: keyof PolicySettings, value: any) => {
         setSettings(prev => ({
             ...prev,
@@ -164,7 +182,7 @@ export default function SettingsPage() {
     const handleSimulation = async () => {
         const btn = document.getElementById('sim-btn') as HTMLButtonElement;
         if (btn) btn.disabled = true;
-        if (btn) btn.textContent = "Running Simulation...";
+        if (btn) btn.textContent = "Running...";
 
         try {
             const res = await fetch('http://localhost:8000/api/v1/simulate', { method: 'POST' });
@@ -174,312 +192,396 @@ export default function SettingsPage() {
             alert("Simulation failed to run.");
         } finally {
             if (btn) btn.disabled = false;
-            if (btn) btn.textContent = "Simulation Mode";
+            if (btn) btn.textContent = "Run Simulation";
         }
     };
 
+    const GroupHeader = ({ title, description }: { title: string, description?: string }) => (
+        <div className="mb-3 px-1">
+            <h3 className="text-lg font-semibold tracking-tight text-gray-900">{title}</h3>
+            {description && <p className="text-sm text-muted-foreground">{description}</p>}
+        </div>
+    );
+
+    const SettingsRow = ({ children, className }: { children: React.ReactNode, className?: string }) => (
+        <div className={cn("flex items-center justify-between p-4 bg-white first:rounded-t-xl last:rounded-b-xl border-b last:border-b-0 border-gray-100", className)}>
+            {children}
+        </div>
+    );
+
     return (
-        <div className="space-y-6 pb-20">
-            <div className="flex justify-between items-center">
+        <div className="max-w-5xl mx-auto pb-20 space-y-8 animate-in fade-in duration-700">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
                 <div>
-                    <h3 className="text-2xl font-bold tracking-tight">Settings & Configuration</h3>
-                    <p className="text-muted-foreground">
-                        Manage your profile, policy scope, risk tolerance, and system guardrails.
+                    <h2 className="text-3xl font-bold tracking-tight text-gray-900">Settings</h2>
+                    <p className="text-muted-foreground mt-1 text-base">
+                        Manage your agent governance and policies.
                     </p>
                 </div>
-                <div className="flex gap-2">
-                    <Button id="sim-btn" variant="outline" className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800" onClick={handleSimulation}>
-                        <Activity className="mr-2 h-4 w-4" />
-                        Simulation Mode
+                <div className="flex gap-3">
+                    <Button id="sim-btn" variant="outline" onClick={handleSimulation} className="bg-white hover:bg-gray-50 border-gray-200">
+                        <Zap className="h-4 w-4 mr-2 text-amber-500" />
+                        Run Simulation
                     </Button>
-                    <Button onClick={handleSave} disabled={isSaving}>
+                    <Button onClick={handleSave} disabled={isSaving} className="min-w-[120px] bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
                         {isSaving ? "Saving..." : "Save Changes"}
                     </Button>
                 </div>
             </div>
 
-            <Tabs defaultValue="policy" className="space-y-4">
-                <TabsList>
-                    <TabsTrigger value="policy">Policy & Risk</TabsTrigger>
-                    <TabsTrigger value="system">System & Integrations</TabsTrigger>
-                </TabsList>
+            {/* Navigation Pills */}
+            <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-md py-4 -mx-4 px-4 md:mx-0 md:px-0">
+                <div className="flex overflow-x-auto pb-1 gap-1 no-scrollbar md:justify-start">
+                    {sections.map((section) => {
+                        const Icon = section.icon;
+                        const isActive = activeSection === section.id;
+                        return (
+                            <button
+                                key={section.id}
+                                onClick={() => setActiveSection(section.id)}
+                                className={cn(
+                                    "relative flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap",
+                                    isActive
+                                        ? "text-white shadow-sm"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-gray-100/80"
+                                )}
+                            >
+                                {isActive && (
+                                    <motion.div
+                                        layoutId="activePill"
+                                        className="absolute inset-0 bg-gray-900 rounded-full"
+                                        transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+                                    />
+                                )}
+                                <span className="relative z-10 flex items-center gap-2">
+                                    <Icon className={cn("h-4 w-4", isActive ? "text-gray-200" : "text-gray-500")} />
+                                    {section.label}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
 
+            {/* Content Area */}
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={activeSection}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.15 }}
+                    className="space-y-8"
+                >
+                    {activeSection === 'general' && (
+                        <div className="max-w-2xl">
+                            <GroupHeader title="Environment" description="Configure the lifecycle stage and region." />
+                            <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+                                <SettingsRow>
+                                    <div className="space-y-0.5">
+                                        <Label className="text-base font-medium">Deployment Mode</Label>
+                                        <p className="text-sm text-muted-foreground">Determines enforcement level.</p>
+                                    </div>
+                                    <Select value={settings.deploymentMode} onValueChange={(v) => updateDirect('deploymentMode', v)}>
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Sandbox">Sandbox</SelectItem>
+                                            <SelectItem value="Staging">Staging</SelectItem>
+                                            <SelectItem value="Production">Production</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </SettingsRow>
+                                <SettingsRow>
+                                    <div className="space-y-0.5">
+                                        <Label className="text-base font-medium">Region</Label>
+                                        <p className="text-sm text-muted-foreground">Data sovereignty compliance.</p>
+                                    </div>
+                                    <Select value={settings.region} onValueChange={(v) => updateDirect('region', v)}>
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Global">Global</SelectItem>
+                                            <SelectItem value="EU">EU (GDPR)</SelectItem>
+                                            <SelectItem value="US">US (NIST)</SelectItem>
+                                            <SelectItem value="APAC">APAC</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </SettingsRow>
+                            </div>
 
-                {/* --- POLICY TAB --- */}
-                <TabsContent value="policy" className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                        {/* Scope */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center"><Globe className="mr-2 h-5 w-5" /> Policy Scope Preferences</CardTitle>
-                                <CardDescription>Select applicable domains and sensitivity.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-3">
-                                    <Label>Applicable Domains</Label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {Object.entries(settings.domains).map(([key, val]) => (
-                                            <div key={key} className="flex items-center space-x-2">
-                                                <Switch
-                                                    id={`domain-${key}`}
-                                                    checked={val}
-                                                    onCheckedChange={(c) => updateSetting('domains', key, c)}
+                            <div className="mt-4 px-1">
+                                <div className={cn(
+                                    "text-sm px-3 py-2 rounded-lg flex items-center gap-2 inline-flex",
+                                    settings.deploymentMode === 'Production' ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"
+                                )}>
+                                    {settings.deploymentMode === 'Production' ? <AlertTriangle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+                                    {settings.deploymentMode === 'Production' ? 'Strict Enforcement Active' : 'Observation Mode Active'}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeSection === 'risk' && (
+                        <div className="grid gap-8 md:grid-cols-2">
+                            <div>
+                                <GroupHeader title="Risk Scope" />
+                                <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+                                    {Object.entries(settings.domains).map(([key, val]) => (
+                                        <SettingsRow key={key}>
+                                            <Label htmlFor={`domain-${key}`} className="text-base font-normal capitalize flex-1 cursor-pointer">{key}</Label>
+                                            <Switch
+                                                id={`domain-${key}`}
+                                                checked={val}
+                                                onCheckedChange={(c) => updateSetting('domains', key, c)}
+                                            />
+                                        </SettingsRow>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="space-y-8">
+                                <div>
+                                    <GroupHeader title="Sensitivity" />
+                                    <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+                                        <SettingsRow>
+                                            <Label className="text-base">Level</Label>
+                                            <Select value={settings.sensitivity} onValueChange={(v) => updateDirect('sensitivity', v)}>
+                                                <SelectTrigger className="w-[160px] border-none shadow-none text-right font-medium text-blue-600 focus:ring-0 h-auto p-0">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent align="end">
+                                                    <SelectItem value="Conservative">Conservative</SelectItem>
+                                                    <SelectItem value="Balanced">Balanced</SelectItem>
+                                                    <SelectItem value="Aggressive">Aggressive</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </SettingsRow>
+                                        <SettingsRow>
+                                            <Label className="text-base">Action</Label>
+                                            <Select value={settings.riskThreshold} onValueChange={(v) => updateDirect('riskThreshold', v)}>
+                                                <SelectTrigger className="w-[160px] border-none shadow-none text-right font-medium text-blue-600 focus:ring-0 h-auto p-0">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent align="end">
+                                                    <SelectItem value="Block Any">Block Any</SelectItem>
+                                                    <SelectItem value="Warn Medium">Warn Medium</SelectItem>
+                                                    <SelectItem value="Allow Low">Allow Low</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </SettingsRow>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <GroupHeader title="Calibration" />
+                                    <Card className="border-none shadow-sm bg-white">
+                                        <CardContent className="pt-6 space-y-6">
+                                            <div className="space-y-4">
+                                                <div className="flex justify-between items-center">
+                                                    <Label>Strictness</Label>
+                                                    <span className="text-sm font-medium text-gray-500">{settings.strictness}%</span>
+                                                </div>
+                                                <Slider
+                                                    value={[settings.strictness]}
+                                                    onValueChange={(v) => updateDirect('strictness', v[0])}
+                                                    max={100}
+                                                    step={5}
                                                 />
-                                                <Label htmlFor={`domain-${key}`} className="capitalize">{key}</Label>
                                             </div>
-                                        ))}
+                                            <div className="space-y-4">
+                                                <div className="flex justify-between items-center">
+                                                    <Label>Confidence</Label>
+                                                    <span className="text-sm font-medium text-gray-500">{settings.minConfidence}%</span>
+                                                </div>
+                                                <Slider
+                                                    value={[settings.minConfidence]}
+                                                    onValueChange={(v) => updateDirect('minConfidence', v[0])}
+                                                    max={100}
+                                                    step={5}
+                                                />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeSection === 'guardrails' && (
+                        <div className="max-w-2xl">
+                            <GroupHeader title="Enforcement" />
+                            <div className="rounded-xl border bg-white shadow-sm overflow-hidden mb-6">
+                                <SettingsRow>
+                                    <div className="space-y-0.5">
+                                        <Label className="text-base">Violation Action</Label>
+                                        <p className="text-xs text-muted-foreground">What happens when policies fail.</p>
                                     </div>
-                                </div>
-                                <Separator />
-                                <div className="space-y-2">
-                                    <Label>Sensitivity Level</Label>
-                                    <Select value={settings.sensitivity} onValueChange={(v) => updateDirect('sensitivity', v)}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Conservative">Conservative (Flag potential risks)</SelectItem>
-                                            <SelectItem value="Balanced">Balanced (Standard enterprise)</SelectItem>
-                                            <SelectItem value="Aggressive">Aggressive (Only flag blocking)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Risk Tolerance */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center"><Scale className="mr-2 h-5 w-5" /> Risk Tolerance & Thresholds</CardTitle>
-                                <CardDescription>Configure when to block or warn.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                <div className="space-y-2">
-                                    <Label>Allowed Risk Threshold</Label>
-                                    <Select value={settings.riskThreshold} onValueChange={(v) => updateDirect('riskThreshold', v)}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Block Any">Block on any violation</SelectItem>
-                                            <SelectItem value="Warn Medium">Warn on medium risk</SelectItem>
-                                            <SelectItem value="Allow Low">Allow low-risk deviations</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <div className="flex justify-between">
-                                        <Label>Strictness Slider</Label>
-                                        <span className="text-sm text-muted-foreground">{settings.strictness}%</span>
-                                    </div>
-                                    <Slider
-                                        value={[settings.strictness]}
-                                        onValueChange={(v) => updateDirect('strictness', v[0])}
-                                        max={100}
-                                        step={5}
-                                    />
-                                    <p className="text-xs text-muted-foreground">Higher = More likely to flag ambiguous inputs.</p>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <div className="flex justify-between">
-                                        <Label>Min. Confidence Requirement</Label>
-                                        <span className="text-sm text-muted-foreground">{settings.minConfidence}%</span>
-                                    </div>
-                                    <Slider
-                                        value={[settings.minConfidence]}
-                                        onValueChange={(v) => updateDirect('minConfidence', v[0])}
-                                        max={100}
-                                        step={5}
-                                    />
-                                    <p className="text-xs text-muted-foreground">Confidence required for automated approval.</p>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Guardrails */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center"><Bot className="mr-2 h-5 w-5" /> Guardrail Behavior</CardTitle>
-                                <CardDescription>How the system reacts to violations.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Enforcement Action</Label>
                                     <Select value={settings.guardrailAction} onValueChange={(v) => updateDirect('guardrailAction', v)}>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="w-[140px]">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="Block">Auto-block deployment</SelectItem>
-                                            <SelectItem value="Approve">Require human approval</SelectItem>
-                                            <SelectItem value="Suggest">Suggest remediation only</SelectItem>
-                                            <SelectItem value="Log">Silent logging</SelectItem>
+                                            <SelectItem value="Block">Block</SelectItem>
+                                            <SelectItem value="Approve">Approve</SelectItem>
+                                            <SelectItem value="Suggest">Suggest</SelectItem>
+                                            <SelectItem value="Log">Log Only</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div>
-                                <div className="space-y-2 pt-2">
-                                    <div className="flex items-center justify-between">
-                                        <Label>Explain decision in plain English</Label>
-                                        <Switch
-                                            checked={settings.guardrailExplain}
-                                            onCheckedChange={(c) => updateDirect('guardrailExplain', c)}
-                                        />
-                                    </div>
-                                    <div className="flex items-center justify-between mt-2">
-                                        <Label>Attach policy citation to every decision</Label>
-                                        <Switch
-                                            checked={settings.guardrailCite}
-                                            onCheckedChange={(c) => updateDirect('guardrailCite', c)}
-                                        />
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                </SettingsRow>
+                            </div>
 
-                        {/* Deployment Mode */}
-                        <Card className="border-l-4 border-l-blue-500">
-                            <CardHeader>
-                                <CardTitle className="flex items-center"><Activity className="mr-2 h-5 w-5" /> Deployment Mode</CardTitle>
-                                <CardDescription>Current lifecycle stage for this environment.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <Select value={settings.deploymentMode} onValueChange={(v) => updateDirect('deploymentMode', v)}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Sandbox">Sandbox (No blocking)</SelectItem>
-                                        <SelectItem value="Staging">Staging (Warn + Log)</SelectItem>
-                                        <SelectItem value="Production">Production (Enforce)</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <p className="text-xs text-blue-600 font-medium">
-                                    Current Mode: {settings.deploymentMode} - {settings.deploymentMode === 'Production' ? 'Strict Enforcement Active' : 'Learning Mode'}
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </TabsContent>
+                            <GroupHeader title="Explainability" />
+                            <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+                                <SettingsRow>
+                                    <Label className="text-base font-normal flex-1">Explain Decisions</Label>
+                                    <Switch
+                                        checked={settings.guardrailExplain}
+                                        onCheckedChange={(c) => updateDirect('guardrailExplain', c)}
+                                    />
+                                </SettingsRow>
+                                <SettingsRow>
+                                    <Label className="text-base font-normal flex-1">Include Citations</Label>
+                                    <Switch
+                                        checked={settings.guardrailCite}
+                                        onCheckedChange={(c) => updateDirect('guardrailCite', c)}
+                                    />
+                                </SettingsRow>
+                            </div>
+                        </div>
+                    )}
 
-                {/* --- SYSTEM TAB --- */}
-                <TabsContent value="system" className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                        {/* Input Sources */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center"><FileText className="mr-2 h-5 w-5" /> Input Source Configuration</CardTitle>
-                                <CardDescription>Where PolicyGuard looks for artifacts.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                                <Label>Enabled Sources</Label>
+                    {activeSection === 'integrations' && (
+                        <div className="max-w-3xl">
+                            <div className="grid gap-4 md:grid-cols-2">
                                 {Object.entries(settings.sources).map(([key, val]) => (
-                                    <div key={key} className="flex items-center justify-between">
-                                        <Label htmlFor={`source-${key}`} className="capitalize text-sm font-normal">{key}</Label>
-                                        <Switch
-                                            id={`source-${key}`}
-                                            checked={val}
-                                            onCheckedChange={(c) => updateSetting('sources', key, c)}
-                                        />
+                                    <div
+                                        key={key}
+                                        className={cn(
+                                            "flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer",
+                                            val ? "bg-white border-blue-200 shadow-sm ring-1 ring-blue-100" : "bg-gray-50 border-transparent opacity-80"
+                                        )}
+                                        onClick={() => updateSetting('sources', key, !val)}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={cn("p-2 rounded-full", val ? "bg-blue-100 text-blue-600" : "bg-gray-200 text-gray-500")}>
+                                                <Network className="h-4 w-4" />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium capitalize">{key}</p>
+                                                <p className="text-xs text-muted-foreground opacity-90">Data & Context</p>
+                                            </div>
+                                        </div>
+                                        <div onClick={(e) => e.stopPropagation()}>
+                                            <Switch
+                                                id={`source-${key}`}
+                                                checked={val}
+                                                onCheckedChange={(c) => updateSetting('sources', key, c)}
+                                            />
+                                        </div>
                                     </div>
                                 ))}
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </div>
+                    )}
 
-                        {/* Notifications */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center"><Bell className="mr-2 h-5 w-5" /> Notification & Alerts</CardTitle>
-                                <CardDescription>When and where to alert you.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label className="text-xs uppercase text-muted-foreground font-bold">Channels</Label>
-                                    <div className="flex items-center justify-between">
-                                        <Label>Email Alert</Label>
+                    {activeSection === 'notifications' && (
+                        <div className="max-w-2xl space-y-8">
+                            <div>
+                                <GroupHeader title="Channels" />
+                                <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+                                    <SettingsRow>
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-1.5 bg-orange-100 rounded text-orange-600"><Bell className="h-3.5 w-3.5" /></div>
+                                            <Label className="text-base font-normal">Email Digest</Label>
+                                        </div>
                                         <Switch checked={settings.notifications.email} onCheckedChange={(c) => updateSetting('notifications', 'email', c)} />
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <Label>Slack / Teams</Label>
+                                    </SettingsRow>
+                                    <SettingsRow>
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-1.5 bg-purple-100 rounded text-purple-600"><Network className="h-3.5 w-3.5" /></div>
+                                            <Label className="text-base font-normal">Slack / Discord</Label>
+                                        </div>
                                         <Switch checked={settings.notifications.slack} onCheckedChange={(c) => updateSetting('notifications', 'slack', c)} />
-                                    </div>
+                                    </SettingsRow>
                                 </div>
-                                <Separator />
-                                <div className="space-y-2">
-                                    <Label className="text-xs uppercase text-muted-foreground font-bold">Triggers</Label>
-                                    <div className="flex items-center justify-between">
-                                        <Label>High-risk violation</Label>
-                                        <Switch checked={settings.notifications.triggers.highRisk} onCheckedChange={(c) => updateSetting('notifications', 'triggers', { ...settings.notifications.triggers, highRisk: c })} />
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <Label>Policy conflict detected</Label>
-                                        <Switch checked={settings.notifications.triggers.conflict} onCheckedChange={(c) => updateSetting('notifications', 'triggers', { ...settings.notifications.triggers, conflict: c })} />
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                            </div>
 
-                        {/* Audit */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center"><Search className="mr-2 h-5 w-5" /> Audit & Explainability</CardTitle>
-                                <CardDescription>Compliance logs and transparency.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Log Detail Level</Label>
+                            <div>
+                                <GroupHeader title="Triggers" />
+                                <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+                                    {Object.entries(settings.notifications.triggers).map(([key, val]) => (
+                                        <SettingsRow key={key}>
+                                            <Label className="capitalize font-normal text-base">{key.replace(/([A-Z])/g, ' $1').trim()}</Label>
+                                            <Switch checked={val} onCheckedChange={(c) => updateSetting('notifications', 'triggers', { ...settings.notifications.triggers, [key]: c })} />
+                                        </SettingsRow>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeSection === 'audit' && (
+                        <div className="max-w-2xl">
+                            <GroupHeader title="Compliance" />
+                            <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+                                <SettingsRow>
+                                    <Label className="text-base font-medium">Log Level</Label>
                                     <Select value={settings.auditLevel} onValueChange={(v) => updateDirect('auditLevel', v)}>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="w-[180px]">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="Summary">Summary</SelectItem>
-                                            <SelectItem value="Detailed">Detailed reasoning</SelectItem>
-                                            <SelectItem value="Full">Full policy trace</SelectItem>
+                                            <SelectItem value="Detailed">Detailed</SelectItem>
+                                            <SelectItem value="Full">Full Trace</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Retention Period (Days)</Label>
+                                </SettingsRow>
+                                <SettingsRow>
+                                    <Label className="text-base font-medium">Retention</Label>
                                     <Select value={settings.auditRetention} onValueChange={(v) => updateDirect('auditRetention', v)}>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="w-[180px]">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="30">30 Days</SelectItem>
                                             <SelectItem value="90">90 Days</SelectItem>
                                             <SelectItem value="180">180 Days</SelectItem>
+                                            <SelectItem value="365">1 Year</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                </SettingsRow>
+                            </div>
+                        </div>
+                    )}
 
-                        {/* AI Reasoning */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center"><Bot className="mr-2 h-5 w-5" /> AI Reasoning Transparency</CardTitle>
-                                <CardDescription>Gemini model decision process.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <Label>Show Gemini reasoning steps</Label>
+                    {activeSection === 'ai' && (
+                        <div className="max-w-2xl">
+                            <GroupHeader title="Transparency" description="Control how much internal reasoning is revealed." />
+                            <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+                                <SettingsRow>
+                                    <div className="space-y-0.5">
+                                        <Label className="text-base">Reasoning Steps</Label>
+                                        <p className="text-xs text-muted-foreground">Show chain-of-thought.</p>
+                                    </div>
                                     <Switch checked={settings.aiReasoning} onCheckedChange={(c) => updateDirect('aiReasoning', c)} />
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <Label>Highlight conflicting policies</Label>
+                                </SettingsRow>
+                                <SettingsRow>
+                                    <div className="space-y-0.5">
+                                        <Label className="text-base">Conflict Alerts</Label>
+                                        <p className="text-xs text-muted-foreground">Highlight policy contradictions.</p>
+                                    </div>
                                     <Switch checked={settings.aiConflict} onCheckedChange={(c) => updateDirect('aiConflict', c)} />
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </TabsContent>
-            </Tabs>
+                                </SettingsRow>
+                            </div>
+                        </div>
+                    )}
+                </motion.div>
+            </AnimatePresence>
         </div >
     );
 }
-
-// Added missing helper for the triggers nested update manually since `updateSetting` logic for 'notifications' was shallow.
-// Actually `updateSetting('notifications', 'triggers', ...)` works if I pass the whole trigger object.
-// I did that in the JSX: { ...settings.notifications.triggers, highRisk: c }
