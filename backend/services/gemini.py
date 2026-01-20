@@ -508,6 +508,7 @@ class GeminiService:
         1. {lang_instruction}
         2. Include comments explaining which policy each rule enforces.
         3. Provide a 'validate()' function or usage example at the bottom.
+        4. Use generous whitespace (e.g., 2 blank lines between classes/functions) for readability.
         
         OUTPUT:
         Return ONLY the raw code (no markdown fences if possible, or standard markdown).

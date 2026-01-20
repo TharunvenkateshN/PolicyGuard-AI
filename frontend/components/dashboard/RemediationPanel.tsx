@@ -6,6 +6,8 @@ import { Wrench, FileText, Code, Copy, Lightbulb, Terminal, AlertTriangle, Check
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface Violation {
     policy_area: string;
@@ -170,13 +172,18 @@ export function RemediationPanel({ originalText, violations, policySummary }: Re
                                                     </div>
                                                 ))}
                                             </div>
-                                            <div className="bg-muted p-4 rounded-lg">
-                                                <h4 className="font-semibold text-sm mb-2">Improvement Tips</h4>
-                                                <ul className="list-disc list-inside text-sm text-muted-foreground">
+                                            <div className="bg-muted/50 p-6 rounded-lg border border-border/50">
+                                                <h4 className="font-semibold text-base mb-4 flex items-center gap-2">
+                                                    <Lightbulb className="w-4 h-4 text-indigo-500" />
+                                                    Improvement Tips
+                                                </h4>
+                                                <div className="grid gap-3 sm:grid-cols-2">
                                                     {explanation.improvement_tips?.map((tip: string, i: number) => (
-                                                        <li key={i}>{tip}</li>
+                                                        <div key={i} className="bg-card p-3 rounded border text-sm text-muted-foreground shadow-sm hover:shadow-md transition-all">
+                                                            • {tip}
+                                                        </div>
                                                     ))}
-                                                </ul>
+                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -248,13 +255,16 @@ export function RemediationPanel({ originalText, violations, policySummary }: Re
                                             >
                                                 <Copy className="h-4 w-4" />
                                             </Button>
-                                            <div className="h-[400px] w-full bg-black p-4 font-mono text-xs md:text-sm overflow-auto">
-                                                <div className="text-green-400 opacity-90 whitespace-pre-wrap">
-                                                    <span className="text-green-600 block mb-2">{`# Generated for ${selectedLanguage} environment`}</span>
-                                                    <span className="text-green-600 block mb-4">{`# Timestamp: ${new Date().toISOString()}`}</span>
-                                                    {generatedCode}
-                                                    <span className="block mt-4 animate-pulse">_</span>
-                                                </div>
+                                            <div className="h-[400px] w-full bg-black overflow-auto">
+                                                <SyntaxHighlighter
+                                                    language={selectedLanguage.toLowerCase()}
+                                                    style={vscDarkPlus}
+                                                    customStyle={{ margin: 0, padding: '1rem', height: '100%', fontSize: '0.9rem', backgroundColor: '#09090b' }}
+                                                    showLineNumbers={true}
+                                                    wrapLines={true}
+                                                >
+                                                    {generatedCode || "# Waiting for code generation..."}
+                                                </SyntaxHighlighter>
                                             </div>
                                         </>
                                     )}
