@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from typing import List, Optional, Dict
 from enum import Enum
 
@@ -60,7 +60,13 @@ class EvidenceTrace(BaseModel):
     workflow_component: str # "Data Storage Layer"
     issue_description: str # "Architecture allows US-based processing..."
     severity: str # "High", "Medium", "Low"
-    snippet: str # Exact quote
+    snippet: str | List[str] # Validates both, normalizes to str via validator
+
+    @validator("snippet", pre=True)
+    def normalize_snippet(cls, v):
+        if isinstance(v, list):
+            return " ".join(v)
+        return v
 
 class RecommendationType(str, Enum):
     BLOCKING = "Blocking"

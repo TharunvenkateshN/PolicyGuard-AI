@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import ComplianceGraph from "./ComplianceGraph"; // Custom 3D Component
 
 interface Violation {
     policy_area: string;
@@ -19,9 +20,10 @@ interface RemediationPanelProps {
     originalText: string;
     violations: Violation[];
     policySummary: string;
+    report: any; // Full report object for Graph
 }
 
-export function RemediationPanel({ originalText, violations, policySummary }: RemediationPanelProps) {
+export function RemediationPanel({ originalText, violations, policySummary, report }: RemediationPanelProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState("detail");
     const [isFixing, setIsFixing] = useState(false);
@@ -137,10 +139,14 @@ export function RemediationPanel({ originalText, violations, policySummary }: Re
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 max-w-2xl mb-6">
+                <TabsList className="grid w-full grid-cols-4 max-w-3xl mb-6">
                     <TabsTrigger value="detail" className="flex items-center gap-2">
                         <Lightbulb className="w-4 h-4" />
                         Solution Strategy
+                    </TabsTrigger>
+                    <TabsTrigger value="graph" className="flex items-center gap-2">
+                        <Terminal className="w-4 h-4 text-purple-400" />
+                        3D Graph
                     </TabsTrigger>
                     <TabsTrigger value="doc" className="flex items-center gap-2">
                         <FileText className="w-4 h-4" />
@@ -206,6 +212,21 @@ export function RemediationPanel({ originalText, violations, policySummary }: Re
                                             </div>
                                         </div>
                                     )}
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    </TabsContent>
+
+                    {/* GRAPH TAB */}
+                    <TabsContent value="graph" key="graph">
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}>
+                            <Card className="border-purple-500/30 shadow-lg bg-black/50 backdrop-blur-md">
+                                <CardHeader>
+                                    <CardTitle>Interactive System Topology</CardTitle>
+                                    <CardDescription>Visualizing policy constraints and risk vectors.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="p-0">
+                                    {report ? <ComplianceGraph report={report} /> : <div className="p-12 text-center text-muted-foreground">Generating Graph Data...</div>}
                                 </CardContent>
                             </Card>
                         </motion.div>
