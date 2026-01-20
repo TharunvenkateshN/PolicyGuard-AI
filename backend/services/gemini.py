@@ -3,6 +3,8 @@ from config import settings
 import os
 import asyncio
 import time
+import re
+import json
 
 class GeminiService:
     def __init__(self):
@@ -12,6 +14,21 @@ class GeminiService:
         # Initialize with standard options, potentially adjusting transport if needed
         self.client = genai.Client(api_key=settings.GOOGLE_API_KEY)
         self.model_name = settings.GEMINI_MODEL
+    
+    def clean_json_text(self, text: str) -> str:
+        """Helper to strip markdown code blocks from JSON response using Regex."""
+        # Remove markdown code blocks
+        text = re.sub(r'```[a-zA-Z]*', '', text)
+        text = text.replace('```', '')
+        
+        # Find first { and last }
+        start = text.find('{')
+        end = text.rfind('}')
+        
+        if start != -1 and end != -1:
+            return text[start:end+1]
+            
+        return text.strip()
 
     async def _generate_with_retry(self, model, contents, config=None, retries=5):
         """Helper to retry API calls on transient network errors. 
@@ -212,7 +229,7 @@ class GeminiService:
             contents=prompt,
             config={'response_mime_type': 'application/json'}
         )
-        return response.text
+        return self.clean_json_text(response.text)
 
     async def summarize_policy(self, text: str) -> str:
         prompt = f"Summarize the following corporate policy in one concise sentence (max 20 words). Focus on what is restricted:\n\n{text[:5000]}"
@@ -295,7 +312,7 @@ class GeminiService:
             contents=prompt,
             config={'response_mime_type': 'application/json'}
         )
-        return response.text
+        return self.clean_json_text(response.text)
 
     async def chat_compliance(self, query: str, context: str, history: list = []) -> str:
         """
@@ -392,7 +409,7 @@ class GeminiService:
             contents=prompt,
             config={'response_mime_type': 'application/json'}
         )
-        return response.text
+        return self.clean_json_text(response.text)
 
     async def analyze_workflow_document_text(self, text: str) -> str:
         prompt = f"""
@@ -432,5 +449,121 @@ class GeminiService:
             contents=prompt,
             config={'response_mime_type': 'application/json'}
         )
+        return self.clean_json_text(response.text)
+
+    async def remediate_spec(self, original_text: str, violations: list) -> str:
+        prompt = f"""
+        You are a Chief Compliance Officer & Technical Writer.
+        
+        TASK:
+        Rewrite the following SYSTEM SPECIFICATION to purely and explicitly fix the cited policy violations.
+        
+        VIOLATIONS TO FIX:
+        {violations}
+        
+        INPUT SPECIFICATION:
+        {original_text[:15000]}
+        
+        INSTRUCTIONS:
+        1. Keep the original structure and intent.
+        2. Insert specific clauses/controls to address each violation.
+        3. Highlight your changes by wrapping them in **bold**.
+        
+        OUTPUT:
+        Return ONLY the rewritten document text.
+        """
+        
+        response = await self._generate_with_retry(
+            model=settings.GEMINI_MODEL,
+            contents=prompt
+        )
         return response.text
+
+    async def generate_guardrail_code(self, policy_summary: str, language: str = "python") -> str:
+        if language.lower() == "python":
+            lang_instruction = "Generate a Python `Pydantic` model with `@validator` methods."
+        elif language.lower() == "java":
+            lang_instruction = "Generate a Java Class with `jakarta.validation` annotations."
+        elif language.lower() == "typescript":
+            lang_instruction = "Generate a TypeScript Zod schema."
+        elif language.lower() == "go":
+            lang_instruction = "Generate a Go struct with `go-playground/validator` tags."
+        elif language.lower() == "rust":
+            lang_instruction = "Generate a Rust struct with `validator` crate annotations."
+        else:
+            lang_instruction = f"Generate {language} code."
+
+        prompt = f"""
+        You are a Senior Software Engineer.
+        
+        TASK:
+        Generate PRODUCTION-READY Guardrail Code to enforce the following policies.
+        
+        POLICIES TO ENFORCE:
+        {policy_summary}
+        
+        LANGUAGE: {language}
+        
+        INSTRUCTIONS:
+        1. {lang_instruction}
+        2. Include comments explaining which policy each rule enforces.
+        3. Provide a 'validate()' function or usage example at the bottom.
+        
+        OUTPUT:
+        Return ONLY the raw code (no markdown fences if possible, or standard markdown).
+        """
+        
+        response = await self._generate_with_retry(
+            model=settings.GEMINI_MODEL,
+            contents=prompt
+        )
+        # For code we might want to strip backticks too, but usually we display them. 
+        # But user wants a "Terminal" view, so raw code is better.
+        text = response.text
+        # Naive strip of backticks for code to raw text
+        if text.strip().startswith("```"):
+            lines = text.strip().split('\n')
+            if lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines[-1].startswith("```"):
+                lines = lines[:-1]
+            text = "\n".join(lines)
+        return text
+
+    async def explain_remediation_strategy(self, violations: list, original_text: str) -> str:
+        prompt = f"""
+        You are a Security Consultant.
+        
+        TASK:
+        Explain WHY the following policy violations are risky and HOW you plan to fix them.
+        Be educational and constructive.
+        
+        VIOLATIONS:
+        {violations}
+        
+        CONTEXT:
+        {original_text[:5000]}
+        
+        OUTPUT FORMAT (Strict JSON):
+        {{
+            "summary": "High level summary of the remediation plan",
+            "risks_explained": [
+                {{
+                    "violation": "The violation name",
+                    "why_it_matters": "Explanation of the risk (e.g. data breach, fine)",
+                    "fix_strategy": "What specific change was applied"
+                }}
+            ],
+            "improvement_tips": [
+                "Tip 1 for future compliance",
+                "Tip 2"
+            ]
+        }}
+        """
+        response = await self._generate_with_retry(
+            model=settings.GEMINI_MODEL,
+            contents=prompt,
+            config={'response_mime_type': 'application/json'}
+        )
+        return self.clean_json_text(response.text)
 

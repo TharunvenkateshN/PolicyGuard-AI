@@ -124,6 +124,7 @@ export default function MonitorPage() {
                     </TabsTrigger>
                 </TabsList>
 
+
                 {/* --- TAB 1: AUDIT STREAM --- */}
                 <TabsContent value="audit" className="space-y-4 mt-4">
                     <div className="grid gap-4 md:grid-cols-3">

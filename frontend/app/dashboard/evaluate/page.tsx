@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GuardrailTimeline, StepStatus } from '@/components/GuardrailTimeline';
 import { ReadinessScorecard, ComplianceReport } from '@/components/ReadinessScorecard';
+import { RemediationPanel } from '@/components/dashboard/RemediationPanel';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Play, FileText as FileIcon, ShieldCheck, CheckCircle, Activity, Target as TargetIcon } from 'lucide-react';
@@ -431,6 +432,22 @@ export default function EvaluatePage() {
                                 </Button>
                             </div>
                             <ReadinessScorecard report={complianceReport} />
+
+                            {/* Auto Remediation Interaction */}
+                            {complianceReport.risk_assessment.overall_score > 0 && (
+                                <RemediationPanel
+                                    originalText={JSON.stringify(workflowData, null, 2)}
+                                    violations={complianceReport.policy_matrix
+                                        .filter((p: any) => p.status !== "Compliant")
+                                        .map((p: any) => ({
+                                            policy_area: p.policy_area,
+                                            status: p.status,
+                                            reason: p.reason
+                                        }))
+                                    }
+                                    policySummary={complianceReport.risk_assessment.breakdown ? JSON.stringify(complianceReport.risk_assessment.breakdown) : "Standard Enterprise Policy"}
+                                />
+                            )}
                         </div>
                     )}
 
@@ -676,7 +693,7 @@ export default function EvaluatePage() {
                     </div>
                 </TabsContent>
             </Tabs>
-        </div>
+        </div >
     );
 }
 

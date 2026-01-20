@@ -6,6 +6,15 @@ from services.ingest import PolicyIngestor
 from services.gemini import GeminiService
 from services.storage import policy_db
 import json
+from pydantic import BaseModel
+
+class RemediationRequest(BaseModel):
+    original_text: str
+    violations: list[str]
+
+class CodeGenRequest(BaseModel):
+    policy_summary: str
+    language: str = "python"
 
 router = APIRouter()
 ingestor = PolicyIngestor()
@@ -404,3 +413,30 @@ async def analyze_workflow_doc(file: UploadFile = File(...)):
     except Exception as e:
         print(f"Workflow Analysis Failed: {e}")
         raise HTTPException(status_code=500, detail=f"Analysis Failed: {str(e)}")
+
+@router.post("/remediate/doc")
+async def remediate_document(request: RemediationRequest):
+    try:
+        new_text = await gemini.remediate_spec(request.original_text, request.violations)
+        return {"remediated_text": new_text}
+    except Exception as e:
+        print(f"Remediation Failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/remediate/code")
+async def generate_guardrail_code(request: CodeGenRequest):
+    try:
+        code = await gemini.generate_guardrail_code(request.policy_summary, request.language)
+        return {"code": code}
+    except Exception as e:
+        print(f"Code Gen Failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/remediate/explain")
+async def explain_remediation(request: RemediationRequest):
+    try:
+        explanation = await gemini.explain_remediation_strategy(request.violations, request.original_text)
+        return json.loads(explanation)
+    except Exception as e:
+        print(f"Explanation Failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
