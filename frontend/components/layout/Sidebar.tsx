@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Home, Shield, Activity, Settings, FileText, ChevronRight, BarChart3, LogOut, Zap, MessageSquare } from 'lucide-react';
+import { Home, Shield, Activity, Settings, FileText, ChevronRight, BarChart3, LogOut, Zap, MessageSquare, Network } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/context/UserContext';
 
@@ -8,8 +8,9 @@ const navItems = [
     { name: 'Overview', href: '/dashboard', icon: Home },
     { name: 'Policy Manager', href: '/dashboard/policies', icon: FileText },
     { name: 'Chat Assistant', href: '/dashboard/chat', icon: MessageSquare },
-    { name: 'Evaluation', href: '/dashboard/evaluate', icon: Activity },
+    { name: 'Connect Agent', href: '/dashboard/connect', icon: Network },
     { name: 'Monitor', href: '/dashboard/monitor', icon: BarChart3 },
+    { name: 'Evaluation', href: '/dashboard/evaluate', icon: Activity },
     { name: 'SLA Designer', href: '/dashboard/sla', icon: Zap },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];

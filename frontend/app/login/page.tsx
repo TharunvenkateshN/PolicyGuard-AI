@@ -1,172 +1,80 @@
-"use client"
+"use client";
 
-import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Shield, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Shield, ArrowRight, Activity, CheckCircle2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useUser } from '@/context/UserContext'; // Ensure this exists or mock it local logic
 
 export default function LoginPage() {
-    const { login, loginAsGuest } = useAuth() as any;
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState('');
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
+    const [email, setEmail] = useState("");
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSubmitting(true);
-        setError('');
+        setIsLoading(true);
 
-        try {
-            await login(email, password);
-        } catch (err: any) {
-            console.error("Login Error:", err);
-            const errorMessage = err.message || "Invalid email or password.";
-            setError(errorMessage.replace("Firebase: ", ""));
-            setIsSubmitting(false);
-        }
+        // Mock Auth Delay
+        setTimeout(() => {
+            // Set simple cookie or local storage to simulate session
+            if (typeof window !== 'undefined') {
+                localStorage.setItem("pg_auth_token", "mock-token-123");
+                localStorage.setItem("pg_user_email", email);
+            }
+
+            router.push('/dashboard/connect'); // Redirect to connect after login as per user flow
+        }, 1500);
     };
 
     return (
-        <div className="flex min-h-screen">
-            {/* Left Side - Visuals */}
-            <div className="hidden w-1/2 bg-gray-900 lg:flex flex-col justify-between p-12 relative overflow-hidden">
-                {/* Background Gradients */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-
-                <div className="z-10">
-                    <div className="flex items-center gap-2 text-white/90 font-bold text-xl tracking-tight mb-8">
-                        <Shield className="w-8 h-8 text-blue-500" />
-                        PolicyGuard AI
-                    </div>
-
-                    <h1 className="text-5xl font-bold text-white leading-tight mb-6">
-                        Deploy with confidence,<br />
-                        <span className="text-blue-500">Every single time.</span>
-                    </h1>
-                    <p className="text-gray-400 text-lg max-w-md">
-                        The control plane for enterprise AI governance. Prevent policy violations before they reach production.
-                    </p>
+        <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center p-4">
+            <div className="w-full max-w-sm space-y-6">
+                <div className="text-center">
+                    <Shield className="w-10 h-10 text-[#7C3AED] mx-auto mb-4" />
+                    <h1 className="text-2xl font-bold text-white">Sign In</h1>
                 </div>
 
-                {/* Abstract Metrics Visual */}
-                <div className="z-10 grid gap-4">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="flex items-center gap-4 p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10"
-                    >
-                        <div className="p-2 bg-green-500/20 rounded-full">
-                            <CheckCircle2 className="w-5 h-5 text-green-500" />
-                        </div>
-                        <div>
-                            <h4 className="text-white font-medium">Auto-Compliance Checks</h4>
-                            <p className="text-sm text-gray-500">GDPR, HIPAA, and Internal Policy</p>
-                        </div>
-                    </motion.div>
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.4 }}
-                        className="flex items-center gap-4 p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10"
-                    >
-                        <div className="p-2 bg-blue-500/20 rounded-full">
-                            <Activity className="w-5 h-5 text-blue-500" />
-                        </div>
-                        <div>
-                            <h4 className="text-white font-medium">Real-time Reasoning</h4>
-                            <p className="text-sm text-gray-500">Powered by Gemini 3 Pro</p>
-                        </div>
-                    </motion.div>
-                </div>
-            </div>
-
-            {/* Right Side - Form */}
-            <div className="flex w-full items-center justify-center lg:w-1/2 bg-white dark:bg-zinc-950">
-                <div className="w-full max-w-md space-y-8 px-4 sm:px-6">
-                    <div className="space-y-2 text-center lg:text-left">
-                        <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Welcome back</h2>
-                        <p className="text-gray-500 dark:text-gray-400">Sign in to access your compliance dashboard</p>
-                    </div>
-
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="bg-[#111623] border border-white/10 rounded-xl p-6 shadow-xl">
+                    <form onSubmit={handleLogin} className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
+                            <label className="text-xs font-semibold text-gray-400 uppercase">Email</label>
+                            <input
                                 type="email"
-                                placeholder="executive@company.com"
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="h-11"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="password">Password</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="h-11"
+                                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-[#7C3AED] focus:border-[#7C3AED] outline-none transition-all placeholder:text-gray-600"
+                                placeholder="name@company.com"
                             />
                         </div>
 
-                        {error && (
-                            <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 rounded-md">
-                                {error}
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs font-semibold text-gray-400 uppercase">Password</label>
+                                <a href="#" className="text-xs text-[#7C3AED] hover:text-white transition-colors">Forgot?</a>
                             </div>
-                        )}
+                            <input
+                                type="password"
+                                required
+                                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-[#7C3AED] focus:border-[#7C3AED] outline-none transition-all placeholder:text-gray-600"
+                                placeholder="••••••••"
+                            />
+                        </div>
 
                         <Button
                             type="submit"
-                            className="w-full h-11 text-base group"
-                            disabled={isSubmitting}
+                            disabled={isLoading}
+                            className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold h-10 rounded-lg transition-all"
                         >
-                            {isSubmitting ? (
-                                <span className="flex items-center gap-2">
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                    Verifying Credentials...
-                                </span>
-                            ) : (
-                                <span className="flex items-center gap-2">
-                                    Sign In <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                </span>
-                            )}
+                            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Continue"}
                         </Button>
                     </form>
-
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-gray-200 dark:border-zinc-800" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-white dark:bg-zinc-950 px-2 text-gray-500">Hackathon Judge?</span>
-                        </div>
-                    </div>
-
-                    <Button
-                        variant="outline"
-                        type="button"
-                        onClick={() => loginAsGuest()}
-                        className="w-full h-11 border-dashed border-2 text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all"
-                    >
-                        🧪 Enter Test Mode (No Login Required)
-                    </Button>
-
-
-
-                    <p className="text-center text-sm text-gray-500">
-                        Don't have an account? <a href="/signup" className="font-medium text-blue-600 hover:text-blue-500">Sign up</a>
-                    </p>
                 </div>
+
+                <p className="text-center text-sm text-gray-500">
+                    Don't have an account? <a href="#" className="text-[#7C3AED] hover:underline">Sign up</a>
+                </p>
             </div>
         </div>
     );

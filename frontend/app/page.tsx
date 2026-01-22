@@ -59,7 +59,7 @@ export default function LandingPage() {
                         <Link href="/" className="hover:text-white transition-colors">Home</Link>
                         <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
                         <Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link>
-                        <Link href="#" className="hover:text-white transition-colors">Support</Link>
+                        <Link href="/login" className="hover:text-white transition-colors text-[#7C3AED] font-bold">Start Connecting</Link>
                         <Link href="/team" className="hover:text-white transition-colors">Team</Link>
                     </div>
 
@@ -140,6 +140,68 @@ export default function LandingPage() {
                                 <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
                             </div>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Connect Agent Feature */}
+            <section className="py-24 bg-[#080C14] border-t border-white/5 relative overflow-hidden">
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[100px] -z-10" />
+
+                <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+                    <div className="order-2 lg:order-1">
+                        <div className="relative rounded-2xl border border-white/10 bg-[#0B0F19] p-2 shadow-2xl">
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent rounded-2xl pointer-events-none" />
+                            {/* Code Snippet Visual */}
+                            <div className="bg-[#111623] rounded-xl overflow-hidden font-mono text-sm leading-relaxed p-6 text-gray-400">
+                                <div className="flex gap-2 mb-4 text-xs opacity-50">
+                                    <span className="text-blue-400">import</span> openai
+                                </div>
+                                <div className="text-gray-500"># Point to PolicyGuard Proxy</div>
+                                <div>
+                                    <span className="text-purple-400">client</span> = <span className="text-yellow-400">openai.OpenAI</span>(
+                                </div>
+                                <div className="pl-4">
+                                    <span className="text-blue-300">base_url</span>=<span className="text-green-400">"https://api.policyguard.ai/v1"</span>,
+                                </div>
+                                <div className="pl-4">
+                                    <span className="text-blue-300">api_key</span>=<span className="text-green-400">os.getenv("OPENAI_KEY")</span>
+                                </div>
+                                <div>)</div>
+                                <br />
+                                <div className="text-gray-500"> # Requests are now governed automatically</div>
+                                <div>
+                                    response = client.chat.completions.create(...)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="order-1 lg:order-2">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold uppercase tracking-widest border border-blue-500/20 mb-6">
+                            Universal Proxy
+                        </div>
+                        <h2 className="text-4xl lg:text-5xl font-bold mb-6">Connect in 2 lines of code.</h2>
+                        <p className="text-lg text-gray-400 mb-8 leading-relaxed">
+                            No complex SDKs. Just change your <code className="bg-white/10 px-2 py-1 rounded text-white font-mono text-sm">base_url</code> and instantly get full observability, PII protection, and policy enforcement for your existing agents.
+                        </p>
+                        <div className="space-y-4 mb-8">
+                            {[
+                                "Works with OpenAI, Anthropic, and Local Models",
+                                "Zero latency impact (<10ms overhead)",
+                                "Drop-in replacement for existing stacks"
+                            ].map((item, i) => (
+                                <div key={i} className="flex items-center gap-3 text-gray-300">
+                                    <Check className="w-5 h-5 text-blue-500" />
+                                    {item}
+                                </div>
+                            ))}
+                        </div>
+                        <Link href="/login">
+                            <Button size="lg" className="bg-blue-600 hover:bg-blue-500 text-white rounded-full px-8 h-12">
+                                Start Connecting <ArrowRight className="ml-2 w-4 h-4" />
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </section>
@@ -265,6 +327,7 @@ export default function LandingPage() {
 
             {/* Footer */}
             <footer className="py-16 border-t border-white/5 bg-[#080C14]">
+
                 <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12 mb-12">
                     <div className="col-span-2">
                         <div className="flex items-center gap-2 font-bold text-xl tracking-tight mb-6">
@@ -307,8 +370,8 @@ export default function LandingPage() {
                     <p>&copy; 2026 PolicyGuard AI. All rights reserved.</p>
                     <p>Designed for the Future of AI.</p>
                 </div>
-            </footer>
-        </div>
+            </footer >
+        </div >
     );
 }
 

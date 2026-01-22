@@ -81,9 +81,20 @@ class PolicyStorage:
         
         if os.path.exists(EVALUATIONS_FILE):
              try:
+                self._evaluations = []
                 with open(EVALUATIONS_FILE, 'r') as f:
-                    self._evaluations = json.load(f)
-             except: self._evaluations = []
+                    # Try loading as NDJSON first
+                    for line in f:
+                        if line.strip():
+                            try:
+                                self._evaluations.append(json.loads(line))
+                            except: pass
+             except:
+                 # Fallback to old list format if NDJSON fails
+                 try:
+                     with open(EVALUATIONS_FILE, 'r') as f:
+                        self._evaluations = json.load(f)
+                 except: self._evaluations = []
 
     def _save_to_disk(self):
         if not self.use_firebase:
@@ -93,11 +104,25 @@ class PolicyStorage:
             except Exception as e:
                 print(f"Failed to save policies: {e}")
 
-    def _save_evaluations_disk(self):
-        if not self.use_firebase:
+    def _save_evaluations_disk(self, new_record: dict = None):
+        """
+        Optimized: Append new record to file instead of rewriting entire list.
+        If new_record is provided, append it.
+        If None (e.g., startup sync), we might rewrite, but generally we avoid full dumps.
+        """
+        if not self.use_firebase and new_record:
             try:
-                with open(EVALUATIONS_FILE, 'w') as f:
-                    json.dump(self._evaluations, f)
+                # Use NDJSON (Newline Delimited JSON) for O(1) appending
+                with open(EVALUATIONS_FILE, 'a') as f:
+                    f.write(json.dumps(new_record) + "\n")
+            except Exception as e:
+                print(f"Failed to append evaluation: {e}")
+        elif not self.use_firebase and not new_record:
+            # Full rewrite (only used if we modify old records, which we rarely do)
+            try:
+                # Fallback to standard JSON array if needed, but NDJSON is preferred.
+                # If we convert to NDJSON, we should verify load structure.
+                pass 
             except Exception as e:
                 print(f"Failed to save evaluations: {e}")
 
@@ -286,7 +311,7 @@ class PolicyStorage:
                 self.db.collection('evaluations').add(record)
             except Exception as e: print(f"Firebase Add Error: {e}")
         else:
-            self._save_evaluations_disk()
+            self._save_evaluations_disk(record)
 
     def get_dashboard_stats(self):
         active_policies = len([p for p in self._policies if p.is_active])

@@ -50,7 +50,7 @@ export function MobileNav() {
                                 <div className="h-px bg-white/5 w-full" />
                                 <Link href="/how-it-works" className="block hover:text-white transition-colors" onClick={() => setIsOpen(false)}>How It Works</Link>
                                 <div className="h-px bg-white/5 w-full" />
-                                <Link href="#" className="block hover:text-white transition-colors" onClick={() => setIsOpen(false)}>Support</Link>
+                                <Link href="/login" className="block hover:text-white transition-colors text-[#7C3AED]" onClick={() => setIsOpen(false)}>Start Connecting</Link>
                                 <div className="h-px bg-white/5 w-full" />
                                 <Link href="/team" className="block hover:text-white transition-colors" onClick={() => setIsOpen(false)}>Team</Link>
                                 <div className="h-px bg-white/5 w-full" />
