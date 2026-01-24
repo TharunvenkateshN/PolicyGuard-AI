@@ -17,7 +17,7 @@ services:
       - PYTHONUNBUFFERED=1
       # Google API Key (Loaded from backend/.env if present, or passed from host)
       # GOOGLE_API_KEY=${GOOGLE_API_KEY}
-      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3-pro-preview}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
     # No external DB dependencies for MVP (Using File Storage)
 
     # Frontend (Next.js) - Dev Mode
@@ -32,7 +32,5 @@ services:
       - "3000:3000"
     env_file:
       - ./frontend/.env.local
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
     depends_on:
       - backend

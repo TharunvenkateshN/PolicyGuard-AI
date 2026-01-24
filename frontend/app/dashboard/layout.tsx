@@ -1,7 +1,7 @@
 "use client"
 
 import { Sidebar } from '@/components/layout/Sidebar';
-import { MobileNav } from '@/components/layout/MobileNav';
+import { DashboardMobileNav } from '@/components/layout/DashboardMobileNav';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -21,13 +21,19 @@ export default function DashboardLayout({
         }
     }, [user, isLoading, router]);
 
-    if (isLoading) return null;
+    if (isLoading) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-gray-50 dark:bg-zinc-950">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col lg:flex-row bg-gray-50 dark:bg-zinc-950 h-screen overflow-hidden">
             <HackathonTour />
             {/* Mobile Navigation */}
-            <MobileNav />
+            <DashboardMobileNav />
 
             {/* Desktop Sidebar */}
             <Sidebar className="hidden lg:flex h-screen sticky top-0" />

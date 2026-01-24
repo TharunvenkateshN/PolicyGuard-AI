@@ -37,7 +37,8 @@ export default function EvaluatePage() {
     React.useEffect(() => {
         const checkPolicies = async () => {
             try {
-                const res = await fetch('http://localhost:8000/api/v1/policies');
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+                const res = await fetch(`${apiUrl}/api/v1/policies`);
                 if (res.ok) {
                     const policies = await res.json();
                     setTimelineSteps(prev => {
@@ -79,7 +80,8 @@ export default function EvaluatePage() {
         setRedTeamStatus('attacking');
         setRedTeamReport(null);
         try {
-            const res = await fetch('http://localhost:8000/api/v1/redteam/simulate', {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+            const res = await fetch(`${apiUrl}/api/v1/redteam/simulate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: "RedTeamTarget", description: JSON.stringify(workflowData, null, 2) })
@@ -110,7 +112,8 @@ export default function EvaluatePage() {
 
         try {
             // 1. Fetch Policies (Verify context)
-            const policiesRes = await fetch('http://localhost:8000/api/v1/policies');
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+            const policiesRes = await fetch(`${apiUrl}/api/v1/policies`);
             const policies = await policiesRes.json();
             updateStepStatus(0, 'completed');
 
@@ -134,7 +137,7 @@ export default function EvaluatePage() {
             updateStepStatus(3, 'processing');
 
             // 4. Call Real Evaluation API
-            const evalRes = await fetch('http://localhost:8000/api/v1/evaluate', {
+            const evalRes = await fetch(`${apiUrl}/api/v1/evaluate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: "Workflow", description: JSON.stringify(workflowData, null, 2) })
@@ -180,7 +183,8 @@ export default function EvaluatePage() {
             const formData = new FormData();
             formData.append('file', file);
 
-            const res = await fetch('http://localhost:8000/api/v1/analyze-workflow-doc', {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+            const res = await fetch(`${apiUrl}/api/v1/analyze-workflow-doc`, {
                 method: 'POST',
                 body: formData,
             });
@@ -219,7 +223,8 @@ export default function EvaluatePage() {
     };
 
     const handleExportPDF = () => {
-        window.open('http://localhost:8000/api/v1/evaluate/export/latest', '_blank');
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+        window.open(`${apiUrl}/api/v1/evaluate/export/latest`, '_blank');
     };
 
     return (
@@ -446,6 +451,7 @@ export default function EvaluatePage() {
                                         }))
                                     }
                                     policySummary={complianceReport.risk_assessment.breakdown ? JSON.stringify(complianceReport.risk_assessment.breakdown) : "Standard Enterprise Policy"}
+                                    report={complianceReport}
                                 />
                             )}
                         </div>
