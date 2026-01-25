@@ -9,10 +9,19 @@ from services.storage import policy_db
 import json
 from pydantic import BaseModel
 
+
+router = APIRouter()
+gemini = GeminiService()
+
 class RemediationRequest(BaseModel):
     original_text: str
     violations: list[str]
     doc_type: str = "PRD" # Default to PRD
+
+class CodeGenRequest(BaseModel):
+    policy_summary: str
+    language: str = "python"
+
 
 @router.post("/remediate/doc")
 async def remediate_document(request: RemediationRequest):
