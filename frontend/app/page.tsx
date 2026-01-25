@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Shield, CheckCircle2, ArrowRight, Play, Globe, Terminal, Cpu, Check, AlertTriangle } from 'lucide-react';
+import { Shield, CheckCircle2, ArrowRight, Play, Globe, Terminal, Cpu, Check, AlertTriangle, Code, LayoutDashboard, Lock, Zap, MessageSquare, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import dynamic from 'next/dynamic';
@@ -43,32 +43,33 @@ export default function LandingPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0B0F19] text-white selection:bg-[#7C3AED]/30 font-sans">
+        <div className="min-h-screen bg-[#0B0F19] text-slate-200 selection:bg-cyan-500/30 font-sans relative">
+            {/* Cyber Grid Overlay */}
+            <div className="absolute inset-0 bg-grid-cyber pointer-events-none opacity-20 z-0"></div>
 
             <MobileNav />
 
             {/* Desktop Navbar */}
-            <nav className={`hidden lg:flex fixed top-0 w-full z-40 transition-all duration-300 ${scrolled ? 'bg-[#0B0F19]/90 backdrop-blur-md border-b border-white/5' : 'bg-transparent'}`}>
+            <nav className={`hidden lg:flex fixed top-0 w-full z-40 transition-all duration-300 ${scrolled ? 'bg-[#0B0F19]/90 backdrop-blur-md border-b border-cyan-900/30' : 'bg-transparent'}`}>
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between w-full">
-                    <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
-                        <Shield className="w-6 h-6 text-[#7C3AED]" />
+                    <div className="flex items-center gap-2 font-bold text-xl tracking-tight text-white">
+                        <Shield className="w-6 h-6 text-cyan-400" />
                         <span>PolicyGuard AI</span>
                     </div>
 
-                    <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-gray-300">
-                        <Link href="/" className="hover:text-white transition-colors">Home</Link>
-                        <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
-                        <Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link>
-                        <Link href="#" className="hover:text-white transition-colors">Support</Link>
-                        <Link href="/team" className="hover:text-white transition-colors">Team</Link>
+                    <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-400">
+                        <Link href="/" className="hover:text-cyan-400 transition-colors">Home</Link>
+                        <Link href="/how-it-works" className="hover:text-cyan-400 transition-colors">How It Works</Link>
+                        <Link href="/pricing" className="hover:text-cyan-400 transition-colors">Pricing</Link>
+                        <Link href="/team" className="hover:text-cyan-400 transition-colors">Team</Link>
                     </div>
 
                     <div className="flex items-center gap-6">
-                        <Link href="/login" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                        <Link href="/login" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
                             Login
                         </Link>
                         <Link href="/signup">
-                            <Button className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-full px-8 shadow-[0_0_20px_rgba(124,58,237,0.3)] transition-all hover:scale-105">
+                            <Button className="bg-cyan-600 hover:bg-cyan-500 text-white rounded px-6 border border-cyan-400/20 shadow-[0_0_20px_rgba(8,145,178,0.3)] transition-all hover:scale-105 font-semibold tracking-wide">
                                 Get Started
                             </Button>
                         </Link>
@@ -77,9 +78,9 @@ export default function LandingPage() {
             </nav>
 
             {/* Hero Section */}
-            <section className="relative pt-40 pb-20 lg:pt-52 lg:pb-32 overflow-hidden">
+            <section className="relative pt-40 pb-20 lg:pt-52 lg:pb-32 overflow-hidden z-10">
                 {/* Background Glow */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[#7C3AED]/20 rounded-full blur-[120px] -z-10"></div>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-cyan-600/10 rounded-full blur-[100px] -z-10"></div>
 
                 <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
                     <motion.div
@@ -87,59 +88,110 @@ export default function LandingPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                     >
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#7C3AED]/10 text-[#A78BFA] text-xs font-bold uppercase tracking-widest border border-[#7C3AED]/20 mb-8 hover:bg-[#7C3AED]/20 transition-colors cursor-pointer">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-950/30 text-cyan-400 text-xs font-bold uppercase tracking-widest border border-cyan-500/20 mb-8 hover:bg-cyan-900/40 transition-colors cursor-pointer backdrop-blur-sm">
                             <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A78BFA] opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C4B5FD]"></span>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
                             </span>
-                            v2.0 Now Live: Automated Remediation
+                            PolicyGuard V2: Full Lifecycle Governance
                         </div>
 
-                        <h1 className="text-5xl lg:text-8xl font-extrabold tracking-tight leading-[1.1] mb-8 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
-                            Governance for the <br />
-                            <span className="text-white">Action Era.</span>
+                        <h1 className="text-5xl lg:text-8xl font-extrabold tracking-tight leading-[1.1] mb-8 text-white">
+                            Secure AI Agents <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Pre & Post Deployment.</span>
                         </h1>
 
-                        <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed mb-12">
-                            Deploy autonomous agents with confidence. We provide the <span className="text-[#A78BFA]">Trust Layer</span> that validates, monitors, and fixes your AI's behavior in real-time.
+                        <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed mb-12">
+                            The complete trust layer for Autonomous Systems. Red Team your agents before launch, then protect them with real-time guardrails in production.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Link href="/signup">
-                                <Button size="lg" className="w-full sm:w-auto h-14 px-10 text-lg rounded-full bg-[#7C3AED] hover:bg-[#6D28D9] shadow-[0_0_30px_rgba(124,58,237,0.4)] transition-all hover:scale-105">
-                                    Start Free Audit <ArrowRight className="ml-2 w-5 h-5" />
+                                <Button size="lg" className="w-full sm:w-auto h-14 px-10 text-lg rounded bg-cyan-600 hover:bg-cyan-500 shadow-[0_0_30px_rgba(8,145,178,0.4)] transition-all hover:scale-105 text-white font-bold">
+                                    Start Security Audit <ArrowRight className="ml-2 w-5 h-5" />
                                 </Button>
                             </Link>
                             <Button
                                 size="lg"
                                 variant="outline"
-                                className="w-full sm:w-auto h-14 px-10 text-lg rounded-full border-white/10 text-white hover:bg-white/5 bg-transparent backdrop-blur-sm"
+                                className="w-full sm:w-auto h-14 px-10 text-lg rounded border-cyan-500/30 text-cyan-100 hover:bg-cyan-950/30 bg-cyan-950/10 backdrop-blur-sm"
                                 onClick={() => loginAsGuest()}
                             >
-                                <Play className="mr-2 w-5 h-5 fill-white" /> Live Demo
+                                <Play className="mr-2 w-5 h-5 fill-cyan-400 text-cyan-400" /> Live Demo
                             </Button>
                         </div>
                     </motion.div>
                 </div>
             </section>
 
-            {/* Features Grid */}
-            <section className="py-24 bg-[#0B0F19] relative">
+            {/* Lifecycle Stages Section */}
+            <section className="py-24 bg-[#080C14] border-y border-white/5">
                 <div className="max-w-7xl mx-auto px-6">
-                    <div className="grid md:grid-cols-3 gap-8">
-                        {[
-                            { icon: Terminal, title: "Red Team Mode", desc: "Adversarial simulation to find vulnerabilities before deployment." },
-                            { icon: Shield, title: "Compliance Engine", desc: "Turn PDF policies into executable guardrails automatically." },
-                            { icon: Cpu, title: "SLA Risk Engine", desc: "Forecast latency and token usage bottlenecks." },
-                        ].map((feature, i) => (
-                            <div key={i} className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-[#7C3AED]/50 transition-all hover:-translate-y-2 group">
-                                <div className="w-14 h-14 rounded-2xl bg-[#7C3AED]/10 text-[#7C3AED] flex items-center justify-center mb-6 group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
-                                    <feature.icon className="w-7 h-7" />
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl lg:text-5xl font-bold mb-4">Complete Lifecycle Protection</h2>
+                        <p className="text-gray-400">From the first line of code to millions of interactions.</p>
+                    </div>
+
+                    <div className="grid lg:grid-cols-2 gap-12">
+                        {/* Pre-Deployment */}
+                        <div className="relative group">
+                            <div className="absolute inset-0 bg-blue-900/10 rounded-3xl blur-xl -z-10 group-hover:bg-blue-800/20 transition-all"></div>
+                            <div className="bg-[#0f141f] border border-blue-500/20 rounded-3xl p-8 h-full">
+                                <div className="flex items-center gap-3 mb-8">
+                                    <div className="p-3 bg-blue-500/20 rounded-xl text-blue-400">
+                                        <Code className="w-6 h-6" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-blue-100">Pre-Deployment</h3>
+                                    <span className="px-2 py-1 rounded bg-blue-500/10 text-xs font-mono text-blue-400 border border-blue-500/20">BUILD PHASE</span>
                                 </div>
-                                <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
-                                <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
+
+                                <div className="space-y-6">
+                                    {[
+                                        { title: "Adversarial Red Teaming", desc: "Simulate OWASP Top 10 attacks (Injection, Jailbreaks) to find holes.", icon: Terminal },
+                                        { title: "Auto-Remediation", desc: "Generate secure Python/TS guardrail code automatically.", icon: Zap },
+                                        { title: "AI Policy Assistant", desc: "Chat with your governance docs. Ask 'Is this HIPAA compliant?' to get citations.", icon: MessageSquare },
+                                    ].map((feat, i) => (
+                                        <div key={i} className="flex gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+                                            <feat.icon className="w-6 h-6 text-gray-400 mt-1" />
+                                            <div>
+                                                <h4 className="font-bold text-white">{feat.title}</h4>
+                                                <p className="text-sm text-gray-400 mt-1">{feat.desc}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        ))}
+                        </div>
+
+                        {/* Post-Deployment */}
+                        <div className="relative group">
+                            <div className="absolute inset-0 bg-purple-900/10 rounded-3xl blur-xl -z-10 group-hover:bg-purple-800/20 transition-all"></div>
+                            <div className="bg-[#0f141f] border border-purple-500/20 rounded-3xl p-8 h-full">
+                                <div className="flex items-center gap-3 mb-8">
+                                    <div className="p-3 bg-purple-500/20 rounded-xl text-purple-400">
+                                        <Globe className="w-6 h-6" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-purple-100">Post-Deployment</h3>
+                                    <span className="px-2 py-1 rounded bg-purple-500/10 text-xs font-mono text-purple-400 border border-purple-500/20">RUN PHASE</span>
+                                </div>
+
+                                <div className="space-y-6">
+                                    {[
+                                        { title: "SLA & Latency Intelligence", desc: "Enforce strict latency budgets (<100ms) and predict cost overruns.", icon: Activity },
+                                        { title: "Shadow AI Detection", desc: "Identify unauthorized agent activity and API endpoints.", icon: AlertTriangle },
+                                        { title: "3D Visual Monitoring", desc: "Interactive map of all data flows and policy violations.", icon: LayoutDashboard },
+                                    ].map((feat, i) => (
+                                        <div key={i} className="flex gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+                                            <feat.icon className="w-6 h-6 text-gray-400 mt-1" />
+                                            <div>
+                                                <h4 className="font-bold text-white">{feat.title}</h4>
+                                                <p className="text-sm text-gray-400 mt-1">{feat.desc}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -193,82 +245,12 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* Automated Remediation Panel */}
-            <section className="py-32 bg-[#0B0F19] relative">
-                <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center lg:grid-flow-col-dense">
-                    {/* Visual Panel Side */}
-                    <div className="lg:col-start-2">
-                        <div className="relative rounded-2xl border border-white/10 bg-[#111623] p-1 shadow-2xl">
-                            {/* Window Header */}
-                            <div className="bg-[#1A202E] px-4 py-3 rounded-t-xl flex items-center gap-2 border-b border-white/5">
-                                <div className="flex gap-1.5">
-                                    <div className="w-3 h-3 rounded-full bg-red-500/50" />
-                                    <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-                                    <div className="w-3 h-3 rounded-full bg-green-500/50" />
-                                </div>
-                                <span className="ml-4 text-xs font-mono text-gray-500">remediation_engine.tsx</span>
-                            </div>
-
-                            {/* Code/Panel Content */}
-                            <div className="p-6 space-y-6">
-                                {/* Alert Item */}
-                                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20">
-                                    <div className="flex items-start gap-4">
-                                        <AlertTriangle className="w-6 h-6 text-red-500 mt-1" />
-                                        <div>
-                                            <h4 className="text-red-400 font-bold mb-1">Critical: PII Leak Detected</h4>
-                                            <p className="text-red-400/80 text-sm mb-3">Response contains unmasked SSN pattern.</p>
-                                            <div className="bg-black/40 p-3 rounded-lg font-mono text-xs text-gray-400 mb-3">
-                                                {`{ "user_data": "SSN: 123-45-..." }`}
-                                            </div>
-                                            <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white border-none h-8 text-xs">
-                                                Auto-Fix Rule Applied
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Suggestion Item */}
-                                <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <CheckCircle2 className="w-5 h-5 text-green-500" />
-                                        <span className="text-green-400 text-sm font-medium">Policy 'HIPAA_v2' successfully enforced.</span>
-                                    </div>
-                                    <span className="text-xs text-green-500/60 font-mono">12ms</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Text Side */}
-                    <div className="lg:col-start-1">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-bold uppercase tracking-widest border border-green-500/20 mb-6">
-                            Remediation
-                        </div>
-                        <h2 className="text-4xl lg:text-5xl font-bold mb-6">Don't just detect.<br />Fix it automatically.</h2>
-                        <p className="text-lg text-gray-400 mb-8 leading-relaxed">
-                            Why wake up at 3AM? Our Remediation Engine patches vulnerabilities and enforces guardrails instantly, without human intervention.
-                        </p>
-                        <div className="grid grid-cols-2 gap-6 mb-8">
-                            <div className="space-y-2">
-                                <h4 className="text-white font-bold">Auto-Redacting</h4>
-                                <p className="text-sm text-gray-500">Automatically mask PII and sensitive data before it leaves the gateway.</p>
-                            </div>
-                            <div className="space-y-2">
-                                <h4 className="text-white font-bold">Policy Enforcement</h4>
-                                <p className="text-sm text-gray-500">Block or reroute requests that violate defined safety policies.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
             {/* Footer */}
             <footer className="py-16 border-t border-white/5 bg-[#080C14]">
                 <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12 mb-12">
                     <div className="col-span-2">
                         <div className="flex items-center gap-2 font-bold text-xl tracking-tight mb-6">
-                            <Shield className="w-6 h-6 text-[#7C3AED]" />
+                            <Shield className="w-6 h-6 text-blue-500" />
                             <span>PolicyGuard AI</span>
                         </div>
                         <p className="text-gray-500 max-w-sm mb-8 text-sm leading-relaxed">
@@ -276,7 +258,7 @@ export default function LandingPage() {
                         </p>
                         <div className="flex gap-4">
                             {[1, 2, 3, 4].map((_, i) => (
-                                <div key={i} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-[#7C3AED] hover:text-white transition-colors cursor-pointer">
+                                <div key={i} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-colors cursor-pointer">
                                     <Globe className="w-4 h-4" />
                                 </div>
                             ))}
@@ -310,12 +292,4 @@ export default function LandingPage() {
             </footer>
         </div>
     );
-}
-
-function MockGraph() {
-    return (
-        <div className="w-full h-full flex items-center justify-center text-gray-500">
-            [3D Force Graph Interactive Visualization]
-        </div>
-    )
 }

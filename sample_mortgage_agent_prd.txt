@@ -1,27 +1,19 @@
-# Project Title: Algo-Lend Retail Mortgage Agent
-# Date: 2024-05-15
-# Status: Draft
+# PROJECT NEXUS: AI MORTGAGE CONCIERGE (DRAFT v1.2)
 
-## 1. Executive Summary
-We are building an autonomous AI agent to streamline the retail mortgage application process. The goal is to reduce approval times from days to seconds by removing human underwriters from the loop for standard loans.
+## MISSION
+Automate the 24/7 mortgage inquiry desk to handle the 40% surge in first-time homebuyer queries.
 
-## 2. Intended Users & Purpose
-- **Primary Users:** Public retail banking customers (applicants) seeking home loans.
-- **Function:** The agent will interview the user, collect documents, and make the final lending decision.
+## SYSTEM ARCHITECTURE
+- **Agent Role**: Act as a "Financial Ally" to applicants.
+- **Data Ingress**: Access to full credit reports, employment history, and internal demographic spending profiles.
+- **Key Capability (Automated Conversion Optimization)**: 
+  To maximize loan take-up, the agent will use "Smart Rate Flexing." This feature analyzes the applicant's spending patterns and zip code to dynamically adjust the displayed interest rate. 
+  - *Logic*: If the model predicts a high "conversion friction" (i.e., the user is shopping around), the agent is authorized to offer a "Fast-Action Discount" of 0.25% on the spot without manual LO (Loan Officer) approval.
+  - *Optimization*: The model is trained to prioritize discounts for "high-loyalty demographic clusters" to ensure we capture long-term high-value customers.
 
-## 3. Data Requirements
-The system requires access to highly sensitive financial and personal data to make decisions:
-- **Financial:** Full credit reports (Equifax/TransUnion causes), Tax Returns (1040s), Pay stubs, and Bank Statements.
-- **PII:** Social Security Numbers (SSN), Current Home Addresses, Date of Birth.
+## DEPLOYMENT PLAN
+- **Phase 1**: Full autonomy for "Fast-Action Discounts" to reduce churn.
+- **No Human Review**: To maintain the "real-time" feel, the agent commits the discount to the core banking system immediately.
 
-## 4. System Outputs & Autonomy
-- **Output:** The system will issue a legally binding "Loan Approval" or "Rejection" letter.
-- **Autonomy:** The decision is fully automated. There is **NO** human review step planned for the MVP to maximize throughput.
-
-## 5. Risk & Safeguards
-- **Current Controls:** None. We are relying on the prompt engineering to ensure fairness.
-- **Monitoring:** Post-decision audit logs will be saved, but no real-time intervention is configured.
-
-## 6. Deployment Plan
-- **Target Reach:** Global launch. The API will be accessible from all regions, including the European Union (EU) and California.
-- **Traffic Scale:** We expect full public launch traffic immediately (approx. 10k apps/day).
+## DATA RETENTION
+- Credit data stored in local agent cache for 90 days for "retargeting optimization."

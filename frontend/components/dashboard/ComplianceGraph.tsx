@@ -2,13 +2,15 @@
 
 import React, { useRef, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
+import * as THREE from "three";
 import { ComplianceReport } from "@/types/policy";
 import { transformReportToGraph } from "@/lib/graphUtils";
 
-import * as THREE from "three";
-
-// Import ForceGraph3D dynamically to avoid SSR issues with Window
+// Import ForceGraph3D dynamically
 const ForceGraph3D = dynamic(() => import("react-force-graph-3d"), { ssr: false });
+
+import { Zap } from "lucide-react";
+import SpriteText from "three-spritetext";
 
 interface ComplianceGraphProps {
     report: ComplianceReport;
@@ -19,150 +21,170 @@ const ComplianceGraph: React.FC<ComplianceGraphProps> = ({ report }) => {
     const graphData = useMemo(() => transformReportToGraph(report), [report]);
 
     useEffect(() => {
-        // Initial Camera Position (Slow orbit effect, stops on interaction)
         if (fgRef.current) {
-            fgRef.current.cameraPosition({ x: 200, y: 50, z: 200 });
+            // Force Setup for 3D Spacing
+            const linkForce = fgRef.current.d3Force('link');
+            if (linkForce) linkForce.distance(150).strength(0.5);
+
+            fgRef.current.d3Force('charge').strength(-500);
+
+            // Auto-recenter on load
+            setTimeout(() => {
+                if (fgRef.current) {
+                    fgRef.current.zoomToFit(800, 100);
+                    fgRef.current.numDimensions(3);
+                }
+            }, 1000);
         }
     }, [graphData]);
 
-    // Helper to create text sprites
-    const createTextSprite = (text: string, color: string = 'white') => {
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        const fontSize = 24; // Resolution of text
-        if (!context) return new THREE.Object3D();
-
-        // Calculate text width to adjust canvas size
-        context.font = `Bold ${fontSize}px Sans-Serif`;
-        const metrics = context.measureText(text);
-        const textWidth = metrics.width;
-
-        canvas.width = textWidth + 20; // Padding
-        canvas.height = fontSize + 20;
-
-        // Re-apply font after resize
-        context.font = `Bold ${fontSize}px Sans-Serif`;
-        context.fillStyle = color;
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
-
-        // Add a slight shadow for readability
-        context.shadowColor = 'rgba(0,0,0,0.8)';
-        context.shadowBlur = 4;
-        context.shadowOffsetX = 1;
-        context.shadowOffsetY = 1;
-
-        context.fillText(text, canvas.width / 2, canvas.height / 2);
-
-        const texture = new THREE.CanvasTexture(canvas);
-        const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false });
-        const sprite = new THREE.Sprite(material);
-
-        // Scale sprite to be readable in 3D space
-        // Aspect ratio * generic scale factor
-        const scaleFactor = 10;
-        sprite.scale.set((canvas.width / canvas.height) * scaleFactor, scaleFactor, 1);
-        sprite.position.y = -12; // Position below node
-
-        return sprite;
+    const handleRecenter = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (fgRef.current) {
+            fgRef.current.zoomToFit(600, 100);
+        }
     };
 
     return (
-        <div className="h-[600px] w-full border rounded-lg overflow-hidden relative bg-black group">
-            {/* Legend / Overlay */}
-            <div className="absolute top-4 left-4 z-10 bg-black/60 p-3 rounded-lg text-white text-xs border border-white/10 backdrop-blur-md shadow-xl select-none pointer-events-none transition-opacity duration-300 opacity-80 group-hover:opacity-100">
-                <h3 className="font-bold text-lg mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">System Topology</h3>
-                <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-500 rounded-sm shadow-[0_0_10px_rgba(59,130,246,0.8)]"></span> Policy (Constraint)</div>
-                    <div className="flex items-center gap-2"><span className="w-3 h-3 bg-purple-500 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.8)]"></span> Component (Asset)</div>
-                    <div className="flex items-center gap-2">
-                        <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>
-                        Risk / Violation
+        <div id="compliance-graph-container" className="h-[700px] w-full border border-slate-800 rounded-3xl overflow-hidden relative bg-[#01060e] group shadow-2xl">
+            {/* Legend / Overlay - Box Style from Mockup */}
+            <div className="absolute top-8 left-8 z-10 bg-[#020817]/80 backdrop-blur-md p-5 rounded-xl border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.1)] min-w-[200px]">
+                <h3 className="font-black text-lg mb-4 text-cyan-400 font-mono tracking-tighter uppercase italic border-b border-cyan-500/10 pb-2">
+                    System Topology
+                </h3>
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 bg-blue-600 rounded-md ring-1 ring-blue-400/50 shadow-[0_0_10px_rgba(37,99,235,0.4)]"></div>
+                        <span className="font-semibold text-xs text-slate-300 tracking-wide">Policy (Constraint)</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 bg-cyan-500 rounded-full ring-1 ring-cyan-300/50 shadow-[0_0_10px_rgba(6,182,212,0.4)]"></div>
+                        <span className="font-semibold text-xs text-slate-300 tracking-wide">Component (Asset)</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 bg-red-600 rotate-45 transform ring-1 ring-red-400/50 shadow-[0_0_10px_rgba(220,38,38,0.4)]"></div>
+                        <span className="font-semibold text-xs text-slate-300 tracking-wide">Risk / Violation</span>
                     </div>
                 </div>
             </div>
 
-            {/* Controls Info */}
-            <div className="absolute bottom-4 left-4 z-10 text-[10px] text-gray-500 pointer-events-none bg-black/40 px-2 py-1 rounded backdrop-blur-sm">
-                Left Click: Rotate | Right Click: Pan | Scroll: Zoom | Drag Nodes: Move
+            {/* AI HUD Controls - Bottom Left Box */}
+            <div className="absolute bottom-10 left-8 z-10 px-4 py-2 bg-[#020817]/60 rounded-lg border border-cyan-500/20 backdrop-blur-sm">
+                <div className="text-[10px] text-cyan-500/60 font-mono flex gap-4 uppercase tracking-widest whitespace-nowrap lg:flex-row flex-col">
+                    <span>L: Rotate</span>
+                    <span className="hidden lg:inline opacity-30">|</span>
+                    <span>R: Pan</span>
+                    <span className="hidden lg:inline opacity-30">|</span>
+                    <span>Wheel: Zoom</span>
+                    <span className="hidden lg:inline opacity-30">|</span>
+                    <span>Drag Nodes: Position</span>
+                </div>
             </div>
 
-            <div className="absolute bottom-4 right-4 z-10">
+            {/* Recenter Button - Bottom Right Box */}
+            <div className="absolute bottom-10 right-8 z-50">
                 <button
-                    onClick={() => fgRef.current?.cameraPosition({ x: 200, y: 50, z: 200 }, { x: 0, y: 0, z: 0 }, 1000)}
-                    className="px-3 py-1 bg-white/10 hover:bg-white/20 text-white text-xs rounded border border-white/20 backdrop-blur-sm transition-all"
+                    onClick={handleRecenter}
+                    className="group flex items-center gap-2 px-6 py-2.5 bg-[#020817]/80 hover:bg-cyan-900/40 text-cyan-400 text-[11px] font-black uppercase tracking-[0.15em] rounded-full border border-cyan-500/40 hover:border-cyan-400 backdrop-blur-md transition-all duration-300 shadow-lg hover:shadow-cyan-500/20 active:scale-95 whitespace-nowrap"
                 >
-                    Reset View
+                    <Zap className="w-3 h-3 text-cyan-500 group-hover:animate-pulse" />
+                    Recenter Matrix
                 </button>
             </div>
 
             <ForceGraph3D
-                ref={fgRef as any}
+                ref={fgRef}
                 graphData={graphData}
-                nodeLabel="desc" // Show description on hover instead of name
-                nodeThreeObject={(node: any) => {
-                    const group = new THREE.Group();
-                    let geometry;
-                    let material;
-                    let labelColor = 'white';
+                backgroundColor="#01060e"
+                controlType="orbit"
+                showNavInfo={false}
+                enableNodeDrag={true}
 
-                    // 1. Create Shape
+                // Interaction & Recenter support
+                cooldownTicks={100}
+                onEngineStop={() => {
+                    // Optional: recenter once when layout settles if not already handled
+                }}
+                nodeLabel={(node: any) => {
+                    if (!node) return "";
+                    return `
+                        <div class="bg-slate-900/90 border border-cyan-500/30 p-3 rounded-lg backdrop-blur-md shadow-2xl">
+                            <div class="font-bold text-cyan-400 text-sm mb-1 uppercase tracking-wider">${node.name}</div>
+                            <div class="text-slate-300 text-xs leading-relaxed max-w-[200px]">${node.desc || 'No additional data available.'}</div>
+                            <div class="mt-2 text-[10px] text-slate-500 italic">Group: ${node.group}</div>
+                        </div>
+                    `;
+                }}
+
+                // Advanced Node Object Factory
+                nodeThreeObject={(node: any) => {
+                    let geometry;
+                    let color;
+                    let size = node.val ? node.val : 5;
+
                     if (node.group === "risk") {
-                        // Red Spiky Star (Octahedron)
-                        geometry = new THREE.OctahedronGeometry(node.val);
-                        material = new THREE.MeshStandardMaterial({
-                            color: 0xff0000,
-                            emissive: 0xff0000,
-                            emissiveIntensity: 0.8,
-                            roughness: 0.2,
-                            metalness: 0.8
-                        });
-                        labelColor = '#ff8888';
+                        // Diamond/Octahedron for risks
+                        geometry = new THREE.OctahedronGeometry(size * 1.5);
+                        color = "#ef4444";
                     } else if (node.group === "policy") {
-                        // Blue Cube
-                        geometry = new THREE.BoxGeometry(node.val, node.val, node.val);
-                        material = new THREE.MeshLambertMaterial({
-                            color: 0x3b82f6,
-                            transparent: true,
-                            opacity: 0.9
-                        });
-                        labelColor = '#88ccff';
+                        // Cube for policies
+                        geometry = new THREE.BoxGeometry(size * 2, size * 2, size * 2);
+                        color = "#3b82f6";
                     } else {
-                        // Purple Sphere
-                        geometry = new THREE.SphereGeometry(node.val);
-                        material = new THREE.MeshPhongMaterial({
-                            color: 0xa855f7,
-                            shininess: 100
-                        });
-                        labelColor = '#d8b4fe';
+                        // Sphere for components
+                        geometry = new THREE.SphereGeometry(size * 1.2, 24, 24);
+                        color = "#06b6d4";
                     }
+
+                    const material = new THREE.MeshPhongMaterial({
+                        color,
+                        transparent: true,
+                        opacity: 0.9,
+                        shininess: 100,
+                        specular: new THREE.Color(color).multiplyScalar(1.5)
+                    });
+
+                    const group = new THREE.Group();
                     const mesh = new THREE.Mesh(geometry, material);
+
+                    // Add wireframe overlay for tech look
+                    const wireframe = new THREE.WireframeGeometry(geometry);
+                    const lineMaterial = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.3 });
+                    const line = new THREE.LineSegments(wireframe, lineMaterial);
+                    mesh.add(line);
                     group.add(mesh);
 
-                    // 2. Create Label
-                    const label = createTextSprite(node.name, labelColor);
-                    group.add(label);
+                    // Add Title (SpriteText)
+                    if (node.name) {
+                        const sprite = new SpriteText(node.name);
+                        sprite.color = color;
+                        sprite.textHeight = size * 0.8;
+                        sprite.position.y = size * 2.5; // Positioning above node
+                        sprite.fontFace = 'Inter, system-ui, sans-serif';
+                        sprite.fontWeight = 'bold';
+                        group.add(sprite);
+                    }
 
                     return group;
                 }}
-                linkColor={() => "rgba(255,255,255,0.15)"}
-                linkWidth={1.5}
-                backgroundColor="#000000"
-                enableNodeDrag={true} // Enable dragging
-                showNavInfo={false}
-                onNodeClick={(node: any) => {
-                    // Fly to node on click
-                    const distance = 80;
-                    const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
-                    fgRef.current.cameraPosition(
-                        { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
-                        node, // lookAt ({ x, y, z })
-                        2000  // ms transition duration
-                    );
+
+                // Interaction
+                onNodeDragEnd={(node: any) => {
+                    node.fx = node.x;
+                    node.fy = node.y;
+                    node.fz = node.z;
                 }}
-                // Physics tweaks for better stability
-                cooldownTicks={100}
-                d3VelocityDecay={0.1}
+
+                // Link Visuals - Tron Lines
+                linkColor={() => "rgba(6, 182, 212, 0.3)"}
+                linkWidth={0.5}
+                linkDirectionalParticles={2}
+                linkDirectionalParticleSpeed={0.005}
+                linkDirectionalParticleWidth={2}
+                linkDirectionalParticleColor={() => "#06b6d4"}
+
+            // Scene Lighting & Stability
             />
         </div>
     );

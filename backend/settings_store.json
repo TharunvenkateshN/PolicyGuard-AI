@@ -3,6 +3,7 @@
     "privacy": true,
     "safety": true,
     "security": true,
+<<<<<<< HEAD
     "fairness": false,
     "compliance": true
   },
@@ -10,7 +11,17 @@
   "sensitivity": "Balanced",
   "riskThreshold": "Warn Medium",
   "minConfidence": 80,
+  "strictness": 50,
+=======
+    "fairness": true,
+    "compliance": true
+  },
+  "region": "EU",
+  "sensitivity": "Aggressive",
+  "riskThreshold": "Allow Low",
+  "minConfidence": 80,
   "strictness": 10,
+>>>>>>> main
   "guardrailAction": "Suggest",
   "guardrailExplain": true,
   "guardrailCite": false,
@@ -23,7 +34,11 @@
   },
   "notifications": {
     "email": true,
+<<<<<<< HEAD
     "slack": false,
+=======
+    "slack": true,
+>>>>>>> main
     "dashboard": true,
     "triggers": {
       "highRisk": true,

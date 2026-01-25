@@ -113,7 +113,7 @@ export default function SLAAnalyticsPage() {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
-            <div className="flex justify-between items-start">
+            <div id="sla-header" className="flex justify-between items-start">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
                         SLA Designer & Analytics
@@ -132,7 +132,7 @@ export default function SLAAnalyticsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
                 {/* LEFT COLUMN: Controls */}
-                <Card className="lg:col-span-4 h-fit border-l-4 border-l-purple-500 shadow-lg">
+                <Card id="sla-metrics-card" className="lg:col-span-4 h-fit border-l-4 border-l-purple-500 shadow-lg">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Activity className="w-5 h-5 text-purple-600" /> Service Metrics
@@ -150,7 +150,11 @@ export default function SLAAnalyticsPage() {
                             <Slider
                                 value={[metrics.latency_ms]}
                                 min={10} max={2000} step={10}
-                                onValueChange={(v) => setMetrics({ ...metrics, latency_ms: v[0] })}
+                                onValueChange={(v) => {
+                                    if (v[0] !== metrics.latency_ms) {
+                                        setMetrics(prev => ({ ...prev, latency_ms: v[0] }));
+                                    }
+                                }}
                                 className="cursor-pointer"
                             />
                         </div>
@@ -166,7 +170,11 @@ export default function SLAAnalyticsPage() {
                             <Slider
                                 value={[metrics.error_rate_percent]}
                                 min={0} max={10} step={0.01}
-                                onValueChange={(v) => setMetrics({ ...metrics, error_rate_percent: v[0] })}
+                                onValueChange={(v) => {
+                                    if (v[0] !== metrics.error_rate_percent) {
+                                        setMetrics(prev => ({ ...prev, error_rate_percent: v[0] }));
+                                    }
+                                }}
                             />
                         </div>
 
@@ -179,7 +187,11 @@ export default function SLAAnalyticsPage() {
                             <Slider
                                 value={[metrics.uptime_percent]}
                                 min={90} max={99.99} step={0.01}
-                                onValueChange={(v) => setMetrics({ ...metrics, uptime_percent: v[0] })}
+                                onValueChange={(v) => {
+                                    if (v[0] !== metrics.uptime_percent) {
+                                        setMetrics(prev => ({ ...prev, uptime_percent: v[0] }));
+                                    }
+                                }}
                             />
                         </div>
 
@@ -192,13 +204,18 @@ export default function SLAAnalyticsPage() {
                             <Slider
                                 value={[metrics.support_response_time_hours]}
                                 min={1} max={48} step={1}
-                                onValueChange={(v) => setMetrics({ ...metrics, support_response_time_hours: v[0] })}
+                                onValueChange={(v) => {
+                                    if (v[0] !== metrics.support_response_time_hours) {
+                                        setMetrics(prev => ({ ...prev, support_response_time_hours: v[0] }));
+                                    }
+                                }}
                             />
                         </div>
 
                     </CardContent>
                     <CardFooter>
                         <Button
+                            id="generate-sla-btn"
                             className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg transition-all"
                             size="lg"
                             onClick={handleAnalyze}
@@ -221,7 +238,7 @@ export default function SLAAnalyticsPage() {
                 <div className="lg:col-span-8 space-y-6">
 
                     {/* 1. Live Graph Simulation */}
-                    <Card className="shadow-md">
+                    <Card id="sla-simulation-graph" className="shadow-md">
                         <CardHeader>
                             <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-widest">Live Latency Simulation</CardTitle>
                         </CardHeader>

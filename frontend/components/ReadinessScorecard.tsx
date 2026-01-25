@@ -25,7 +25,7 @@ interface DataInteractionMap {
 
 export interface PolicyAlignment {
     policy_area: string;
-    status: 'Compliant' | 'Partial Compliance' | 'At Risk' | 'Non-Compliant';
+    status: 'Compliant' | 'Partial Compliance' | 'At Risk' | 'Non-Compliant' | 'Cannot Be Assessed';
     reason: string;
 }
 
@@ -56,14 +56,37 @@ interface DeploymentVerdict {
     approved: boolean;
     status_label: string;
     approval_conditions: string[];
+    catastrophic_consequence?: string;
+}
+
+interface RiskSimulation {
+    scenario_title: string;
+    failure_mode: string;
+    description: string;
+    plausibility_grounding: string;
+    severity: 'Critical' | 'High' | 'Medium' | 'Low';
+    violated_clause: string;
+    confidence_level: 'High' | 'Medium' | 'Low';
+}
+
+interface ForensicDigest {
+    policy_hash: string;
+    workflow_hash: string;
+    model_version: string;
+    prompt_hash: string;
+    combined_digest: string;
 }
 
 export interface ComplianceReport {
+    report_id: string;
+    timestamp: string;
+    forensic_digest: ForensicDigest;
     system_spec: AISystemSpec;
     data_map: DataInteractionMap;
     policy_matrix: PolicyAlignment[];
     risk_assessment: RiskScore;
     evidence: EvidenceTrace[];
+    risk_simulations: RiskSimulation[];
     recommendations: Recommendation[];
     verdict: DeploymentVerdict;
 }
@@ -76,6 +99,20 @@ interface ReadinessScorecardProps {
 export function ReadinessScorecard({ report, onDownload }: ReadinessScorecardProps) {
     const reportRef = useRef<HTMLDivElement>(null);
 
+<<<<<<< HEAD
+    const handleDownloadPDF = async () => {
+        if (!reportRef.current) return;
+        const canvas = await html2canvas(reportRef.current, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`Compliance_Forensics_${report.report_id}.pdf`);
+    };
+
+=======
+>>>>>>> main
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'Compliant': return 'text-green-600 bg-green-50 border-green-200';
@@ -87,29 +124,97 @@ export function ReadinessScorecard({ report, onDownload }: ReadinessScorecardPro
         }
     };
 
-    const getRiskColor = (level: string) => {
-        switch (level) {
-            case 'High': return 'text-red-600';
-            case 'Medium': return 'text-amber-600';
-            case 'Low': return 'text-green-600';
-            default: return 'text-gray-600';
+    const getRiskColor = (severity: string) => {
+        switch (severity) {
+            case 'High': return 'bg-red-100 text-red-700 border-red-200';
+            case 'Medium': return 'bg-amber-100 text-amber-700 border-amber-200';
+            case 'Low': return 'bg-blue-100 text-blue-700 border-blue-200';
+            default: return 'bg-gray-100 text-gray-700 border-gray-200';
         }
+    };
+
+    // Map of failure modes to real-world impact cases for "Plausibility Grounding"
+    const realWorldGrounding: { [key: string]: { company: string, impact: string } } = {
+        "Prompt Injection": { company: "Chevrolet", impact: "Chatbot tricked into selling a vehicle for $1." },
+        "Data Exfiltration": { company: "Samsung", impact: "Sensitive source code leaked via employee ChatGPT usage." },
+        "Algorithmic Bias": { company: "Amazon", impact: "Scrapped hiring AI that discriminated against women." },
+        "Unauthorized Commitment": { company: "Air Canada", impact: "Legally held to a refund policy hallucinated by a chatbot ($812 fine)." },
+        "Deceptive Claims": { company: "DoNotPay", impact: "FTC settlement ($193k) for unsubstantiated legal service claims." }
     };
 
     return (
         <div className="space-y-4">
+            <div className="bg-zinc-100 dark:bg-zinc-900 px-4 py-3 rounded-lg border border-zinc-200 dark:border-zinc-800 space-y-2">
+                <div className="flex justify-between items-center text-[10px] font-mono text-zinc-500 uppercase tracking-widest">
+                    <div className="flex gap-4">
+                        <span>Report ID: {report.report_id}</span>
+                        <span>Analyzed: {new Date(report.timestamp).toLocaleString()}</span>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                        <span>Tamper-Evident Forensic State</span>
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+                    <div className="flex flex-col">
+                        <span className="text-[8px] text-zinc-400 uppercase font-bold">Policy Hash</span>
+                        <span className="text-[9px] font-mono text-zinc-600 truncate">{report.forensic_digest.policy_hash}</span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-[8px] text-zinc-400 uppercase font-bold">Workflow Hash</span>
+                        <span className="text-[9px] font-mono text-zinc-600 truncate">{report.forensic_digest.workflow_hash}</span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-[8px] text-zinc-400 uppercase font-bold">Model Version</span>
+                        <span className="text-[9px] font-mono text-zinc-600 truncate">{report.forensic_digest.model_version}</span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-[8px] text-zinc-400 uppercase font-bold">Prompt Hash</span>
+                        <span className="text-[9px] font-mono text-zinc-600 truncate">{report.forensic_digest.prompt_hash}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-md flex items-start gap-3 text-xs text-blue-800">
+                <Shield className="w-4 h-4 shrink-0 mt-0.5" />
+                <p>
+                    <strong>Demonstrative Compliance Analysis:</strong> This report identifies plausible failure classes using analogical reasoning.
+                    It is a risk modeling tool for <strong>Human-in-the-Loop Authorization</strong>, not a legal guarantee.
+                </p>
+            </div>
+
             <div className="flex justify-end">
+<<<<<<< HEAD
+                <Button onClick={handleDownloadPDF} variant="outline" size="sm">
+                    <Download className="w-4 h-4 mr-2" />
+                    Export Forensic Audit Log
+                </Button>
+=======
                 {onDownload && (
                     <Button onClick={onDownload} variant="outline" size="sm">
                         <Download className="w-4 h-4 mr-2" />
                         Download Certificate (PDF)
                     </Button>
                 )}
+>>>>>>> main
             </div>
 
             <div ref={reportRef} className="space-y-6 bg-white dark:bg-zinc-950 p-6 rounded-xl border shadow-sm">
 
-                {/* 7. Verdict Banner (Top for Impact) */}
+                <div className="border-b pb-6 mb-2">
+                    <div className="flex items-center gap-2 mb-2">
+                        <Shield className="w-5 h-5 text-blue-600" />
+                        <span className="text-sm font-semibold text-blue-900 uppercase tracking-wider">Fiduciary Shield: Compliance Accountability Digest</span>
+                    </div>
+                    <h1 className="text-3xl font-bold text-slate-900">
+                        Compliance Readiness Report
+                    </h1>
+                    <p className="text-slate-500 mt-1 italic text-sm">
+                        Immutable forensic record of pre-deployment policy knowledge and risk discovery.
+                    </p>
+                </div>
+
+                {/* Verdict Banner */}
                 <div className={cn(
                     "p-6 rounded-lg border-2 flex items-center justify-between",
                     report.verdict.approved
@@ -120,6 +225,17 @@ export function ReadinessScorecard({ report, onDownload }: ReadinessScorecardPro
                         <h2 className={cn("text-2xl font-bold mb-2", report.verdict.approved ? "text-green-700" : "text-red-700")}>
                             {report.verdict.status_label}
                         </h2>
+
+                        {report.verdict.catastrophic_consequence && (
+                            <div className="mb-4 p-3 bg-red-600 text-white rounded-md flex items-center gap-3 shadow-lg animate-bounce">
+                                <AlertTriangle className="w-5 h-5 shrink-0" />
+                                <div className="text-sm font-bold leading-tight">
+                                    CATASTROPHIC RISK DISCOVERED:<br />
+                                    <span className="font-normal opacity-90">{report.verdict.catastrophic_consequence}</span>
+                                </div>
+                            </div>
+                        )}
+
                         <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-300">
                             {report.verdict.approval_conditions.map((cond, i) => (
                                 <li key={i}>{cond}</li>
@@ -130,6 +246,53 @@ export function ReadinessScorecard({ report, onDownload }: ReadinessScorecardPro
                         ? <CheckCircle className="w-16 h-16 text-green-500" />
                         : <XCircle className="w-16 h-16 text-red-500" />
                     }
+                </div>
+
+                {/* New Section: Counterfactual Risk Simulations */}
+                <div className="space-y-4">
+                    <h3 className="text-lg font-bold flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5 text-amber-600" />
+                        Relational Risk Modeling (Analogy-Based)
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {report.risk_simulations.map((sim, i) => (
+                            <div key={i} className="p-4 rounded-lg border bg-zinc-50 dark:bg-zinc-900/50 space-y-3">
+                                <div className="flex justify-between items-start">
+                                    <h4 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">{sim.scenario_title}</h4>
+                                    {/* @ts-ignore */}
+                                    <Badge variant="outline" className={getRiskColor(sim.severity)}>{sim.severity} Risk</Badge>
+                                </div>
+                                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed italic">
+                                    "{sim.description}"
+                                </p>
+                                <div className="pt-2 border-t space-y-2">
+                                    <div className="flex items-center gap-2 text-[10px] text-zinc-500">
+                                        <Shield className="w-3 h-3 text-blue-500" />
+                                        <span className="font-semibold uppercase tracking-tighter text-blue-600">Plausible Failure Class:</span>
+                                    </div>
+                                    <p className="text-[11px] text-zinc-700 dark:text-zinc-300">
+                                        {sim.plausibility_grounding}
+                                    </p>
+
+                                    {/* Real-World Mapping */}
+                                    {Object.entries(realWorldGrounding).map(([key, value]) => (
+                                        sim.failure_mode.includes(key) && (
+                                            <div key={key} className="mt-2 p-2 rounded bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/50 flex flex-col gap-1">
+                                                <div className="text-[9px] font-bold text-red-600 uppercase tracking-tighter italic">Comparative Precedent (Analogy)</div>
+                                                <div className="text-[10px] text-zinc-800 dark:text-zinc-200">
+                                                    <strong>{value.company}:</strong> {value.impact}
+                                                </div>
+                                            </div>
+                                        )
+                                    ))}
+                                </div>
+                                <div className="flex justify-between items-center pt-1">
+                                    <div className="text-[10px] text-zinc-400">Policy Trace: {sim.violated_clause}</div>
+                                    <div className="text-[10px] font-medium text-zinc-500 border rounded px-1.5 py-0.5">Analogy Confidence: {sim.confidence_level}</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -231,8 +394,20 @@ export function ReadinessScorecard({ report, onDownload }: ReadinessScorecardPro
 
                 {/* 3. Policy Matrix */}
                 <Card>
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-lg">Policy Alignment Matrix</CardTitle>
+                    <CardHeader className="pb-3 text-sm">
+                        <CardTitle className="text-lg flex justify-between items-center">
+                            <span>Policy Alignment Matrix</span>
+                            <div className="flex gap-1.5 items-center px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-[10px] text-blue-700 dark:text-blue-300 font-bold uppercase tracking-tighter">
+                                <Activity className="w-3 h-3" />
+                                <span>Reasoning Node Required</span>
+                                <div className="group relative">
+                                    <div className="cursor-help underline decoration-dotted">?</div>
+                                    <div className="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-zinc-900 text-white text-[9px] lowercase font-normal rounded shadow-xl z-50">
+                                        This system degrades sharp without long-context reasoning models (Gemini) capable of semantic conflict discovery.
+                                    </div>
+                                </div>
+                            </div>
+                        </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                         {report.policy_matrix.map((pol, i) => (

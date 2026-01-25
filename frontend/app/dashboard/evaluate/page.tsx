@@ -10,7 +10,7 @@ import { Play, FileText as FileIcon, ShieldCheck, CheckCircle, Activity, Target 
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertTriangle, Lock, Terminal } from 'lucide-react';
+import { AlertTriangle, Lock, Terminal, ShieldAlert } from 'lucide-react';
 
 export default function EvaluatePage() {
     const [evaluationStatus, setEvaluationStatus] = useState<'idle' | 'running' | 'done'>('idle');
@@ -26,11 +26,11 @@ export default function EvaluatePage() {
     const [redTeamReport, setRedTeamReport] = useState<any>(null);
 
     const [timelineSteps, setTimelineSteps] = useState([
-        { id: 'ingest', label: 'Policy Context Load', status: 'pending' as StepStatus, description: 'Checking active policies...' },
-        { id: 'intent', label: 'Workflow Analysis', status: 'pending' as StepStatus, description: 'Parsing workflow capabilities' },
-        { id: 'simulate', label: 'Trace Simulation', status: 'pending' as StepStatus, description: 'Generating synthetic post-deployment traffic' },
-        { id: 'conflict', label: 'Guardrail Checks', status: 'pending' as StepStatus, description: 'Gemini 3 Pro reasoning on traces' },
-        { id: 'verdict', label: 'Compliance Verdict', status: 'pending' as StepStatus, description: 'Generating report' },
+        { id: 'ingest', label: 'Policy Verification', status: 'pending' as StepStatus, description: 'Checking authorized governance rules...' },
+        { id: 'intent', label: 'Workflow Discovery', status: 'pending' as StepStatus, description: 'Extracting semantic behavior maps' },
+        { id: 'simulate', label: 'Counterfactual Modeling', status: 'pending' as StepStatus, description: 'Simulating plausible failure modes' },
+        { id: 'conflict', label: 'Semantic Risk Analysis', status: 'pending' as StepStatus, description: 'Gemini reasoning on policy edge cases' },
+        { id: 'verdict', label: 'Forensic Snapshot', status: 'pending' as StepStatus, description: 'Hashing immutable audit report' },
     ]);
 
     // Initial Policy Check
@@ -230,27 +230,37 @@ export default function EvaluatePage() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Workflow Evaluation</h1>
-                    <p className="text-gray-500 dark:text-gray-400">Test AI agents against guardrails before deployment.</p>
+        <div className="max-w-6xl mx-auto space-y-8 pb-20">
+            {/* Demo Trigger Section */}
+            <div className="bg-blue-600 rounded-2xl p-6 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border-4 border-blue-400">
+                <div className="space-y-2">
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                        <Shield className="w-6 h-6 text-blue-200" />
+                        Fiduciary Shield: Financial Decision Agents
+                    </h2>
+                    <p className="text-sm text-blue-100 max-w-xl">
+                        PolicyGuard doesn't decide what to build—<strong>it proves what you knew before you built it.</strong> A pre-deployment forensic record for high-stakes financial agents.
+                    </p>
+                    <div className="flex gap-2 pt-1">
+                        <Badge className="bg-blue-500/50 border-blue-300 text-[10px] uppercase">Indispensable Gemini Reasoning</Badge>
+                        <Badge className="bg-blue-500/50 border-blue-300 text-[10px] uppercase">Cross-Policy Contradiction Detection</Badge>
+                    </div>
                 </div>
             </div>
 
             <Tabs defaultValue="compliance" value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-                    <TabsTrigger value="compliance" className="flex items-center gap-2">
+                    <TabsTrigger id="compliance-tab" value="compliance" className="flex items-center gap-2">
                         <ShieldCheck className="h-4 w-4" /> Compliance Audit
                     </TabsTrigger>
-                    <TabsTrigger value="redteam" className="flex items-center gap-2 data-[state=active]:bg-red-500 data-[state=active]:text-white">
+                    <TabsTrigger id="red-team-tab" value="redteam" className="flex items-center gap-2 data-[state=active]:bg-red-500 data-[state=active]:text-white">
                         <Terminal className="h-4 w-4" /> Red Team (Attack)
                     </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="compliance">
                     <div className="flex justify-end mb-4">
-                        <Button onClick={handleRunEvaluation} disabled={evaluationStatus === 'running'} size="lg">
+                        <Button id="run-evaluation-btn" onClick={handleRunEvaluation} disabled={evaluationStatus === 'running'} size="lg">
                             <Play className="w-4 h-4 mr-2" />
                             {evaluationStatus === 'running' ? 'Analyzing...' : 'Start Analysis'}
                         </Button>
@@ -438,23 +448,27 @@ export default function EvaluatePage() {
                                     <FileIcon className="mr-2 h-4 w-4" /> Download Certificate
                                 </Button>
                             </div>
-                            <ReadinessScorecard report={complianceReport} />
+                            <div id="readiness-scorecard">
+                                <ReadinessScorecard report={complianceReport} />
+                            </div>
 
                             {/* Auto Remediation Interaction */}
                             {complianceReport.risk_assessment.overall_score > 0 && (
-                                <RemediationPanel
-                                    originalText={JSON.stringify(workflowData, null, 2)}
-                                    violations={complianceReport.policy_matrix
-                                        .filter((p) => p.status !== "Compliant")
-                                        .map((p) => ({
-                                            policy_area: p.policy_area,
-                                            status: p.status,
-                                            reason: p.reason
-                                        }))
-                                    }
-                                    policySummary={complianceReport.risk_assessment.breakdown ? JSON.stringify(complianceReport.risk_assessment.breakdown) : "Standard Enterprise Policy"}
-                                    report={complianceReport}
-                                />
+                                <div id="remediation-panel">
+                                    <RemediationPanel
+                                        originalText={JSON.stringify(workflowData, null, 2)}
+                                        violations={complianceReport.policy_matrix
+                                            .filter((p) => p.status !== "Compliant")
+                                            .map((p) => ({
+                                                policy_area: p.policy_area,
+                                                status: p.status,
+                                                reason: p.reason
+                                            }))
+                                        }
+                                        policySummary={complianceReport.risk_assessment.breakdown ? JSON.stringify(complianceReport.risk_assessment.breakdown) : "Standard Enterprise Policy"}
+                                        report={complianceReport}
+                                    />
+                                </div>
                             )}
                         </div>
                     )}
@@ -609,7 +623,7 @@ export default function EvaluatePage() {
 
                                     <div className="flex items-center gap-4">
                                         {redTeamStatus === 'idle' && (
-                                            <Button onClick={handleRedTeamAttack} className="bg-red-600 hover:bg-red-700 text-white font-bold border-0 shadow-[0_0_20px_rgba(220,38,38,0.5)] transition-all hover:scale-105">
+                                            <Button id="initiate-attack-btn" onClick={handleRedTeamAttack} className="bg-red-600 hover:bg-red-700 text-white font-bold border-0 shadow-[0_0_20px_rgba(220,38,38,0.5)] transition-all hover:scale-105">
                                                 <Lock className="w-4 h-4 mr-2" /> INITIATE_ATTACK
                                             </Button>
                                         )}
@@ -682,11 +696,27 @@ export default function EvaluatePage() {
                                                                     </span>
                                                                 </div>
                                                             </div>
-                                                            <div className="pl-0 md:pl-8 space-y-2">
-                                                                <p className="text-sm text-zinc-400"><span className="text-zinc-600">{">"} Method:</span> {attack.method}</p>
-                                                                <div className="text-xs text-blue-400/80 mt-2 flex items-start gap-2">
-                                                                    <ShieldCheck className="w-4 h-4 shrink-0" />
-                                                                    <span>MITIGATION: {attack.mitigation_suggestion}</span>
+                                                            <div className="pl-0 md:pl-8 space-y-4">
+                                                                <p className="text-sm text-zinc-400"><span className="text-zinc-600 font-bold">{">"} METHOD:</span> {attack.method}</p>
+
+                                                                <div className="flex flex-wrap gap-3">
+                                                                    {attack.regulatory_violation && (
+                                                                        <div className="flex items-center gap-1.5 px-3 py-1 bg-purple-500/10 border border-purple-500/30 rounded-md">
+                                                                            <ShieldAlert className="w-3.5 h-3.5 text-purple-400" />
+                                                                            <span className="text-[10px] font-bold text-purple-300 uppercase tracking-tight">Policy: {attack.regulatory_violation}</span>
+                                                                        </div>
+                                                                    )}
+                                                                    {attack.pii_risk && (
+                                                                        <div className={`flex items-center gap-1.5 px-3 py-1 ${attack.pii_risk === 'High' ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-orange-500/10 border-orange-500/30 text-orange-400'} border rounded-md`}>
+                                                                            <Lock className="w-3.5 h-3.5" />
+                                                                            <span className="text-[10px] font-bold uppercase tracking-tight">PII RISK: {attack.pii_risk}</span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="text-xs text-cyan-400/80 mt-2 flex items-start gap-2 bg-cyan-950/20 p-2 rounded border border-cyan-500/10">
+                                                                    <ShieldCheck className="w-4 h-4 shrink-0 text-cyan-500" />
+                                                                    <span><span className="font-bold text-cyan-500">MITIGATION:</span> {attack.mitigation_suggestion}</span>
                                                                 </div>
                                                             </div>
                                                         </div>

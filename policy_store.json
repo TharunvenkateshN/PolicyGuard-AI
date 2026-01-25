@@ -1,0 +1,10 @@
+[
+    {
+        "id": "pol-8172",
+        "name": "Global AI Governance Framework (v2.4)",
+        "content": "SECTION 4.2: FINANCIAL FAIRNESS & BIAS PREVENTION\nSub-section A: Any AI system authorized to COMMIT financial resources, including interest rate discounts or credit limit adjustments, MUST undergo a disparate impact analysis.\nSub-section B: DIFFERENTIAL PRICING: The use of demographic spend profiles, zip codes, or proxy indicators to dynamically adjust financial offers is STRICTLY PROHIBITED.\nSub-section C: AUTOMATED COMMITMENT: No autonomous agent may commit the corporation to a legal contract or financial discount exceeding $100 without explicit Human-in-the-Loop Authorization.\n\nSECTION 5.1: DATA RESIDENCY & RETENTION\nPII and credit-derived data must be flushed from local AI memory/context immediately after a session completes. Retention for 'retargeting' or 'optimization' beyond 24 hours is prohibited without separate consent.",
+        "status": "Active",
+        "version": "v2.4.0",
+        "summary": "Core constraints on automated financial commitments, anti-bias requirements for dynamic pricing, and strict data retention limits for credit-derived information."
+    }
+]

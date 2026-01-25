@@ -1,5 +1,12 @@
 # PolicyGuard AI 🛡️
 
+<<<<<<< HEAD
+**PolicyGuard AI** is a pre-deployment policy governance control plane designed to ensure AI workflows comply with organizational policies before they go live. 
+
+> “PolicyGuard doesn’t decide what to build. It proves what you knew before you built it.”
+
+It serves as a **Fiduciary Shield** for financial institutions, providing a forensic record of pre-deployment policy knowledge and risk discovery.
+=======
 **The Trust Layer for the Action Era.**
 
 ![Next.js](https://img.shields.io/badge/Next.js-14-black) ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688) ![Gemini 3](https://img.shields.io/badge/AI-Gemini%203%20Pro-4285F4) ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED)
@@ -21,6 +28,7 @@ We built a specialized **Test Mode** for the hackathon judges. No signup, no API
 3.  Enjoy the **Self-Driving Tour** that guides you through the Red Team attack simulation.
 
 ---
+>>>>>>> main
 
 ## 🚀 Key Features
 

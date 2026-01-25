@@ -7,40 +7,49 @@ from config import settings
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-STORAGE_FILE = "policy_store.json"
-SETTINGS_FILE = "settings_store.json"
-EVALUATIONS_FILE = "evaluations_store.json"
-
 class PolicyStorage:
     def __init__(self):
         self._policies: List[PolicyDocument] = []
         self._evaluations: List[dict] = []
-        self.use_firebase = False
         self.db = None
         
-        # Init Firebase if creds exist
-        if os.path.exists(settings.FIREBASE_CREDENTIALS):
-            try:
-                if not firebase_admin._apps:
-                    cred = credentials.Certificate(settings.FIREBASE_CREDENTIALS)
-                    firebase_admin.initialize_app(cred)
-                self.db = firestore.client()
-                self.use_firebase = True
-                print("✅ Connected to Firebase Firestore")
-                # Initial Load
-                self._load_from_firebase()
-                self._load_vectors()
-            except Exception as e:
-                print(f"❌ Firebase Init Failed: {e}")
-                self._load_from_disk()
-                self._load_vectors()
-        else:
-            print("⚠️ Firebase Key skipped (DEBUG MODE). Using local JSON storage.")
-            self._load_from_disk()
+        # Init Firebase Mandatory
+        try:
+            if not firebase_admin._apps:
+                # Check if it's a JSON string or a file path
+                creds_input = settings.FIREBASE_CREDENTIALS
+                if creds_input.strip().startswith('{'):
+                    # It's a JSON string
+                    creds_dict = json.loads(creds_input)
+                    cred = credentials.Certificate(creds_dict)
+                elif os.path.exists(creds_input):
+                    # It's a file path
+                    cred = credentials.Certificate(creds_input)
+                else:
+                    raise FileNotFoundError(f"Firebase Credentials not found at {creds_input} and not provided as JSON string.")
+                
+                firebase_admin.initialize_app(cred)
+            
+            self.db = firestore.client()
+            print("✅ Connected to Firebase Firestore (Production Mode)")
+            
+            # Initial Load
+            self._load_from_firebase()
             self._load_vectors()
+            
+        except Exception as e:
+            print(f"❌ CRITICAL FIREBASE ERROR: {e}")
+            print("\n" + "!"*60)
+            print("  FIREBASE CONNECTION FAILED")
+            print("  1. Place 'serviceAccountKey.json' in /backend")
+            print("  2. OR set FIREBASE_CREDENTIALS env var with the JSON string")
+            print("  3. Run 'python migrate_to_firebase.py' after connecting")
+            print("!"*60 + "\n")
+            print("Application running in CRIPPLED state.")
 
     # --- Loading Logic ---
     def _load_from_firebase(self):
+        if not self.db: return
         try:
             # Load Policies
             policy_ref = self.db.collection('policies')
@@ -64,59 +73,21 @@ class PolicyStorage:
                 try:
                     self._evaluations.append(doc.to_dict())
                 except: pass
-            self._evaluations.reverse() # Keep internal order chronological if needed, or handle in getters
+            self._evaluations.reverse() 
                 
         except Exception as e:
             print(f"Error loading from Firebase: {e}")
 
-    def _load_from_disk(self):
-        if os.path.exists(STORAGE_FILE):
-            try:
-                with open(STORAGE_FILE, 'r') as f:
-                    data = json.load(f)
-                    self._policies = [PolicyDocument(**item) for item in data]
-            except Exception as e:
-                print(f"Failed to load policies: {e}")
-                self._policies = []
-        
-        if os.path.exists(EVALUATIONS_FILE):
-             try:
-                with open(EVALUATIONS_FILE, 'r') as f:
-                    self._evaluations = json.load(f)
-             except: self._evaluations = []
-
-    def _save_to_disk(self):
-        if not self.use_firebase:
-            try:
-                with open(STORAGE_FILE, 'w') as f:
-                    json.dump([p.model_dump() for p in self._policies], f)
-            except Exception as e:
-                print(f"Failed to save policies: {e}")
-
-    def _save_evaluations_disk(self):
-        if not self.use_firebase:
-            try:
-                with open(EVALUATIONS_FILE, 'w') as f:
-                    json.dump(self._evaluations, f)
-            except Exception as e:
-                print(f"Failed to save evaluations: {e}")
-
     # --- CRUD Operations ---
     def add_policy(self, policy: PolicyDocument):
         self._policies.append(policy)
-        if self.use_firebase:
+        if self.db:
             try:
                 self.db.collection('policies').document(policy.id).set(policy.model_dump())
             except Exception as e: print(f"Firebase Error: {e}")
-        else:
-            self._save_to_disk()
 
     # --- Vector Search Logic ---
     def add_policy_vectors(self, policy_id: str, chunks: List[str], vectors: List[List[float]]):
-        """
-        Stores vectors in memory and persists them.
-        Structure: self._vectors = [ {"policy_id": "pid", "chunk_text": "...", "vector": [...], "chunk_id": "..."} ]
-        """
         if not hasattr(self, '_vector_store'):
             self._vector_store = []
 
@@ -134,63 +105,34 @@ class PolicyStorage:
             new_entries.append(entry)
             self._vector_store.append(entry)
         
-        # Persist
-        if self.use_firebase:
+        # Persist to Firebase only
+        if self.db:
             try:
-                # Store chunks in a subcollection 'vectors' under the policy document
                 batch = self.db.batch()
-                # Delete old vectors first (naive approach: limit 500 in batch)
-                # For MVP, we just add new ones. cleanup is harder in NoSQL without knowing IDs.
-                # Ideally, we list subcollection and delete.
-                
-                # Write new
                 for entry in new_entries:
                     ref = self.db.collection('policies').document(policy_id).collection('vectors').document(entry['chunk_id'])
                     batch.set(ref, entry)
                 batch.commit()
             except Exception as e:
                 print(f"Firebase Vector Save Error: {e}")
-        else:
-            # We need a separate file for vectors to avoid bloating policy_store.json
-            self._save_vectors_disk()
-
-    def _save_vectors_disk(self):
-        try:
-            with open("vector_store.json", 'w') as f:
-                json.dump(self._vector_store, f)
-        except Exception as e: 
-            print(f"Vector Disk Save Error: {e}")
 
     def _load_vectors(self):
         self._vector_store = []
-        if self.use_firebase:
-            # Load all vectors? That might be heavy. 
-            # Better: We load on demand? No, for cosine similarity we need them in memory (numpy).
-            # If 100 policies * 10 chunks = 1000 vectors. Small enough for memory.
+        if self.db:
             try:
                 policies = self.db.collection('policies').stream()
                 for p in policies:
                     vecs = p.reference.collection('vectors').stream()
                     for v in vecs:
                         self._vector_store.append(v.to_dict())
+                print(f"✅ Loaded {len(self._vector_store)} policy vector chunks from Firebase")
             except Exception as e:
-                print(f"Vector Load Error: {e}")
-        else:
-            if os.path.exists("vector_store.json"):
-                try:
-                    with open("vector_store.json", 'r') as f:
-                        self._vector_store = json.load(f)
-                except: pass
+                print(f"Firebase Vector Load Error: {e}")
 
     def search_relevant_policies(self, query_vec: List[float], top_k: int = 5) -> List[dict]:
-        """
-        Returns top_k chunks sorted by cosine similarity.
-        """
         if not hasattr(self, '_vector_store') or not self._vector_store:
             return []
 
-        from services.gemini import GeminiService # Circular import fix?
-        # Actually we need the math helper. Or just use numpy here.
         import numpy as np
         
         scores = []
@@ -200,7 +142,6 @@ class PolicyStorage:
         if q_norm == 0: return []
 
         for item in self._vector_store:
-            # Check if policy is active
             params = next((p for p in self._policies if p.id == item['policy_id']), None)
             if not params or not params.is_active:
                 continue
@@ -218,43 +159,28 @@ class PolicyStorage:
         scores.sort(key=lambda x: x[0], reverse=True)
         return [s[1] for s in scores[:top_k]]
 
-    # --- Initializer Update ---
-    # Need to call _load_vectors in __init__
-    
-    # --- CRUD Operations ---
-    def add_policy(self, policy: PolicyDocument):
-        self._policies.append(policy)
-        if self.use_firebase:
-            try:
-                self.db.collection('policies').document(policy.id).set(policy.model_dump())
-            except Exception as e: print(f"Firebase Error: {e}")
-        else:
-            self._save_to_disk()
-        # Vectors are added separately by the caller via add_policy_vectors
-
     def get_all_policies(self) -> List[PolicyDocument]:
         return self._policies
-
-    def clear(self):
-        self._policies = []
-        if self.use_firebase:
-            # Not implemented for safety
-            pass
-        else:
-            self._save_to_disk()
 
     def delete_policy(self, policy_id: str) -> bool:
         initial_count = len(self._policies)
         self._policies = [p for p in self._policies if p.id != policy_id]
         
         if len(self._policies) < initial_count:
-            if self.use_firebase:
+            if self.db:
                 self.db.collection('policies').document(policy_id).delete()
-            else:
-                self._save_to_disk()
             return True
         return False
 
+<<<<<<< HEAD
+    def update_policy_status(self, policy_id: str, status: str) -> bool:
+        for p in self._policies:
+            if p.id == policy_id:
+                p.status = status
+                self._save_to_disk()
+                return True
+        return False
+=======
     def update_policy(self, policy_id: str, updates: dict) -> PolicyDocument | None:
         for p in self._policies:
             if p.id == policy_id:
@@ -265,10 +191,8 @@ class PolicyStorage:
                 index = self._policies.index(p)
                 self._policies[index] = new_policy
                 
-                if self.use_firebase:
+                if self.db:
                     self.db.collection('policies').document(policy_id).update(updates)
-                else:
-                    self._save_to_disk()
                 return new_policy
         return None
 
@@ -281,12 +205,10 @@ class PolicyStorage:
         }
         self._evaluations.append(record)
         
-        if self.use_firebase:
+        if self.db:
             try:
                 self.db.collection('evaluations').add(record)
             except Exception as e: print(f"Firebase Add Error: {e}")
-        else:
-            self._save_evaluations_disk()
 
     def get_dashboard_stats(self):
         active_policies = len([p for p in self._policies if p.is_active])
@@ -300,8 +222,6 @@ class PolicyStorage:
                 violations += 1
 
         recent = []
-        # Sort by timestamp (assuming self._evaluations is mixed if we did lazy loading? 
-        # But we load latest 100 on start. For hackathon, assume memory list is truth source for stats)
         sorted_evals = sorted(self._evaluations, key=lambda x: x['timestamp'])
         
         for entry in reversed(sorted_evals[-5:]):
@@ -314,7 +234,6 @@ class PolicyStorage:
                 "timestamp": entry.get('timestamp')
             })
 
-        # Calculate Risk Breakdown
         risk_counts = {"High": 0, "Medium": 0, "Low": 0}
         for entry in self._evaluations:
             report = entry.get('report', {})
@@ -323,9 +242,8 @@ class PolicyStorage:
             if rating in risk_counts:
                 risk_counts[rating] += 1
             else:
-                risk_counts["Low"] += 1 # Default fallback
+                risk_counts["Low"] += 1 
 
-        # Mock Trend Data (Hackathon Visuals) - Generate last 7 days
         import datetime
         import random
         today = datetime.date.today()
@@ -334,9 +252,7 @@ class PolicyStorage:
         
         for i in range(6, -1, -1):
             date_label = (today - datetime.timedelta(days=i)).strftime("%b %d")
-            # Create a realistic "wobble"
             daily_score = base_score + random.randint(-5, 5)
-            # If today, make it match actual health roughly
             if i == 0:
                  daily_score = 100 if violations == 0 else 65
             
@@ -358,7 +274,6 @@ class PolicyStorage:
         }
 
     def _get_business_risks(self):
-        # Extract latest business impact signals
         if not self._evaluations:
              return None
              
@@ -416,34 +331,24 @@ class PolicyStorage:
             "active_policies": active_policies,
             "traces": traces
         }
+>>>>>>> main
 
     # --- Settings Management ---
     def get_settings(self) -> PolicySettings:
-        if self.use_firebase:
+        if self.db:
             try:
                 doc = self.db.collection('settings').document('global').get()
                 if doc.exists:
                     return PolicySettings(**doc.to_dict())
             except: pass
-            return PolicySettings()
-        else:
-            if os.path.exists(SETTINGS_FILE):
-                try:
-                    with open(SETTINGS_FILE, 'r') as f:
-                        data = json.load(f)
-                        return PolicySettings(**data)
-                except: pass
-            return PolicySettings()
+        return PolicySettings()
 
     def save_settings(self, settings: PolicySettings):
-        if self.use_firebase:
-            self.db.collection('settings').document('global').set(settings.model_dump())
-        else:
+        if self.db:
             try:
-                with open(SETTINGS_FILE, 'w') as f:
-                    json.dump(settings.model_dump(), f, indent=2)
+                self.db.collection('settings').document('global').set(settings.model_dump())
             except Exception as e:
-                print(f"Failed to save settings: {e}")
+                print(f"Failed to save settings to Firebase: {e}")
 
 # Global instance
 policy_db = PolicyStorage()

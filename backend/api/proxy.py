@@ -36,8 +36,27 @@ async def openai_proxy(request: Request, background_tasks: BackgroundTasks):
     messages = body.get("messages", [])
     last_user_msg = next((m["content"] for m in reversed(messages) if m["role"] == "user"), None)
     
-    # 2. PRE-FLIGHT AUDIT
-    # (Optimized: Proceed to upstream to minimize latency for valid queries, unless simple regex block)
+    # 2. PRE-FLIGHT AUDIT (Security & PII)
+    # Simple Regex PII Check (Email/SSN/Phone)
+    import re
+    pii_patterns = {
+        "email": r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+",
+        "ssn": r"\d{3}-\d{2}-\d{4}",
+        "phone": r"\b\d{3}[-.]?\d{3}[-.]?\d{4}\b"
+    }
+    
+    if last_user_msg:
+        for p_type, pattern in pii_patterns.items():
+            if re.search(pattern, last_user_msg):
+                print(f"[PROXY] 🚨 PII DETECTED ({p_type.upper()}). Blocking Request.")
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"Security Policy Violation: request contains sensitive PII ({p_type}). Please redact before sending."
+                )
+    
+    # Input Validation (Length/Injection Heuristics)
+    if last_user_msg and len(last_user_msg) > 20000:
+        raise HTTPException(status_code=400, detail="Input too large (DoS prevention).")
     
     # 3. FORWARD TO OPENAI
     client = httpx.AsyncClient()

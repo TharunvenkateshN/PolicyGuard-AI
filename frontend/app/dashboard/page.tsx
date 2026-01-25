@@ -48,7 +48,7 @@ export default function OverviewPage() {
 
     const [selectedRisk, setSelectedRisk] = useState<{
         title: string;
-        icon: string;
+        icon: React.ReactNode;
         text: string;
         subtext: string;
         type: string;
@@ -93,7 +93,7 @@ export default function OverviewPage() {
 
             {/* KPI Cards Row - Animated & Interactive */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card className="shadow-sm border-l-4 border-l-blue-500 hover:scale-105 transition-transform duration-200 cursor-default bg-white dark:bg-zinc-900">
+                <Card className="shadow-lg border-l-4 border-l-cyan-500 hover:scale-105 transition-transform duration-200 cursor-default bg-white bg-card dark:shadow-cyan-900/20 border-y-0 border-r-0 ring-1 ring-gray-200 dark:ring-slate-700">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Traces Analyzed</CardTitle>
                         <Activity className="h-4 w-4 text-blue-500" />
@@ -103,7 +103,7 @@ export default function OverviewPage() {
                         <p className="text-xs text-gray-500">Total AI workflow evaluations</p>
                     </CardContent>
                 </Card>
-                <Card className="shadow-sm border-l-4 border-l-red-500 hover:scale-105 transition-transform duration-200 cursor-default bg-white dark:bg-zinc-900">
+                <Card className="shadow-sm border-l-4 border-l-red-500 hover:scale-105 transition-transform duration-200 cursor-default bg-white bg-card dark:shadow-cyan-900/20">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Critical Violations</CardTitle>
                         <ShieldAlert className="h-4 w-4 text-red-500" />
@@ -113,7 +113,7 @@ export default function OverviewPage() {
                         <p className="text-xs text-gray-500">Blocked high-risk deployments</p>
                     </CardContent>
                 </Card>
-                <Card className="shadow-sm border-l-4 border-l-indigo-500 hover:scale-105 transition-transform duration-200 cursor-default bg-white dark:bg-zinc-900">
+                <Card className="shadow-sm border-l-4 border-l-indigo-500 hover:scale-105 transition-transform duration-200 cursor-default bg-white bg-card dark:shadow-cyan-900/20">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Active Policies</CardTitle>
                         <FileText className="h-4 w-4 text-indigo-500" />
@@ -123,7 +123,7 @@ export default function OverviewPage() {
                         <p className="text-xs text-gray-500">Enforced across all agents</p>
                     </CardContent>
                 </Card>
-                <Card className="shadow-sm border-l-4 border-l-green-500 hover:scale-105 transition-transform duration-200 cursor-default bg-white dark:bg-zinc-900">
+                <Card id="compliance-score-card" className="shadow-sm border-l-4 border-l-green-500 hover:scale-105 transition-transform duration-200 cursor-default bg-white bg-card dark:shadow-cyan-900/20">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Compliance Score</CardTitle>
                         <CheckCircle className="h-4 w-4 text-green-500" />
@@ -159,9 +159,9 @@ export default function OverviewPage() {
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
                                     <XAxis dataKey="date" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} domain={[0, 100]} />
+                                    <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} domain={[0, 100]} />
                                     <Tooltip
-                                        contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                        contentStyle={{ backgroundColor: '#0F172A', borderRadius: '8px', border: '1px solid #1e293b', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)', color: '#f8fafc' }}
                                     />
                                     <Area type="monotone" dataKey="score" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorScore)" />
                                 </AreaChart>
@@ -171,7 +171,7 @@ export default function OverviewPage() {
                 </Card>
 
                 {/* 2. Compact Business Risk Widget (Right) */}
-                <Card className="col-span-3 lg:col-span-2 shadow-sm border-0 ring-1 ring-gray-200 dark:ring-zinc-800 bg-gray-50/50 dark:bg-zinc-900/50">
+                <Card className="col-span-3 lg:col-span-2 shadow-sm border-0 ring-1 ring-gray-200 dark:ring-zinc-800 bg-gray-50/50 bg-card dark:shadow-cyan-900/20">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium flex items-center gap-2">
                             <AlertTriangle className="h-4 w-4 text-orange-500" />
@@ -257,7 +257,7 @@ export default function OverviewPage() {
             {/* Bottom Row: Recent & Distribution */}
             <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
                 {/* Recent Activity */}
-                <Card className="col-span-1 lg:col-span-5 shadow-sm border-0 ring-1 ring-gray-200 dark:ring-zinc-800">
+                <Card id="recent-evaluations-list" className="col-span-1 lg:col-span-5 shadow-sm border-0 ring-1 ring-gray-200 dark:ring-zinc-800">
                     <CardHeader>
                         <CardTitle>Recent Evaluations</CardTitle>
                         <CardDescription>Latest audit logs from the AI Gatekeeper</CardDescription>
@@ -265,12 +265,12 @@ export default function OverviewPage() {
                     <CardContent>
                         <div className="space-y-4">
                             {stats.recent_evaluations.length === 0 ? (
-                                <div className="text-center py-8 text-gray-500 bg-gray-50 dark:bg-zinc-900 rounded-lg border border-dashed border-gray-200">
+                                <div className="text-center py-8 text-gray-500 bg-gray-50 bg-card dark:shadow-cyan-900/20 rounded-lg border border-dashed border-gray-200">
                                     No evaluations yet. Run an audit to populate this feed.
                                 </div>
                             ) : (
                                 stats.recent_evaluations.map((item, i) => (
-                                    <div key={i} className="flex items-center justify-between p-4 bg-white border border-gray-100 dark:bg-zinc-900 dark:border-zinc-800 rounded-lg hover:shadow-md transition-shadow">
+                                    <div key={i} className="flex items-center justify-between p-4 bg-white border border-gray-100 dark:bg-slate-800/40 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
                                         <div className="flex items-center">
                                             <div className={`h-2 w-2 rounded-full mr-3 ${item.verdict === 'PASS' ? 'bg-green-500' : 'bg-red-500'}`}></div>
                                             <div>
@@ -350,7 +350,7 @@ export default function OverviewPage() {
             {/* Risk Detail Modal */}
             {selectedRisk && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200" onClick={() => setSelectedRisk(null)}>
-                    <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-200 dark:border-zinc-800" onClick={e => e.stopPropagation()}>
+                    <div className="bg-white bg-card dark:shadow-cyan-900/20 rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-200 dark:border-zinc-800" onClick={e => e.stopPropagation()}>
                         <div className="p-6">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">

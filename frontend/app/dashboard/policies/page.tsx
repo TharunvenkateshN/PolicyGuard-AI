@@ -77,12 +77,14 @@ export default function PoliciesPage() {
                 <p className="text-gray-500 dark:text-gray-400">Upload and manage organization guardrails.</p>
             </div>
 
-            <PolicyUploadPanel onUpload={(files) => {
-                // Wait small delay for processing then refresh
-                setTimeout(fetchPolicies, 1000);
-            }} />
+            <div id="policy-upload-panel">
+                <PolicyUploadPanel onUpload={(files) => {
+                    // Wait small delay for processing then refresh
+                    setTimeout(fetchPolicies, 1000);
+                }} />
+            </div>
 
-            <div className="space-y-4">
+            <div id="active-policies-list" className="space-y-4">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                     Active Policies
                     <Badge variant="secondary" className="rounded-full">{policies.filter(p => p.is_active).length}</Badge>
