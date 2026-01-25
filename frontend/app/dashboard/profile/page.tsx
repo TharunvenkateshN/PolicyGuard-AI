@@ -16,6 +16,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Shield, Lock, Users, LogOut } from 'lucide-react'
+import { cn } from "@/lib/utils";
+
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -24,7 +26,13 @@ export default function ProfilePage() {
     // Local state for "Edit -> Save" flow
     const [formData, setFormData] = React.useState(profile);
     const [isSaving, setIsSaving] = React.useState(false);
-    const [lastSaved, setLastSaved] = React.useState<Date | null>(null);
+    const [saveMessage, setSaveMessage] = React.useState("");
+    const [isDirty, setIsDirty] = React.useState(false);
+
+    // Track dirty state
+    React.useEffect(() => {
+        setIsDirty(JSON.stringify(formData) !== JSON.stringify(profile));
+    }, [formData, profile]);
 
     // Sync local state if profile changes externally (mostly on first load)
     React.useEffect(() => {
@@ -39,7 +47,8 @@ export default function ProfilePage() {
 
         // Persist
         updateProfile(formData);
-        setLastSaved(new Date());
+        setSaveMessage("Saved successfully!");
+        setTimeout(() => setSaveMessage(""), 3000);
         setIsSaving(false);
     };
 
@@ -57,22 +66,22 @@ export default function ProfilePage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-4">
-                    {lastSaved && (
-                        <span className="text-xs text-green-600 animate-in fade-in slide-in-from-right-4">
-                            Details saved successfully!
-                        </span>
-                    )}
                     <Button
                         onClick={handleSave}
-                        disabled={isSaving}
-                        className={isSaving ? "w-32" : "w-32"}
+                        disabled={isSaving || !isDirty}
+                        className={cn(
+                            "min-w-[140px] shadow-sm transition-all duration-200",
+                            isDirty
+                                ? "bg-blue-600 hover:bg-blue-700 text-white"
+                                : "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
+                        )}
                     >
                         {isSaving ? (
                             <>
                                 <span className="animate-spin mr-2">⟳</span> Saving...
                             </>
                         ) : (
-                            "Save Changes"
+                            saveMessage || "Save Changes"
                         )}
                     </Button>
                 </div>

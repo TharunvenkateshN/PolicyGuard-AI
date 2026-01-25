@@ -23,6 +23,66 @@ class CodeGenRequest(BaseModel):
     policy_summary: str
     language: str = "python"
 
+class EvaluationRequest(BaseModel):
+    name: str
+    description: str
+
+@router.post("/analyze-workflow-doc")
+async def analyze_workflow_doc(file: UploadFile = File(...)):
+    try:
+        content_bytes = await file.read()
+        text_content = content_bytes.decode("utf-8", errors="ignore")
+        
+        # Call Gemini logic to extract technical specs
+        analysis_json = await gemini.analyze_workflow_document_text(text_content)
+        return json.loads(analysis_json)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/evaluate")
+async def evaluate_workflow(request: EvaluationRequest):
+    try:
+        # 1. Fetch active policies
+        active_policies = [p for p in policy_db.get_all_policies() if p.is_active]
+        policy_context = "\n\n".join([f"POLICY: {p.name}\n{p.content}" for p in active_policies])
+        
+        if not policy_context:
+            policy_context = "No specific policies provided. Use general ethical AI guidelines."
+            
+        settings = policy_db.get_settings()
+        
+        # 2. Run analysis
+        report_json = await gemini.analyze_policy_conflict(policy_context, request.description, settings)
+        report_data = json.loads(report_json)
+        
+        # 3. Store in history for dashboard
+        policy_db.add_evaluation({
+            "workflow_name": request.name,
+            "timestamp": "Now", # In a real app use datetime
+            "policy_matrix": report_data.get("policy_matrix", []),
+            "risk_assessment": report_data.get("risk_assessment", {}),
+            "evidence": report_data.get("evidence", []),
+            "verdict": report_data.get("verdict", {})
+        })
+        
+        return report_data
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/redteam/simulate")
+async def redteam_simulate(request: EvaluationRequest):
+    try:
+        threat_model_json = await gemini.generate_threat_model(request.description)
+        return json.loads(threat_model_json)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/remediate/doc")
 async def remediate_document(request: RemediationRequest):
