@@ -571,6 +571,7 @@ class GeminiService:
             error_preview = str(e)[:100]
             return json.dumps({
                 "system_profile_analyzed": f"LIVE AUDIT FAILED: {error_preview}",
+>>>>>>> Stashed changes
                 "overall_resilience_score": 45,
                 "critical_finding": "API Rate Limit Bypass: System fails open to mock data.",
                 "attack_vectors": [

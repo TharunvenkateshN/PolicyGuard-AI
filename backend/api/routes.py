@@ -37,6 +37,9 @@ class TelemetryPayload(BaseModel):
     latency_ms: int
     request_count: int
 
+# --- Evaluation & Red Team ---
+
+sim_cache = {}
 class WorkflowRequest(BaseModel):
     name: str
     description: str
@@ -138,8 +141,6 @@ async def evaluate_workflow(request: WorkflowRequest):
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
-
-sim_cache = {}
 
 @router.post("/redteam/simulate", response_model=ThreatReport)
 async def simulate_threat(request: WorkflowRequest):

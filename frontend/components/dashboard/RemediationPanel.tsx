@@ -46,9 +46,9 @@ const MOCK_REPORT: any = {
         breakdown: { "Regulatory": "High", "Reputation": "Medium" }
     },
     evidence: [
-        { policy_section: "GDPR Art 5", issue_description: "Storage limitation violated", severity: "High", workflow_component: "Database", source_doc: "System Spec" },
-        { policy_section: "Fair Lending", issue_description: "Zip code used as proxy", severity: "Medium", workflow_component: "Model Weights", source_doc: "Training Config" },
-        { policy_section: "SOC2", issue_description: "No KMS integration", severity: "High", workflow_component: "Storage", source_doc: "Infra Config" }
+        { policy_section: "GDPR Art 5", issue_description: "Storage limitation violated", severity: "High", workflow_component: "Database", source_doc: "System Spec", snippet: "RETENTION_POLICY_NULL" },
+        { policy_section: "Fair Lending", issue_description: "Zip code used as proxy", severity: "Medium", workflow_component: "Model Weights", source_doc: "Training Config", snippet: "ZIPCODE_PROXY_DETECTED" },
+        { policy_section: "SOC2", issue_description: "No KMS integration", severity: "High", workflow_component: "Storage", source_doc: "Infra Config", snippet: "ENCRYPTION_LAYER_MISSING" }
     ],
     recommendations: [],
     verdict: { approved: false, status_label: "Rejected", approval_conditions: ["Fix GDPR", "Encrypt Data"] }
