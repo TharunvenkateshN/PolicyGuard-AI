@@ -32,10 +32,17 @@ export function PolicyUploadPanel({ onUpload }: PolicyUploadPanelProps) {
         formData.append('file', file);
 
         try {
-            const res = await fetch('http://localhost:8000/api/v1/policies/upload', {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s for analysis
+
+            const res = await fetch(`${apiUrl}/api/v1/policies/upload`, {
                 method: 'POST',
                 body: formData,
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
 
             if (!res.ok) throw new Error('Upload failed');
 

@@ -31,24 +31,26 @@ export default function DashboardLayout({
     }
 
     return (
-        <div className="flex flex-col lg:flex-row bg-gray-50 dark:bg-zinc-950 min-h-screen lg:h-screen lg:overflow-hidden relative">
+        <div className="flex flex-col lg:flex-row bg-gray-50 dark:bg-[#020617] min-h-screen lg:h-screen lg:overflow-hidden relative">
             {/* Cyber Grid Overlay */}
-            <div className="absolute inset-0 bg-grid-cyber pointer-events-none opacity-[0.15] z-0"></div>
+            <div className="absolute inset-0 bg-grid-cyber pointer-events-none opacity-[0.1] z-0"></div>
 
             <TourGuide />
-            {/* Mobile Navigation */}
+
+            {/* Mobile Header - Top of flex-col */}
             <DashboardMobileNav />
 
-            {/* Desktop Sidebar - Ensure z-10 to stay above grid */}
-            <div className="z-10 h-full relative">
-                <Sidebar className="hidden lg:flex h-full sticky top-0 border-r border-slate-800/10" />
+            <div className="flex flex-1 overflow-hidden relative z-10">
+                {/* Desktop Sidebar - hidden on mobile */}
+                <Sidebar className="hidden lg:flex w-64 h-full border-r border-slate-800/10" />
+
+                <main className="flex-1 overflow-y-auto w-full bg-transparent">
+                    <div className="mx-auto max-w-7xl p-4 md:p-8 min-h-full pb-24 lg:pb-8">
+                        {children}
+                    </div>
+                </main>
             </div>
 
-            <main className="flex-1 overflow-y-auto w-full z-10 relative lg:h-screen bg-gray-50/30 dark:bg-background/30">
-                <div className="mx-auto max-w-7xl p-4 md:p-8 min-h-full">
-                    {children}
-                </div>
-            </main>
             <ChatWidget />
         </div>
     );

@@ -24,9 +24,8 @@ export default function PoliciesPage() {
             setLoading(true);
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-            // Abort controller for timeout
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
             const res = await fetch(`${apiUrl}/api/v1/policies`, {
                 signal: controller.signal
@@ -37,8 +36,12 @@ export default function PoliciesPage() {
                 const data = await res.json();
                 setPolicies(data);
             }
-        } catch (error) {
-            console.error("Failed to fetch policies", error);
+        } catch (error: any) {
+            if (error.name === 'AbortError') {
+                console.error("Policies fetch timed out after 30s");
+            } else {
+                console.error("Failed to fetch policies", error);
+            }
         } finally {
             setLoading(false);
         }

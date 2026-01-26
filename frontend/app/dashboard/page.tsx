@@ -60,7 +60,7 @@ export default function OverviewPage() {
                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 8000);
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
                 const res = await fetch(`${apiUrl}/api/v1/dashboard/stats`, {
                     signal: controller.signal
@@ -71,8 +71,12 @@ export default function OverviewPage() {
                     const data = await res.json();
                     setStats(data);
                 }
-            } catch (error) {
-                console.error("Failed to fetch dashboard stats", error);
+            } catch (error: any) {
+                if (error.name === 'AbortError') {
+                    console.error("Dashboard fetch timed out after 30s");
+                } else {
+                    console.error("Failed to fetch dashboard stats", error);
+                }
             }
         };
 
