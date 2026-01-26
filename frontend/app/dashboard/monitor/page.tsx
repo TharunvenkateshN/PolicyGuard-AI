@@ -48,9 +48,24 @@ export default function MonitorPage() {
     useEffect(() => {
         const fetchMonitor = async () => {
             try {
-                const res = await fetch('http://localhost:8000/api/v1/dashboard/monitor');
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 120000); // 120s timeout
+
+                const res = await fetch(`${apiUrl}/api/v1/dashboard/monitor`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
                 if (res.ok) setData(await res.json());
-            } catch (err) { console.error(err); }
+            } catch (err: any) {
+                if (err.name === 'AbortError') {
+                    console.error("Monitor fetch timed out after 120s");
+                } else {
+                    console.error(err);
+                }
+            }
         };
         fetchMonitor();
         const interval = setInterval(fetchMonitor, 30000); // 30s to save API quota

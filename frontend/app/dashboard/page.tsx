@@ -60,7 +60,7 @@ export default function OverviewPage() {
                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+                const timeoutId = setTimeout(() => controller.abort(), 120000); // 120s extended timeout for slow DBs
 
                 const res = await fetch(`${apiUrl}/api/v1/dashboard/stats`, {
                     signal: controller.signal
@@ -73,7 +73,7 @@ export default function OverviewPage() {
                 }
             } catch (error: any) {
                 if (error.name === 'AbortError') {
-                    console.error("Dashboard fetch timed out after 30s");
+                    console.error("Dashboard fetch timed out after 120s - Backend or Firebase may be unusually slow.");
                 } else {
                     console.error("Failed to fetch dashboard stats", error);
                 }

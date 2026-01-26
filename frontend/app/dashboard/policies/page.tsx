@@ -25,7 +25,7 @@ export default function PoliciesPage() {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+            const timeoutId = setTimeout(() => controller.abort(), 120000); // 120s extended timeout for first-load
 
             const res = await fetch(`${apiUrl}/api/v1/policies`, {
                 signal: controller.signal
@@ -38,7 +38,7 @@ export default function PoliciesPage() {
             }
         } catch (error: any) {
             if (error.name === 'AbortError') {
-                console.error("Policies fetch timed out after 30s");
+                console.error("Policies fetch timed out after 120s - Check backend Firebase connection.");
             } else {
                 console.error("Failed to fetch policies", error);
             }
