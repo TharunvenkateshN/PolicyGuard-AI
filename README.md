@@ -67,5 +67,5 @@ Test the system's reasoning with these curated samples in `/samples`:
 
 ---
 
-Built with ❤️ by **Tharun Venkatesh and Vishal M** for the **Gemini 4 Hackathon**. 
+Built with ❤️ by **Tharun Venkatesh and Vishal M** for the **Gemini 3 Hackathon**. 
 *Utilizing Gemini 3 Pro/Flash modules for advanced agentic reasoning.*
