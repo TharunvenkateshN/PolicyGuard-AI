@@ -9,7 +9,7 @@ class Settings(BaseModel):
     # AI Config
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
     # Using 'thinking' model as the daily driver to meet "Gemini 3 Hackathon" requirements for reasoning
-    GEMINI_MODEL: str = "gemini-3-pro-preview" 
+    GEMINI_MODEL: str = "models/gemini-2.5-flash"
     EMBEDDING_MODEL: str = "text-embedding-004"
     
     # DB Config
@@ -17,7 +17,7 @@ class Settings(BaseModel):
     WEAVIATE_URL: str = os.getenv("WEAVIATE_URL", "http://localhost:8080")
     
     # SLA Config
-    SLA_MODEL: str = "gemini-2.0-flash-exp"
+    SLA_MODEL: str = "models/gemini-2.0-flash"
     
     # Firestore Config
     # Can be a path to JSON or the raw JSON string itself

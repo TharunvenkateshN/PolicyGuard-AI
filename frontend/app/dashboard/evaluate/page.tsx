@@ -156,13 +156,12 @@ export default function EvaluatePage() {
 
             updateStepStatus(1, 'processing');
 
-            // 2. Parse Intent (Mock delay for visual)
-            await new Promise(r => setTimeout(r, 800));
+            // 2. Parse Intent
+            updateStepStatus(1, 'processing');
             updateStepStatus(1, 'completed');
-            updateStepStatus(2, 'processing');
 
             // 3. Simulate Traces
-            await new Promise(r => setTimeout(r, 800));
+            updateStepStatus(2, 'processing');
             updateStepStatus(2, 'completed');
             updateStepStatus(3, 'processing');
 
@@ -183,8 +182,7 @@ export default function EvaluatePage() {
             updateStepStatus(3, 'completed');
             updateStepStatus(4, 'processing');
 
-            // 5. Final Forensic Snapshot (Mock delay for hashing feel)
-            await new Promise(r => setTimeout(r, 1200));
+            // 5. Final Forensic Snapshot
             updateStepStatus(4, 'completed');
 
             setEvaluationStatus('done');
@@ -276,27 +274,41 @@ export default function EvaluatePage() {
                 </TabsList>
 
                 <TabsContent value="compliance">
-                    <div className="flex justify-between items-center mb-4">
-                        <div className="flex-1">
-                            <div className="bg-blue-600/10 border border-blue-500/20 p-4 rounded-lg flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-blue-500 rounded text-white"><Shield className="w-5 h-5" /></div>
-                                    <div>
-                                        <h4 className="font-bold text-blue-900 dark:text-blue-100 italic tracking-tight">Fiduciary Shield: High-Context Policy Reasoning</h4>
-                                        <div className="flex gap-2 items-center mt-1">
-                                            <Badge variant="outline" className="text-[9px] bg-blue-50/50 border-blue-200">Gemini 1.5 Pro</Badge>
-                                            <p className="text-[11px] text-blue-700 dark:text-blue-300 font-medium">Active Reasoning on policy edge cases</p>
+                    <div className="mb-6">
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 p-6 rounded-xl shadow-sm">
+                            <div className="flex items-start justify-between gap-6">
+                                <div className="flex items-start gap-4 flex-1">
+                                    <div className="p-3 bg-blue-600 rounded-lg shadow-md">
+                                        <Shield className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1">
+                                            Fiduciary Shield: High-Context Policy Reasoning
+                                        </h3>
+                                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                                            <Badge variant="outline" className="text-xs bg-white/80 dark:bg-zinc-900/80 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300">
+                                                Gemini 1.5 Pro
+                                            </Badge>
+                                            <Badge className="text-xs bg-blue-600 hover:bg-blue-700 text-white">
+                                                ADVANCED_MODE
+                                            </Badge>
                                         </div>
+                                        <p className="text-sm text-blue-700 dark:text-blue-300">
+                                            Active Reasoning on policy edge cases
+                                        </p>
                                     </div>
                                 </div>
-                                <Badge className="bg-blue-600 hover:bg-blue-700">ADVANCED_MODE</Badge>
+                                <Button
+                                    id="run-evaluation-btn"
+                                    onClick={handleRunEvaluation}
+                                    disabled={evaluationStatus === 'running'}
+                                    size="lg"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all"
+                                >
+                                    <Play className="w-5 h-5 mr-2" />
+                                    {evaluationStatus === 'running' ? 'Analyzing...' : 'Start Audit'}
+                                </Button>
                             </div>
-                        </div>
-                        <div className="ml-4">
-                            <Button id="run-evaluation-btn" onClick={handleRunEvaluation} disabled={evaluationStatus === 'running'} size="lg" className="h-full">
-                                <Play className="w-4 h-4 mr-2" />
-                                {evaluationStatus === 'running' ? 'Analyzing...' : 'Start Audit'}
-                            </Button>
                         </div>
                     </div>
 

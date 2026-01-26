@@ -7,9 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Activity, Zap, TrendingUp, AlertTriangle, Lock, Server, CheckCircle2, ShieldCheck, LineChart, Globe } from "lucide-react"
+import { Activity, Zap, TrendingUp, AlertTriangle, Lock, Server, CheckCircle2, ShieldCheck, LineChart } from "lucide-react"
 import { LineChart as RLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import ComplianceGraph from "@/components/dashboard/ComplianceGraph";
 
 interface Trace {
     id: string;
@@ -118,15 +117,13 @@ export default function MonitorPage() {
             </div>
 
             <Tabs defaultValue="audit" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
+                <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
                     <TabsTrigger id="audit-tab" value="audit">Audit Log Stream</TabsTrigger>
-                    <TabsTrigger id="topology-tab" value="topology" className="flex items-center gap-2">
-                        <Globe className="w-3 h-3" /> Topology 3D
-                    </TabsTrigger>
                     <TabsTrigger id="sla-tab" value="sla" className="flex items-center gap-2">
                         <Zap className="w-3 h-3" /> SLA Guard
                     </TabsTrigger>
                 </TabsList>
+
 
 
                 {/* --- TAB 1: AUDIT STREAM --- */}
@@ -183,86 +180,6 @@ export default function MonitorPage() {
                     </Card>
                 </TabsContent>
 
-                {/* --- TAB 2: 3D TOPOLOGY --- */}
-                <TabsContent value="topology" className="mt-4">
-                    <Card className="border-cyan-500/20 bg-[#020617]/50 backdrop-blur-xl">
-                        <CardHeader>
-                            <CardTitle className="text-xl font-bold flex items-center gap-2">
-                                <Globe className="w-5 h-5 text-cyan-500" />
-                                System Topology
-                            </CardTitle>
-                            <CardDescription className="text-slate-400">
-                                Real-time 3D mapping of service infrastructure, policy envelopes, and detected vulnerabilities.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent id="compliance-graph-container" className="p-0 border-t border-slate-800">
-                            <ComplianceGraph report={{
-                                report_id: "RPT-MONITOR-001",
-                                timestamp: new Date().toISOString(),
-                                forensic_digest: {
-                                    policy_hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-                                    workflow_hash: "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
-                                    model_version: "v1.2.4-stable",
-                                    prompt_hash: "a43c1b0aa53a0b9231647f17b355d9d9555c2d92167",
-                                    combined_digest: "f5b6c7d8e9f0a1b2c3d4e5f67890a1b2c3d4e5f6"
-                                },
-                                workflow_name: serviceName,
-                                system_spec: {
-                                    agent_name: serviceName,
-                                    summary: "Enterprise Grade AI Service in Production",
-                                    primary_purpose: "Infrastructure Management",
-                                    decision_authority: "High",
-                                    automation_level: "Medium",
-                                    deployment_stage: "Production",
-                                    geographic_exposure: ["Global"]
-                                },
-                                data_map: {
-                                    data_categories_detected: ["PII", "Encrypted Secrets", "Auth Tokens", "User Metadata"],
-                                    data_flow_source: "Gateway -> Microservice -> DB",
-                                    data_storage_retention: "SOC2 Compliant",
-                                    cross_border_transfer: "Blocked (GDPR)"
-                                },
-                                policy_matrix: [
-                                    { policy_area: "Data Privacy", status: "Compliant", reason: "Encryption active" },
-                                    { policy_area: "Access Control", status: "Compliant", reason: "RBAC enforced" },
-                                    { policy_area: "Resiliency SLI", status: "At Risk", reason: "Latency spike detected" },
-                                    { policy_area: "OWASP LLM01", status: "At Risk", reason: "Instruction Injection possible" }
-                                ],
-                                risk_assessment: {
-                                    overall_score: 85,
-                                    overall_rating: "Medium",
-                                    confidence_score: "High",
-                                    breakdown: { "Technical": "Low", "Compliance": "Medium" }
-                                },
-                                evidence: [
-                                    { policy_section: "SLA-001", issue_description: "Response time > 500ms", severity: "Medium", workflow_component: "API Layer", source_doc: "CloudWatch", snippet: "LATENCY_THRESHOLD_EXCEEDED" },
-                                    { policy_section: "OWASP-01", issue_description: "Malicious prompt pattern detected", severity: "High", workflow_component: "Prompt Engine", source_doc: "WAF Logs", snippet: "PROMPT_INJECTION_MATCH" }
-                                ],
-                                business_impact: {
-                                    financial_exposure: "Medium",
-                                    regulatory_penalty: "Potential SOC2 non-compliance fines",
-                                    brand_reputation: "Risk of trust erosion",
-                                    estimated_cost: "$10k - $25k"
-                                },
-                                risk_simulations: [
-                                    {
-                                        scenario_title: "Prompt Injection Attack",
-                                        failure_mode: "Model bypasses restrictions",
-                                        description: "Simulated user inputs designed to override safety guidelines.",
-                                        plausibility_grounding: "High",
-                                        severity: "Critical",
-                                        violated_clause: "Safety-001",
-                                        confidence_level: "95%"
-                                    }
-                                ],
-                                recommendations: [
-                                    { title: "Optimize Gateway Latency", type: "Advisory", description: "Scale up pod resources.", related_policy: "SLA-001" }
-                                ],
-                                verdict: { approved: true, status_label: "Stable", approval_conditions: [] }
-                            }} />
-                        </CardContent>
-                    </Card>
-                </TabsContent>
 
                 {/* --- TAB 2: SLA GUARD --- */}
                 <TabsContent value="sla" className="space-y-4 mt-4">

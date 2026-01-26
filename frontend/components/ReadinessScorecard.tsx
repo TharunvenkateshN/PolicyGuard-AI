@@ -138,8 +138,9 @@ export function ReadinessScorecard({ report, onDownload }: ReadinessScorecardPro
                             {report.verdict.status_label}
                         </h2>
 
+
                         {report.verdict.catastrophic_consequence && (
-                            <div className="mb-4 p-3 bg-red-600 text-white rounded-md flex items-center gap-3 shadow-lg animate-bounce">
+                            <div className="mb-4 p-3 bg-red-600 text-white rounded-md flex items-center gap-3 shadow-lg">
                                 <AlertTriangle className="w-5 h-5 shrink-0" />
                                 <div className="text-sm font-bold leading-tight">
                                     CATASTROPHIC RISK DISCOVERED:<br />
@@ -147,6 +148,7 @@ export function ReadinessScorecard({ report, onDownload }: ReadinessScorecardPro
                                 </div>
                             </div>
                         )}
+
 
                         <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-300">
                             {report.verdict.approval_conditions.map((cond, i) => (

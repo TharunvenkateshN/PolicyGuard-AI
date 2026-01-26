@@ -1,4 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Body
+from config import settings
 from fastapi.responses import StreamingResponse, FileResponse
 from models.policy import PolicyDocument, WorkflowDefinition, ComplianceReport, DataInteractionMap, AISystemSpec, RiskScore, DeploymentVerdict, EvidenceTrace, Recommendation
 from models.chat import ChatRequest, ChatResponse
@@ -68,7 +69,7 @@ async def upload_policy(file: UploadFile = File(...)):
             summary=summary,
             is_active=True
         )
-        policy_db.add_policy(policy)
+        await policy_db.add_policy(policy)
         
         # 3. Create Chunks & Vectors for RAG
         chunks = await ingestor.chunk_policy(text)
@@ -77,7 +78,7 @@ async def upload_policy(file: UploadFile = File(...)):
             vec = await gemini.create_embedding(chunk)
             vectors.append(vec)
             
-        policy_db.add_policy_vectors(pid, chunks, vectors)
+        await policy_db.add_policy_vectors(pid, chunks, vectors)
         
         return policy
     except Exception as e:
@@ -87,7 +88,7 @@ async def upload_policy(file: UploadFile = File(...)):
 
 @router.delete("/policies/{policy_id}")
 async def delete_policy(policy_id: str):
-    if policy_db.delete_policy(policy_id):
+    if await policy_db.delete_policy(policy_id):
         return {"status": "deleted"}
     raise HTTPException(status_code=404, detail="Policy not found")
 
@@ -98,7 +99,7 @@ async def toggle_policy(policy_id: str):
     if not policy:
         raise HTTPException(status_code=404, detail="Policy not found")
     
-    updated = policy_db.update_policy(policy_id, {"is_active": not policy.is_active})
+    updated = await policy_db.update_policy(policy_id, {"is_active": not policy.is_active})
     return updated
 
 # --- Dashboard & Monitoring ---
@@ -125,8 +126,8 @@ async def evaluate_workflow(request: WorkflowRequest):
             context = "\n".join([p.summary for p in policy_db.get_all_policies() if p.is_active])
             
         # 3. Gemini Audit
-        settings = policy_db.get_settings()
-        report_json = await gemini.analyze_policy_conflict(context or "General Safety", request.description, settings)
+        user_settings = policy_db.get_settings()
+        report_json = await gemini.analyze_policy_conflict(context or "General Safety", request.description, user_settings)
         report_data = json.loads(report_json)
         
         # 4. Generate Forensic Metadata
@@ -157,7 +158,7 @@ async def evaluate_workflow(request: WorkflowRequest):
             report_data["workflow_name"] = request.name
             
         # 5. Store evaluation in history
-        policy_db.add_evaluation(report_data)
+        await policy_db.add_evaluation(report_data)
         
         return ComplianceReport(**report_data)
     except Exception as e:
@@ -204,6 +205,19 @@ async def analyze_workflow_doc(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.post("/analyze-workflow-doc")
+async def analyze_workflow_doc(file: UploadFile = File(...)):
+    try:
+        content = await file.read()
+        text = content.decode('utf-8', errors='ignore')
+        # Call the existing service method
+        analysis_json = await gemini.analyze_workflow_document_text(text)
+        return json.loads(analysis_json)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.get("/evaluate/export/latest")
 async def export_latest_report():
     return {"message": "Export feature coming soon to production. Use UI Print for now."}
@@ -216,7 +230,7 @@ async def get_settings():
 
 @router.post("/settings")
 async def update_settings(settings: PolicySettings):
-    policy_db.save_settings(settings)
+    await policy_db.save_settings(settings)
     return {"status": "saved"}
 
 # --- Chat & Remediation ---

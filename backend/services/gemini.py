@@ -70,12 +70,10 @@ class GeminiService:
                     raise e
                 
                 if is_rate_limit:
-                    # Instant rotation to 2.5 LITE for speed/quota
-                    if current_model == "gemini-2.5-flash":
-                        print(f"🔄 INSTANT ROTATION to gemini-2.5-flash-lite (Power Save/Quota Mode)")
-                        current_model = "gemini-2.5-flash-lite"
-                        continue 
-
+                    if current_model == "gemini-1.5-flash":
+                        print(f"[RATE LIMIT] on {current_model} (Waiting for quota...)")
+                        # No alternate model available, fall through to wait logic
+                    
                     wait_time = base_delay * (1.5 ** attempt)
                     match = re.search(r"retryDelay['\"]?\s*[:=]\s*['\"]?(\d+\.?\d*)s?['\"]?", error_str)
                     if match:
@@ -85,7 +83,7 @@ class GeminiService:
                     if fail_fast and wait_time > 30:
                         raise e
 
-                    print(f"⏳ Waiting {wait_time}s for {current_model}...")
+                    print(f"[WAIT] Waiting {wait_time}s for {current_model}...")
                     await asyncio.sleep(wait_time)
                 else:
                     print(f"Gemini API Error ({attempt+1}): {e}. Retrying in 1s...")
@@ -252,7 +250,7 @@ class GeminiService:
         """
         
         try:
-            print(f"🔍 AUDITING WORKFLOW (Gemini 3 Thinking Mode)...")
+            print(f"[INFO] AUDITING WORKFLOW (Gemini 3 Thinking Mode)...")
             response = await self._generate_with_retry(
                 model=settings.GEMINI_MODEL,
                 contents=prompt,
@@ -260,76 +258,9 @@ class GeminiService:
             )
             return self.clean_json_text(response.text)
         except Exception as e:
-            print(f"⚠️ GENAI API FAILED (Rate Limit/Error): {e}")
-            print("⚠️ ACTIVATING CIRCUIT BREAKER: Returning Mock Evaluation Report.")
-            return json.dumps({
-                "system_spec": {
-                    "agent_name": "Mock Mortgage Assistant (Fallback)",
-                    "summary": "System analysis unavailable due to API limits. Showing demo data.",
-                    "primary_purpose": "Loan Processing",
-                    "decision_authority": "Human",
-                    "automation_level": "Semi",
-                    "deployment_stage": "Prototype",
-                    "geographic_exposure": ["US"]
-                },
-                "data_map": {
-                    "data_categories_detected": ["Financial", "PII"],
-                    "data_flow_source": "User Upload",
-                    "data_storage_retention": "30 Days",
-                    "cross_border_transfer": "No"
-                },
-                "policy_matrix": [
-                    {"policy_area": "Data Privacy", "status": "At Risk", "reason": "Potential unencrypted storage found (Mock)."},
-                    {"policy_area": "AI Ethics", "status": "Compliant", "reason": "No bias detected."}
-                ],
-                "risk_assessment": {
-                    "overall_score": 65,
-                    "overall_rating": "Medium",
-                    "breakdown": {"Regulatory": "Medium", "User Harm": "Low", "Reputational": "Low"},
-                    "confidence_score": "Medium"
-                },
-                "business_impact": {
-                    "financial_exposure": "Medium",
-                    "regulatory_penalty": "Up to $50k",
-                    "brand_reputation": "Minor Impact",
-                    "estimated_cost": "$5k"
-                },
-                "evidence": [
-                    {
-                        "source_doc": "Workflow vs Policy",
-                        "policy_section": "Data Encryption",
-                        "workflow_component": "Storage",
-                        "issue_description": "Data is stored in plain text (Simulated Finding).",
-                        "severity": "Medium",
-                        "snippet": "store_user_data(data)"
-                    }
-                ],
-                "risk_simulations": [
-                    {
-                        "scenario_title": "Instruction Injection (Mock)",
-                        "failure_mode": "Prompt Injection",
-                        "description": "Attacker overrides core directives via user-supplied input.",
-                        "plausibility_grounding": "Web-facing input fields are not sanitized against instructions.",
-                        "severity": "High",
-                        "violated_clause": "Rule 4: Prompt Safety",
-                        "confidence_level": "High"
-                    }
-                ],
-                "recommendations": [
-                    {
-                        "title": "Encrypt Data at Rest",
-                        "type": "Blocking",
-                        "description": "Implement AES-256 encryption.",
-                        "related_policy": "Encryption Standard"
-                    }
-                ],
-                "verdict": {
-                    "approved": False,
-                    "status_label": "Rejected",
-                    "approval_conditions": ["Fix Encryption"]
-                }
-            })
-        return self.clean_json_text(response.text)
+            import traceback
+            print(f"[WARN] GENAI API FAILED: {e}")
+            raise e
 
     async def summarize_policy(self, text: str) -> str:
         prompt = f"Summarize the following corporate policy in one concise sentence (max 20 words). Focus on what is restricted:\n\n{text[:5000]}"
@@ -337,12 +268,12 @@ class GeminiService:
         try:
             # Smart Routing: Use Flash Lite for simple summarization
             response = await self._generate_with_retry(
-                model="gemini-2.0-flash-exp",
+                model="gemini-1.5-flash",
                 contents=prompt
             )
             return response.text
         except Exception as e:
-            print(f"⚠️ SUMMARIZATION FAILED (Rate Limit): {e}")
+            print(f"[WARN] SUMMARIZATION FAILED (Rate Limit): {e}")
             return "Policy summary unavailable due to high traffic. Proceeding with raw text."
 
     async def create_embedding(self, text: str) -> list[float]:
@@ -413,7 +344,7 @@ class GeminiService:
         """
         
         response = await self._generate_with_retry(
-            model="gemini-2.0-flash-exp", # Metrics analysis = Fast task
+            model="gemini-1.5-flash", # Metrics analysis = Fast task
             contents=prompt,
             config={'response_mime_type': 'application/json'}
         )
@@ -453,7 +384,7 @@ class GeminiService:
         try:
             # Chat is conversational, Lite model is sufficient and faster
             response = await self._generate_with_retry(
-                model="gemini-2.0-flash-exp", 
+                model="gemini-1.5-flash", 
                 contents=prompt
             )
             return response.text
@@ -464,7 +395,7 @@ class GeminiService:
             is_rate_limit = "429" in error_str or "RESOURCE_EXHAUSTED" in error_str
             
             if is_rate_limit:
-                 print("⚠️ Rate Limit Hit in Chat Widget. Fallback Mode Active.")
+                 print("[WARN] Rate Limit Hit in Chat Widget. Fallback Mode Active.")
                  
                  q_lower = query.lower()
                  if "hi" in q_lower or "hello" in q_lower:
@@ -472,20 +403,20 @@ class GeminiService:
                  
                  # Intelligent Fallbacks for Keywords
                  if "hipaa" in q_lower:
-                     return "✅ **HIPAA Policy Summary (Offline Mode)**:\n1. **Encryption**: All PHI must be encrypted at rest (AES-256) and in transit (TLS 1.2+).\n2. **Access Control**: STRICT Role-Based Access Control (RBAC) required.\n3. **Audit**: All access to PHI must be logged and retained for 6 years.\n4. **Business Associate Agreement (BAA)**: Required for all third-party AI processors."
+                     return "[CHECK] **HIPAA Policy Summary (Offline Mode)**:\n1. **Encryption**: All PHI must be encrypted at rest (AES-256) and in transit (TLS 1.2+).\n2. **Access Control**: STRICT Role-Based Access Control (RBAC) required.\n3. **Audit**: All access to PHI must be logged and retained for 6 years.\n4. **Business Associate Agreement (BAA)**: Required for all third-party AI processors."
                  
                  if "gdpr" in q_lower:
-                     return "✅ **GDPR Policy Summary (Offline Mode)**:\n1. **Consent**: Explicit, opt-in consent required for data processing (Art. 6).\n2. **Data Minimization**: Collect only what is strictly necessary.\n3. **Right to be Forgotten**: Users must be able to delete their data (Art. 17).\n4. **Data Residency**: EU user data should ideally remain within the EU."
+                     return "[CHECK] **GDPR Policy Summary (Offline Mode)**:\n1. **Consent**: Explicit, opt-in consent required for data processing (Art. 6).\n2. **Data Minimization**: Collect only what is strictly necessary.\n3. **Right to be Forgotten**: Users must be able to delete their data (Art. 17).\n4. **Data Residency**: EU user data should ideally remain within the EU."
                  
                  if "soc2" in q_lower or "soc 2" in q_lower:
-                     return "✅ **SOC 2 Policy Summary (Offline Mode)**:\n1. **Security**: Multi-Factor Authentication (MFA) and Intrusion Detection required.\n2. **Availability**: System uptime must meet SLA (99.9%).\n3. **Confidentiality**: Data leakage prevention (DLP) controls must be active."
+                     return "[CHECK] **SOC 2 Policy Summary (Offline Mode)**:\n1. **Security**: Multi-Factor Authentication (MFA) and Intrusion Detection required.\n2. **Availability**: System uptime must meet SLA (99.9%).\n3. **Confidentiality**: Data leakage prevention (DLP) controls must be active."
 
-                 return "⚠️ **High Traffic Alert**: My reasoning engine is currently at capacity. \n\n**Standard Guidance:**\nPlease review your 'Active Policies' tab for specific rules. If you are asking about PII, ensure all data is encrypted at rest (AES-256). \n\n*(Please retry in 60 seconds)*"
+                 return "[WARN] **High Traffic Alert**: My reasoning engine is currently at capacity. \n\n**Standard Guidance:**\nPlease review your 'Active Policies' tab for specific rules. If you are asking about PII, ensure all data is encrypted at rest (AES-256). \n\n*(Please retry in 60 seconds)*"
 
             if hasattr(e, 'status_code'):
                 print(f"Status Code: {e.status_code}")
             
-            return f"⚠️ **System Notification**: Service temporarily unavailable. Please try again later."
+            return f"[WARN] **System Notification**: Service temporarily unavailable. Please try again later."
 
     async def generate_threat_model(self, workflow_context: str) -> str:
         prompt = f"""
@@ -537,7 +468,7 @@ class GeminiService:
         """
         
         try:
-            print(f"🔍 ANALYZING ARCHITECTURE (Thinking Mode): {workflow_context[:50]}...")
+            print(f"[INFO] ANALYZING ARCHITECTURE (Thinking Mode): {workflow_context[:50]}...")
             # Using the specialized 'thinking' model for deep reasoning
             response = await self._generate_with_retry(
                 model=settings.GEMINI_MODEL, 
@@ -551,12 +482,12 @@ class GeminiService:
                 raise ValueError("Empty response from Gemini API")
                 
             cleaned_json = self.clean_json_text(response.text)
-            print(f"✨ REAL ANALYSIS COMPLETE for {workflow_context[:30]}")
+            print(f"[SUCCESS] REAL ANALYSIS COMPLETE for {workflow_context[:30]}")
             return cleaned_json
             
         except Exception as e:
-            print(f"❌ REAL ANALYSIS FAILED: {str(e)}")
-            print("⚠️ ACTIVATING CIRCUIT BREAKER: Returning Mock Threat Report for Demo.")
+            print(f"[ERROR] REAL ANALYSIS FAILED: {str(e)}")
+            print("[WARN] ACTIVATING CIRCUIT BREAKER: Returning Mock Threat Report for Demo.")
             
             # MOCK FALLBACK RESPONSE - Include the actual error in the profile summary for debugging
             error_preview = str(e)[:100]
@@ -620,7 +551,7 @@ class GeminiService:
         """
         
         try:
-            print(f"🔍 EXTRACTING SPECS (Thinking Mode): {text[:50]}...")
+            print(f"[INFO] EXTRACTING SPECS (Model: {settings.GEMINI_MODEL}): {text[:50]}...")
             response = await self._generate_with_retry(
                 model=settings.GEMINI_MODEL,
                 contents=prompt,
@@ -628,27 +559,10 @@ class GeminiService:
             )
             return self.clean_json_text(response.text)
         except Exception as e:
-            print(f"⚠️ GENAI API FAILED (Rate Limit/Processing): {e}")
-            print("⚠️ ACTIVATING CIRCUIT BREAKER: Returning Mock PRD Analysis.")
-            return json.dumps({
-                "intent": {
-                    "purpose": "Analyzed AI Workflow (Mock due to Rate Limit)",
-                    "users": "General Public / Internal Staff"
-                },
-                "data": {
-                    "types": "PII, Transaction Logs, User Queries"
-                },
-                "decision": {
-                    "output": "Automated Response / Recommendation"
-                },
-                "safeguards": {
-                    "controls": "None detected in text (Rate Limited Analysis)"
-                },
-                "deployment": {
-                    "region": "Global",
-                    "scale": "Pilot"
-                }
-            })
+            import traceback
+            traceback.print_exc()
+            print(f"[WARN] GENAI API FAILED: {e}")
+            raise e
 
     async def remediate_spec(self, original_text: str, violations: list) -> str:
         prompt = f"""
@@ -664,7 +578,7 @@ class GeminiService:
         
         # Use lite model for rewriting to save quota
         response = await self._generate_with_retry(
-            model="gemini-2.0-flash-exp", # Hardcoded optimization
+            model="gemini-1.5-flash", # Hardcoded optimization
             contents=prompt
         )
         return response.text
@@ -818,7 +732,7 @@ class GeminiService:
             )
             return self.clean_json_text(response.text)
         except Exception as e:
-            print(f"⚠️ EXPLAIN REMEDIATION FAILED (Rate Limit): {e}")
+            print(f"[WARN] EXPLAIN REMEDIATION FAILED (Rate Limit): {e}")
             return json.dumps({
                 "summary": "Automated explanation unavailable due to high API traffic. Standard remediation controls have been applied.",
                 "risks_explained": [

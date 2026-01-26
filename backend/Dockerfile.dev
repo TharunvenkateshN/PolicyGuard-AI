@@ -17,11 +17,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application code (though volume mount overrides this in dev)
-# COPY . .
+# Copy application code
+COPY . .
 
 # Expose port
 EXPOSE 8000
 
-# Run with hot reload
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Run without hot reload for memory stability
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

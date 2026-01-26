@@ -1,36 +1,44 @@
-version: '3.8'
-
 services:
-  # Backend (FastAPI) - Dev Mode
+  # Backend (FastAPI) - Minimal RAM
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
-    volumes:
-      - ./backend:/app
+    dns:
+      - 8.8.8.8
     ports:
       - "8000:8000"
     env_file:
       - ./backend/.env
     environment:
-      # Application Settings
       - PYTHONUNBUFFERED=1
-      # Google API Key (Loaded from backend/.env if present, or passed from host)
-      # GOOGLE_API_KEY=${GOOGLE_API_KEY}
-      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
-    # No external DB dependencies for MVP (Using File Storage)
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL:-models/gemini-2.5-flash}
+    command: [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000" ]
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    restart: always
 
-    # Frontend (Next.js) - Dev Mode
+  # Frontend (Next.js) - Minimal RAM
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     ports:
       - "3000:3000"
     env_file:
       - ./frontend/.env.local
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=800
+      - NEXT_TELEMETRY_DISABLED=1
+      - WATCHPACK_POLLING=true
+    command: [ "npm", "run", "dev", "--", "-H", "0.0.0.0" ]
+    deploy:
+      resources:
+        limits:
+          memory: 900M
     depends_on:
       - backend
+    restart: always
