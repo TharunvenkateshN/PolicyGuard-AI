@@ -33,9 +33,9 @@ class PolicyStorage:
             self.db = firestore.client()
             print("✅ Connected to Firebase Firestore (Production Mode)")
             
-            # Initial Load
-            self._load_from_firebase()
-            self._load_vectors()
+            # Lazy load on first use instead of blocking startup
+            # self._load_from_firebase()
+            # self._load_vectors()
             
         except Exception as e:
             print(f"❌ CRITICAL FIREBASE ERROR: {e}")
@@ -65,6 +65,7 @@ class PolicyStorage:
                     print(f"⚠️ Failed to parse policy {doc.id}: {e}")
             
             print(f"✅ Loaded {count} policies from Firebase")
+            self._initialized = True
 
             # Load Evaluations (Limit 100 for startup performance)
             eval_ref = self.db.collection('evaluations').order_by('timestamp', direction=firestore.Query.DESCENDING).limit(100)
@@ -160,6 +161,8 @@ class PolicyStorage:
         return [s[1] for s in scores[:top_k]]
 
     def get_all_policies(self) -> List[PolicyDocument]:
+        if not hasattr(self, '_initialized') or not self._initialized:
+            self._load_from_firebase()
         return self._policies
 
     def delete_policy(self, policy_id: str) -> bool:
@@ -211,6 +214,10 @@ class PolicyStorage:
             except Exception as e: print(f"Firebase Add Error: {e}")
 
     def get_dashboard_stats(self):
+        if not hasattr(self, '_initialized') or not self._initialized:
+            self._load_from_firebase()
+            self._load_vectors()
+            
         active_policies = len([p for p in self._policies if p.is_active])
         total_evaluations = len(self._evaluations)
         
@@ -290,6 +297,10 @@ class PolicyStorage:
         return None
 
     def get_monitor_data(self):
+        if not hasattr(self, '_initialized') or not self._initialized:
+            self._load_from_firebase()
+            self._load_vectors()
+            
         import datetime
         now = datetime.datetime.now()
         active_policies = len([p for p in self._policies if p.is_active])
