@@ -7,7 +7,7 @@ import { ComplianceReport } from '@/types/policy';
 import { RemediationPanel } from '@/components/dashboard/RemediationPanel';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Play, FileText as FileIcon, ShieldCheck, CheckCircle, Activity, Target as TargetIcon } from 'lucide-react';
+import { Play, FileText as FileIcon, ShieldCheck, CheckCircle, Activity, Target as TargetIcon, Wrench } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,6 +15,7 @@ import { AlertTriangle, Lock, Terminal, ShieldAlert, Shield } from 'lucide-react
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/toast-context';
+import { useRouter } from 'next/navigation';
 
 export default function EvaluatePage() {
     const [evaluationStatus, setEvaluationStatus] = useState<'idle' | 'running' | 'done'>('idle');
@@ -22,6 +23,7 @@ export default function EvaluatePage() {
     const [redTeamStatus, setRedTeamStatus] = useState<'idle' | 'attacking' | 'done'>('idle');
     const [attackLogs, setAttackLogs] = useState<string[]>([]);
     const toast = useToast();
+    const router = useRouter();
 
     // UI State for Red Team
     const [isThreatModalOpen, setIsThreatModalOpen] = useState(false);
@@ -530,21 +532,32 @@ export default function EvaluatePage() {
                                 <ReadinessScorecard report={complianceReport} />
                             </div>
 
-                            {/* Auto Remediation Interaction */}
-                            <div id="remediation-panel">
-                                <RemediationPanel
-                                    originalText={JSON.stringify(workflowData, null, 2)}
-                                    violations={complianceReport.policy_matrix
-                                        .filter((p) => p.status !== "Compliant")
-                                        .map((p) => ({
-                                            policy_area: p.policy_area,
-                                            status: p.status,
-                                            reason: p.reason
-                                        }))
-                                    }
-                                    policySummary={complianceReport.risk_assessment.breakdown ? JSON.stringify(complianceReport.risk_assessment.breakdown) : "Standard Enterprise Policy"}
-                                    report={complianceReport}
-                                />
+                            {/* Auto Remediation Navigation */}
+                            <div id="remediation-panel" className="mt-8 flex justify-end">
+                                <Button
+                                    size="lg"
+                                    className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg font-semibold"
+                                    onClick={() => {
+                                        const context = {
+                                            violations: complianceReport.policy_matrix
+                                                .filter((p) => p.status !== "Compliant")
+                                                .map((p) => ({
+                                                    policy_area: p.policy_area,
+                                                    status: p.status,
+                                                    reason: p.reason
+                                                })),
+                                            workflowName: workflowData.intent.purpose || "Workflow Specification",
+                                            workflowDescription: JSON.stringify(workflowData, null, 2),
+                                            policySummary: complianceReport.risk_assessment.breakdown ? JSON.stringify(complianceReport.risk_assessment.breakdown) : "Standard Enterprise Policy",
+                                            report: complianceReport
+                                        };
+                                        sessionStorage.setItem('remediation-context', JSON.stringify(context));
+                                        router.push('/dashboard/remediate');
+                                    }}
+                                >
+                                    <Wrench className="w-5 h-5 mr-2" />
+                                    Review & Auto-Remediate Violations
+                                </Button>
                             </div>
                         </div>
                     )}
