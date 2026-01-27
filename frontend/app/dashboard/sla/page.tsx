@@ -1,364 +1,556 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
-import { Loader2, Activity, AlertTriangle, CheckCircle2, TrendingUp, Zap, Server, Clock } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Activity, TrendingUp, Clock, Shield, AlertTriangle, CheckCircle2, XCircle, Brain, Lightbulb, Zap } from 'lucide-react';
+import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
-// Types matching Backend
-interface SLAMetricsInput {
-    latency_ms: number;
-    error_rate_percent: number;
-    uptime_percent: number;
-    support_response_time_hours: number;
-    service_name: string;
+interface SLAMetrics {
+    timestamp: string;
+    uptime_percentage: number;
+    total_requests: number;
+    successful_requests: number;
+    failed_requests: number;
+    success_rate: number;
+    avg_response_time_ms: number;
+    p95_response_time_ms: number;
+    p99_response_time_ms: number;
+    requests_per_minute: number;
+    requests_per_hour: number;
+    pii_blocks: number;
+    policy_violations: number;
+    sla_status: 'healthy' | 'at_risk' | 'violated';
 }
 
-interface TimelineEvent {
-    time: string;
-    event: string;
-    severity: "Info" | "Medium" | "High";
+interface HistoryDataPoint {
+    timestamp: string;
+    total_requests: number;
+    successful_requests: number;
+    avg_response_time_ms: number;
+    pii_blocks: number;
+    policy_violations: number;
 }
 
-interface SLAAnalysisResult {
-    sla_score: number;
-    status: "Healthy" | "Degraded" | "Breached";
-    analysis_summary: string;
-    impact_analysis: string;
-    recommendations: string[];
-    projected_timeline: TimelineEvent[];
+interface AIAnalysis {
+    risk_score: number;
+    risk_level: 'low' | 'medium' | 'high' | 'critical';
+    risk_factors: Array<{
+        factor: string;
+        severity: string;
+        impact_percentage: number;
+    }>;
+    trend_analysis: {
+        direction: 'improving' | 'stable' | 'degrading';
+        confidence: number;
+        summary: string;
+    };
+    recommendations: Array<{
+        priority: string;
+        action: string;
+        reason: string;
+        expected_impact: string;
+    }>;
+    forecast: {
+        next_hour_uptime: number;
+        next_hour_avg_latency: number;
+        breach_probability: number;
+    };
 }
 
-export default function SLAAnalyticsPage() {
-    // Inputs
-    const [metrics, setMetrics] = useState<SLAMetricsInput>({
-        latency_ms: 150,
-        error_rate_percent: 0.05,
-        uptime_percent: 99.95,
-        support_response_time_hours: 2,
-        service_name: "Core-AI-Engine-v1"
-    });
+export default function SLAMonitorPage() {
+    const [metrics, setMetrics] = useState<SLAMetrics | null>(null);
+    const [history, setHistory] = useState<HistoryDataPoint[]>([]);
+    const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [analyzing, setAnalyzing] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
-    // Analysis State
-    const [analysis, setAnalysis] = useState<SLAAnalysisResult | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [simulatedGraphData, setSimulatedGraphData] = useState<any[]>([]);
-
-    // Simulate "Live" Graph based on inputs
     useEffect(() => {
-        const generateGraphData = () => {
-            const data = [];
-            const now = new Date();
-            for (let i = 20; i >= 0; i--) {
-                const time = new Date(now.getTime() - i * 60000);
-                // Add some noise based on inputs
-                const noise = (Math.random() - 0.5) * (metrics.latency_ms * 0.2);
-                const errorSpike = Math.random() < (metrics.error_rate_percent / 100) ? 1 : 0;
+        const timer = setTimeout(() => setMounted(true), 100);
+        return () => clearTimeout(timer);
+    }, []);
 
-                data.push({
-                    time: time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    latency: Math.max(0, metrics.latency_ms + noise),
-                    errors: errorSpike,
-                    sla_threshold: 500 // Arbitrary threshold for viz
-                });
-            }
-            return data;
-        };
-        setSimulatedGraphData(generateGraphData());
-    }, [metrics]);
-
-    const handleAnalyze = async () => {
-        setLoading(true);
+    const fetchMetrics = async () => {
         try {
-            const response = await fetch(`${apiUrl}/api/v1/sla/analyze`, {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+
+            // Create timeout promise (10 seconds)
+            const timeout = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Request timeout')), 10000)
+            );
+
+            // Fetch current metrics with timeout
+            const metricsPromise = fetch(`${apiUrl}/api/v1/sla/metrics`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(res => res.json());
+
+            const metricsData = await Promise.race([metricsPromise, timeout]);
+            setMetrics(metricsData as SLAMetrics);
+
+            // Fetch history with timeout
+            const historyPromise = fetch(`${apiUrl}/api/v1/sla/history`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(metrics)
-            });
+                body: JSON.stringify({ hours: 24 })
+            }).then(res => res.json());
 
-            if (!response.ok) throw new Error("Analysis Failed");
+            const historyData = await Promise.race([historyPromise, timeout]);
+            setHistory(historyData.data_points || []);
 
-            const data = await response.json();
-            setAnalysis(data);
+            setLoading(false);
         } catch (error) {
-            console.error("Analysis Error:", error);
-            // Fallback mock if backend fails (dev mode safety)
-            setAnalysis({
-                sla_score: 85,
-                status: "Degraded",
-                analysis_summary: "Simulated response: Backend connection failed.",
-                impact_analysis: "Unable to reach the AI Engine. Displaying mock validation data.",
-                recommendations: ["Check backend logs", "Verify API Key"],
-                projected_timeline: [
-                    { time: "Now", event: "Connection Error", severity: "High" }
-                ]
+            console.error('Error fetching SLA metrics:', error);
+            // Set mock data on timeout/error so page isn't stuck
+            setMetrics({
+                timestamp: new Date().toISOString(),
+                uptime_percentage: 99.5,
+                total_requests: 0,
+                successful_requests: 0,
+                failed_requests: 0,
+                success_rate: 100,
+                avg_response_time_ms: 0,
+                p95_response_time_ms: 0,
+                p99_response_time_ms: 0,
+                requests_per_minute: 0,
+                requests_per_hour: 0,
+                pii_blocks: 0,
+                policy_violations: 0,
+                sla_status: 'healthy'
             });
-        } finally {
+            setHistory([]);
             setLoading(false);
         }
     };
 
-    // Helper to calculate score color
-    const getScoreColor = (score: number) => {
-        if (score >= 90) return "text-green-500";
-        if (score >= 70) return "text-yellow-500";
-        return "text-red-500";
+    const runAIAnalysis = async () => {
+        if (!metrics) return;
+        setAnalyzing(true);
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+            const res = await fetch(`${apiUrl}/api/v1/sla/analyze`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            setAiAnalysis(data);
+        } catch (error) {
+            console.error('AI Analysis failed:', error);
+        } finally {
+            setAnalyzing(false);
+        }
     };
 
-    return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Header */}
-            <div id="sla-header" className="flex justify-between items-start">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
-                        SLA Designer & Analytics
-                    </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-1">
-                        Powered by <span className="font-semibold text-purple-600">Gemini 3 Pro</span> • Real-time SLA simulation
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    <Badge variant="outline" className="border-purple-500 text-purple-500">
-                        <Zap className="w-3 h-3 mr-1" /> Live Preview
-                    </Badge>
+    useEffect(() => {
+        fetchMetrics();
+        const interval = setInterval(fetchMetrics, 5000); // Refresh every 5 seconds
+
+        // Run AI analysis initially after a short delay to ensure metrics are loaded
+        const aiTimer = setTimeout(() => {
+            runAIAnalysis();
+        }, 2000);
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(aiTimer);
+        };
+    }, []);
+
+    const getSLAStatusColor = (status: string) => {
+        switch (status) {
+            case 'healthy': return 'text-green-500';
+            case 'at_risk': return 'text-yellow-500';
+            case 'violated': return 'text-red-500';
+            default: return 'text-gray-500';
+        }
+    };
+
+    const getSLAStatusIcon = (status: string) => {
+        switch (status) {
+            case 'healthy': return <CheckCircle2 className="w-6 h-6 text-green-500" />;
+            case 'at_risk': return <AlertTriangle className="w-6 h-6 text-yellow-500" />;
+            case 'violated': return <XCircle className="w-6 h-6 text-red-500" />;
+            default: return <Activity className="w-6 h-6 text-gray-500" />;
+        }
+    };
+
+    const getRiskColor = (level: string) => {
+        switch (level) {
+            case 'low': return 'text-green-500 border-green-500/20 bg-green-500/10';
+            case 'medium': return 'text-yellow-500 border-yellow-500/20 bg-yellow-500/10';
+            case 'high': return 'text-orange-500 border-orange-500/20 bg-orange-500/10';
+            case 'critical': return 'text-red-500 border-red-500/20 bg-red-500/10';
+            default: return 'text-gray-500 border-gray-500/20 bg-gray-500/10';
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="p-8">
+                <div className="flex items-center justify-center h-64">
+                    <div className="text-gray-400">Loading SLA metrics...</div>
                 </div>
             </div>
+        );
+    }
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    if (!metrics) {
+        return (
+            <div className="p-8">
+                <div className="flex items-center justify-center h-64">
+                    <div className="text-gray-400">No metrics available. Start sending requests through the proxy to see SLA data.</div>
+                </div>
+            </div>
+        );
+    }
 
-                {/* LEFT COLUMN: Controls */}
-                <Card id="sla-metrics-card" className="lg:col-span-4 h-fit border-l-4 border-l-purple-500 shadow-lg">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Activity className="w-5 h-5 text-purple-600" /> Service Metrics
-                        </CardTitle>
-                        <CardDescription>Adjust sliders to simulate service conditions.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-8">
+    return (
+        <div className="p-8 space-y-8">
+            {/* Header */}
+            <div>
+                <h1 className="text-3xl font-bold mb-2">SLA Monitoring</h1>
+                <p className="text-gray-400">Real-time performance metrics with Gemini AI predictive analysis</p>
+            </div>
 
-                        {/* 1. Latency */}
-                        <div className="space-y-3">
-                            <div className="flex justify-between">
-                                <Label className="flex items-center gap-2"><Clock className="w-4 h-4" /> Avg. Latency</Label>
-                                <span className="font-mono font-bold text-purple-600">{metrics.latency_ms} ms</span>
+            {/* SLA Status Banner */}
+            <Card className="border-2" style={{ borderColor: metrics.sla_status === 'healthy' ? '#22c55e' : metrics.sla_status === 'at_risk' ? '#eab308' : '#ef4444' }}>
+                <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            {getSLAStatusIcon(metrics.sla_status)}
+                            <div>
+                                <h3 className="text-2xl font-bold">
+                                    {metrics.uptime_percentage.toFixed(3)}% Uptime
+                                </h3>
+                                <p className="text-sm text-gray-400">
+                                    SLA Target: 99.9% | Status: <span className={getSLAStatusColor(metrics.sla_status)}>{metrics.sla_status.toUpperCase()}</span>
+                                </p>
                             </div>
-                            <Slider
-                                value={[metrics.latency_ms]}
-                                min={10} max={2000} step={10}
-                                onValueChange={(v) => {
-                                    if (v[0] !== metrics.latency_ms) {
-                                        setMetrics(prev => ({ ...prev, latency_ms: v[0] }));
-                                    }
-                                }}
-                                className="cursor-pointer"
-                            />
                         </div>
-
-                        {/* 2. Error Rate */}
-                        <div className="space-y-3">
-                            <div className="flex justify-between">
-                                <Label className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" /> Error Rate</Label>
-                                <span className={`font-mono font-bold ${metrics.error_rate_percent > 1 ? "text-red-500" : "text-green-600"}`}>
-                                    {metrics.error_rate_percent}%
-                                </span>
-                            </div>
-                            <Slider
-                                value={[metrics.error_rate_percent]}
-                                min={0} max={10} step={0.01}
-                                onValueChange={(v) => {
-                                    if (v[0] !== metrics.error_rate_percent) {
-                                        setMetrics(prev => ({ ...prev, error_rate_percent: v[0] }));
-                                    }
-                                }}
-                            />
+                        <div className="text-right">
+                            <div className="text-sm text-gray-400">Last Updated</div>
+                            <div className="text-sm font-mono">{new Date(metrics.timestamp).toLocaleTimeString()}</div>
                         </div>
+                    </div>
+                </CardContent>
+            </Card>
 
-                        {/* 3. Uptime */}
-                        <div className="space-y-3">
-                            <div className="flex justify-between">
-                                <Label className="flex items-center gap-2"><Server className="w-4 h-4" /> Uptime Target</Label>
-                                <span className="font-mono font-bold text-blue-600">{metrics.uptime_percent}%</span>
-                            </div>
-                            <Slider
-                                value={[metrics.uptime_percent]}
-                                min={90} max={99.99} step={0.01}
-                                onValueChange={(v) => {
-                                    if (v[0] !== metrics.uptime_percent) {
-                                        setMetrics(prev => ({ ...prev, uptime_percent: v[0] }));
-                                    }
-                                }}
-                            />
-                        </div>
-
-                        {/* 4. Support Response */}
-                        <div className="space-y-3">
-                            <div className="flex justify-between">
-                                <Label>Support Response (Hours)</Label>
-                                <span className="font-mono font-bold">{metrics.support_response_time_hours}h</span>
-                            </div>
-                            <Slider
-                                value={[metrics.support_response_time_hours]}
-                                min={1} max={48} step={1}
-                                onValueChange={(v) => {
-                                    if (v[0] !== metrics.support_response_time_hours) {
-                                        setMetrics(prev => ({ ...prev, support_response_time_hours: v[0] }));
-                                    }
-                                }}
-                            />
-                        </div>
-
-                    </CardContent>
-                    <CardFooter>
-                        <Button
-                            id="generate-sla-btn"
-                            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg transition-all"
-                            size="lg"
-                            onClick={handleAnalyze}
-                            disabled={loading}
-                        >
-                            {loading ? (
-                                <>
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analyzing with Gemini 3 Pro...
-                                </>
-                            ) : (
-                                <>
-                                    <Zap className="w-4 h-4 mr-2" /> Generate SLA Report
-                                </>
-                            )}
-                        </Button>
-                    </CardFooter>
-                </Card>
-
-                {/* RIGHT COLUMN: Visualization & Report */}
-                <div className="lg:col-span-8 space-y-6">
-
-                    {/* 1. Live Graph Simulation */}
-                    <Card id="sla-simulation-graph" className="shadow-md">
+            {/* AI Analysis Section */}
+            {aiAnalysis ? (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    {/* 1. Risk Score Card */}
+                    <Card className="border-2 border-purple-500/20 bg-purple-500/5">
                         <CardHeader>
-                            <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-widest">Live Latency Simulation</CardTitle>
+                            <CardTitle className="flex items-center gap-2 text-purple-400">
+                                <Brain className="w-5 h-5" />
+                                Gemini Risk Analysis
+                            </CardTitle>
                         </CardHeader>
-                        <CardContent className="h-[250px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={simulatedGraphData}>
-                                    <defs>
-                                        <linearGradient id="colorLat" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                                            <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.3} />
-                                    <XAxis dataKey="time" hide />
-                                    <YAxis />
-                                    <RechartsTooltip
-                                        contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff' }}
-                                    />
-                                    <Area type="monotone" dataKey="latency" stroke="#8884d8" fillOpacity={1} fill="url(#colorLat)" />
-                                    {/* <Line type="monotone" dataKey="sla_threshold" stroke="#ff7300" strokeDasharray="5 5" dot={false} /> */}
-                                </AreaChart>
-                            </ResponsiveContainer>
+                        <CardContent>
+                            <div className="text-center mb-6">
+                                <div className="text-5xl font-bold text-white mb-2">
+                                    {aiAnalysis.risk_score}<span className="text-2xl text-purple-400">%</span>
+                                </div>
+                                <div className="text-sm text-gray-400">Breach Probability (1h)</div>
+                            </div>
+
+                            <div className="flex justify-center mb-6">
+                                <Badge variant="outline" className={`px-4 py-1 uppercase ${getRiskColor(aiAnalysis.risk_level)}`}>
+                                    {aiAnalysis.risk_level} RISK
+                                </Badge>
+                            </div>
+
+                            <div className="space-y-3">
+                                <h4 className="text-sm font-semibold text-gray-300">Analysis Summary</h4>
+                                <p className="text-sm text-gray-400 italic">
+                                    "{aiAnalysis.trend_analysis.summary}"
+                                </p>
+                            </div>
                         </CardContent>
                     </Card>
 
-                    {/* 2. Gemini Analysis Output */}
-                    {analysis && (
-                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
-
-                            {/* Score Banner */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <Card className="bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-black border-2 border-purple-100 dark:border-purple-900">
-                                    <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">Predicted SLA Score</CardTitle></CardHeader>
-                                    <CardContent>
-                                        <div className={`text-5xl font-black ${getScoreColor(analysis.sla_score)}`}>
-                                            {analysis.sla_score}
+                    {/* 2. Risk Factors & Forecast */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Activity className="w-5 h-5 text-blue-400" />
+                                Risk Factors
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="space-y-4">
+                                {aiAnalysis.risk_factors.map((factor, i) => (
+                                    <div key={i}>
+                                        <div className="flex justify-between mb-1 text-sm">
+                                            <span>{factor.factor}</span>
+                                            <span className={factor.impact_percentage > 50 ? 'text-red-400' : 'text-yellow-400'}>
+                                                {factor.impact_percentage}% Impact
+                                            </span>
                                         </div>
-                                    </CardContent>
-                                </Card>
-                                <Card className="md:col-span-2 bg-purple-50 dark:bg-zinc-900/50 border-none">
-                                    <CardHeader className="pb-2"><CardTitle className="text-sm text-purple-700 dark:text-purple-400">Analysis Summary</CardTitle></CardHeader>
-                                    <CardContent>
-                                        <p className="text-lg font-medium leading-relaxed">
-                                            {analysis.analysis_summary}
-                                        </p>
-                                    </CardContent>
-                                </Card>
+                                        <div className="h-2 bg-gray-700/50 rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full rounded-full ${factor.impact_percentage > 50 ? 'bg-red-500' : 'bg-yellow-500'}`}
+                                                style={{ width: `${factor.impact_percentage}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                                {aiAnalysis.risk_factors.length === 0 && (
+                                    <div className="text-center text-gray-500 py-4">
+                                        <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-green-500/50" />
+                                        No active risk factors detected
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Detailed Report Tabs */}
-                            <Tabs defaultValue="impact" className="w-full">
-                                <TabsList className="grid w-full grid-cols-3">
-                                    <TabsTrigger value="impact">Impact Analysis</TabsTrigger>
-                                    <TabsTrigger value="timeline">Risk Timeline</TabsTrigger>
-                                    <TabsTrigger value="recs">Recommendations</TabsTrigger>
-                                </TabsList>
+                            <div className="pt-4 border-t border-gray-800">
+                                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                                    <TrendingUp className="w-4 h-4" /> Next Hour Forecast
+                                </h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-gray-800/50 p-3 rounded-lg">
+                                        <div className="text-xs text-gray-400">Predicted Uptime</div>
+                                        <div className="text-lg font-bold text-green-400">
+                                            {aiAnalysis.forecast.next_hour_uptime.toFixed(3)}%
+                                        </div>
+                                    </div>
+                                    <div className="bg-gray-800/50 p-3 rounded-lg">
+                                        <div className="text-xs text-gray-400">Predicted Latency</div>
+                                        <div className="text-lg font-bold text-blue-400">
+                                            {aiAnalysis.forecast.next_hour_avg_latency.toFixed(0)}ms
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                                <TabsContent value="impact" className="mt-4">
-                                    <Card>
-                                        <CardHeader><CardTitle>Operational Impact</CardTitle></CardHeader>
-                                        <CardContent>
-                                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                                                {analysis.impact_analysis}
-                                            </p>
-                                        </CardContent>
-                                    </Card>
-                                </TabsContent>
-
-                                <TabsContent value="timeline" className="mt-4">
-                                    <Card>
-                                        <CardHeader><CardTitle>Projected Risk Timeline</CardTitle></CardHeader>
-                                        <CardContent>
-                                            <div className="space-y-6">
-                                                {analysis.projected_timeline.map((item, idx) => (
-                                                    <div key={idx} className="flex gap-4 relative">
-                                                        {/* Line */}
-                                                        {idx !== analysis.projected_timeline.length - 1 && (
-                                                            <div className="absolute left-[19px] top-8 bottom-[-24px] w-0.5 bg-gray-200 dark:bg-zinc-800"></div>
-                                                        )}
-
-                                                        <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center shrink-0 
-                                                            ${item.severity === 'High' ? 'bg-red-100 text-red-600' :
-                                                                item.severity === 'Medium' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'}`}>
-                                                            {item.severity === 'High' ? <AlertTriangle className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
-                                                        </div>
-                                                        <div className="pt-1">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="font-bold text-sm bg-gray-100 dark:bg-zinc-800 px-2 py-0.5 rounded">{item.time}</span>
-                                                                <span className={`text-xs font-semibold uppercase ${item.severity === 'High' ? 'text-red-500' : 'text-gray-500'
-                                                                    }`}>{item.severity} Impact</span>
-                                                            </div>
-                                                            <p className="mt-1 font-medium">{item.event}</p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </TabsContent>
-
-                                <TabsContent value="recs" className="mt-4">
-                                    <Card>
-                                        <CardHeader><CardTitle>Mitigation Strategies</CardTitle></CardHeader>
-                                        <CardContent>
-                                            <ul className="space-y-3">
-                                                {analysis.recommendations.map((rec, idx) => (
-                                                    <li key={idx} className="flex gap-3 items-start bg-white dark:bg-zinc-950 p-3 rounded border shadow-sm">
-                                                        <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                                                        <span>{rec}</span>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </CardContent>
-                                    </Card>
-                                </TabsContent>
-                            </Tabs>
-
-                        </div>
-                    )}
+                    {/* 3. Recommendations */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Lightbulb className="w-5 h-5 text-yellow-400" />
+                                Smart Recommendations
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {aiAnalysis.recommendations.map((rec, i) => (
+                                <div key={i} className="bg-gray-800/30 border border-gray-700 rounded-lg p-3">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <Badge variant="secondary" className="text-xs uppercase">
+                                            {rec.priority} Priority
+                                        </Badge>
+                                        <Zap className="w-3 h-3 text-yellow-500" />
+                                    </div>
+                                    <h5 className="font-medium text-sm mb-1 text-gray-200">{rec.action}</h5>
+                                    <p className="text-xs text-gray-400 mb-2">{rec.reason}</p>
+                                    <div className="text-xs text-green-400 flex items-center gap-1">
+                                        <TrendingUp className="w-3 h-3" />
+                                        Impact: {rec.expected_impact}
+                                    </div>
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
                 </div>
+            ) : (
+                <div className="flex justify-center py-12">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div>
+                        <p className="text-gray-400">Gemini is analyzing SLA patterns...</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Metrics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card>
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                            <Clock className="w-4 h-4" />
+                            Avg Response Time
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-bold">{metrics.avg_response_time_ms.toFixed(0)}ms</div>
+                        <div className="text-xs text-gray-400 mt-1">
+                            P95: {metrics.p95_response_time_ms.toFixed(0)}ms | P99: {metrics.p99_response_time_ms.toFixed(0)}ms
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                            <TrendingUp className="w-4 h-4" />
+                            Throughput
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-bold">{metrics.requests_per_minute}</div>
+                        <div className="text-xs text-gray-400 mt-1">
+                            requests/min | {metrics.requests_per_hour} req/hour
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                            <Activity className="w-4 h-4" />
+                            Success Rate
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-bold">{metrics.success_rate.toFixed(1)}%</div>
+                        <div className="text-xs text-gray-400 mt-1">
+                            {metrics.successful_requests} / {metrics.total_requests} requests
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                            <Shield className="w-4 h-4" />
+                            Security Blocks
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-bold">{metrics.pii_blocks}</div>
+                        <div className="text-xs text-gray-400 mt-1">
+                            PII detections | {metrics.policy_violations} policy violations
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Response Time Trend */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Response Time Trend</CardTitle>
+                        <CardDescription>Average response time over the last 24 hours</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {mounted ? (
+                            <ResponsiveContainer width="100%" height={300} minWidth={300} minHeight={300}>
+                                <LineChart data={history}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                                    <XAxis
+                                        dataKey="timestamp"
+                                        tickFormatter={(value) => new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        stroke="#666"
+                                    />
+                                    <YAxis stroke="#666" />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151' }}
+                                        labelFormatter={(value) => new Date(value).toLocaleString()}
+                                    />
+                                    <Line type="monotone" dataKey="avg_response_time_ms" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="h-full w-full flex items-center justify-center text-gray-400 text-xs text-center p-12">Loading Chart...</div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Request Volume */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Request Volume</CardTitle>
+                        <CardDescription>Total requests over the last 24 hours</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {mounted ? (
+                            <ResponsiveContainer width="100%" height={300} minWidth={300} minHeight={300}>
+                                <AreaChart data={history}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                                    <XAxis
+                                        dataKey="timestamp"
+                                        tickFormatter={(value) => new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        stroke="#666"
+                                    />
+                                    <YAxis stroke="#666" />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151' }}
+                                        labelFormatter={(value) => new Date(value).toLocaleString()}
+                                    />
+                                    <Area type="monotone" dataKey="total_requests" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.3} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="h-full w-full flex items-center justify-center text-gray-400 text-xs text-center p-12">Loading Chart...</div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Security Events */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Security Events</CardTitle>
+                        <CardDescription>PII blocks and policy violations</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {mounted ? (
+                            <ResponsiveContainer width="100%" height={300} minWidth={300} minHeight={300}>
+                                <BarChart data={history}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                                    <XAxis
+                                        dataKey="timestamp"
+                                        tickFormatter={(value) => new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        stroke="#666"
+                                    />
+                                    <YAxis stroke="#666" />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151' }}
+                                        labelFormatter={(value) => new Date(value).toLocaleString()}
+                                    />
+                                    <Legend />
+                                    <Bar dataKey="pii_blocks" fill="#ef4444" name="PII Blocks" />
+                                    <Bar dataKey="policy_violations" fill="#f59e0b" name="Policy Violations" />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="h-full w-full flex items-center justify-center text-gray-400 text-xs text-center p-12">Loading Chart...</div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Success vs Failed */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Request Success Rate</CardTitle>
+                        <CardDescription>Successful vs failed requests</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {mounted ? (
+                            <ResponsiveContainer width="100%" height={300} minWidth={300} minHeight={300}>
+                                <AreaChart data={history}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                                    <XAxis
+                                        dataKey="timestamp"
+                                        tickFormatter={(value) => new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        stroke="#666"
+                                    />
+                                    <YAxis stroke="#666" />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151' }}
+                                        labelFormatter={(value) => new Date(value).toLocaleString()}
+                                    />
+                                    <Legend />
+                                    <Area type="monotone" dataKey="successful_requests" stackId="1" stroke="#22c55e" fill="#22c55e" fillOpacity={0.6} name="Successful" />
+                                    <Area type="monotone" dataKey={(data) => data.total_requests - data.successful_requests} stackId="1" stroke="#ef4444" fill="#ef4444" fillOpacity={0.6} name="Failed" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="h-full w-full flex items-center justify-center text-gray-400 text-xs text-center p-12">Loading Chart...</div>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );
