@@ -1,10 +1,9 @@
 "use client";
 
 import React from 'react';
-import Link from 'next/link';
-import { Network, Search, ShieldCheck, Zap, ArrowLeft, Terminal, Code, Globe } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { ArrowLeft, Upload, FileSearch, Database, Link2, GitBranch, Shield, Bug, Crosshair, Brain, Wrench, Eye, Lock, FileCheck, TrendingUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function HowItWorksPage() {
     const router = useRouter();
@@ -12,33 +11,100 @@ export default function HowItWorksPage() {
     const steps = [
         {
             id: "01",
-            title: "Define & Connect",
-            desc: "Upload corporate policies (GDPR, HIPAA, SOC2) and connect your Agent's API. We build a knowledge base of your specific compliance requirements.",
-            icon: Search
+            title: "Policy Upload",
+            desc: "Upload your governance documents (GDPR, HIPAA, SOC2, internal policies). Our system accepts PDFs, Word docs, and text files.",
+            icon: Upload
         },
         {
             id: "02",
-            title: "Adversarial Red Teaming",
-            desc: "Before deployment, our 'Red Team' AI simulates attacker behavior (Prompt Injection, PII Mining) to stress-test your agent against OWASP Top 10 vulnerabilities.",
-            icon: Terminal
+            title: "Document Parsing",
+            desc: "Gemini AI extracts requirements, rules, and compliance criteria from your documents using advanced NLP and semantic understanding.",
+            icon: FileSearch
         },
         {
             id: "03",
-            title: "Auto-Remediation",
-            desc: "If vulnerabilities are found, the Remediation Engine generates secure Guardrail Code (Python/TypeScript) and rewrites system specs to patch holes instantly.",
-            icon: Code
+            title: "Knowledge Base Creation",
+            desc: "Build a searchable, vector-indexed policy database. Every rule is embedded and ready for semantic matching against your AI workflows.",
+            icon: Database
         },
         {
             id: "04",
-            title: "Real-time PII & Compliance",
-            desc: "Once live, our Proxy Layer detects and blocks PII leaks (SSN, MRI, etc.) in <100ms, ensuring HIPAA/GDPR compliance for every single request.",
-            icon: Globe
+            title: "Agent Connection",
+            desc: "Connect your AI agent's API endpoints. We support REST APIs, GraphQL, and webhook integrations for seamless monitoring.",
+            icon: Link2
+        },
+        {
+            id: "05",
+            title: "Workflow Analysis",
+            desc: "Map your agent's behavior, data flows, and decision points. We create a complete behavioral blueprint of your AI system.",
+            icon: GitBranch
+        },
+        {
+            id: "06",
+            title: "Red Team Initialization",
+            desc: "Prepare our adversarial testing suite with OWASP Top 10 attack vectors, prompt injection patterns, and PII extraction techniques.",
+            icon: Shield
+        },
+        {
+            id: "07",
+            title: "Vulnerability Scanning",
+            desc: "Automated security testing against OWASP Top 10 for LLMs: prompt injection, insecure output handling, training data poisoning, and more.",
+            icon: Bug
+        },
+        {
+            id: "08",
+            title: "Attack Simulation",
+            desc: "Our Red Team AI simulates real-world attacks: indirect prompt injection, PII mining, jailbreak attempts, and data exfiltration.",
+            icon: Crosshair
+        },
+        {
+            id: "09",
+            title: "Risk Assessment",
+            desc: "Gemini 3 Pro analyzes security gaps, policy violations, and compliance risks. Get detailed forensic evidence of every vulnerability.",
+            icon: Brain
+        },
+        {
+            id: "10",
+            title: "Auto-Remediation",
+            desc: "Generate production-ready guardrail code in Python/TypeScript. Automatically patch vulnerabilities with secure, tested implementations.",
+            icon: Wrench
+        },
+        {
+            id: "11",
+            title: "Real-time Monitoring",
+            desc: "Deploy our PII detection proxy layer. Monitor every request/response in real-time, detecting SSN, credit cards, medical records, and more.",
+            icon: Eye
+        },
+        {
+            id: "12",
+            title: "Compliance Enforcement",
+            desc: "Block policy violations in <100ms. Prevent PII leaks, unauthorized data access, and compliance breaches before they happen.",
+            icon: Lock
+        },
+        {
+            id: "13",
+            title: "SLA Monitoring & Guarantees",
+            desc: "Track system performance with 99.9% uptime SLA. Monitor response times, throughput, and compliance check latency with real-time dashboards.",
+            icon: TrendingUp
+        },
+        {
+            id: "14",
+            title: "Audit Trail Generation",
+            desc: "Create immutable, cryptographically-signed compliance reports. Full traceability for regulatory audits and certification.",
+            icon: FileCheck
+        },
+        {
+            id: "15",
+            title: "Continuous Learning",
+            desc: "Adapt to new threats and evolving policies. Our system learns from every interaction, improving detection and prevention over time.",
+            icon: Brain
         }
     ];
 
     return (
         <div className="min-h-screen bg-[#0B0F19] text-white pt-10 pb-20 px-6 font-sans">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-5xl mx-auto">
+                {/* Back Button */}
                 <div className="mb-12">
                     <Button
                         variant="ghost"
@@ -49,41 +115,49 @@ export default function HowItWorksPage() {
                     </Button>
                 </div>
 
+                {/* Header */}
                 <div className="text-center mb-16">
-                    <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
                         How PolicyGuard Works
                     </h1>
-                    <p className="text-xl text-gray-400">
-                        From Audit to Enforcement in 4 Steps.
+                    <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+                        A comprehensive 15-step process from policy upload to continuous protection
                     </p>
                 </div>
 
-                <div className="space-y-12 relative">
-                    {/* Connecting Line */}
-                    <div className="absolute left-[27px] top-4 bottom-4 w-0.5 bg-gradient-to-b from-[#7C3AED] to-transparent hidden md:block" />
-
+                {/* Steps */}
+                <div className="space-y-12">
                     {steps.map((step, i) => (
-                        <div key={i} className="relative flex flex-col md:flex-row gap-8 md:items-start pl-0 md:pl-0">
-                            <div className="hidden md:flex flex-col items-center z-10">
-                                <div className="w-14 h-14 rounded-full bg-[#0B0F19] border-2 border-[#7C3AED] flex items-center justify-center text-[#7C3AED] font-bold text-lg shadow-[0_0_20px_rgba(124,58,237,0.3)]">
-                                    {step.id}
-                                </div>
+                        <div key={i} className="flex gap-6 items-start">
+                            {/* Step Number */}
+                            <div className="shrink-0 w-16 h-16 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+                                <span className="text-lg font-semibold text-purple-400">{step.id}</span>
                             </div>
 
-                            <div className="flex-1 p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-[#7C3AED]/30 transition-all hover:translate-x-2">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="w-12 h-12 rounded-xl bg-[#7C3AED]/10 flex items-center justify-center text-[#7C3AED] md:hidden">
-                                        <span className="font-bold">{step.id}</span>
-                                    </div>
-                                    <step.icon className="w-8 h-8 text-[#A78BFA]" />
-                                    <h3 className="text-2xl font-bold">{step.title}</h3>
+                            {/* Content */}
+                            <div className="flex-1 pt-1">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <step.icon className="w-5 h-5 text-purple-400" />
+                                    <h3 className="text-xl font-semibold">{step.title}</h3>
                                 </div>
-                                <p className="text-gray-400 leading-relaxed text-lg">
+                                <p className="text-gray-400 leading-relaxed">
                                     {step.desc}
                                 </p>
                             </div>
                         </div>
                     ))}
+                </div>
+
+                {/* CTA */}
+                <div className="mt-20 text-center border-t border-white/10 pt-12">
+                    <h2 className="text-2xl font-semibold mb-4">Ready to Secure Your AI?</h2>
+                    <p className="text-gray-400 mb-6">Start protecting your AI agents with PolicyGuard today.</p>
+                    <Button
+                        onClick={() => router.push('/signup')}
+                        className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-base rounded-lg"
+                    >
+                        Get Started Free
+                    </Button>
                 </div>
             </div>
         </div>

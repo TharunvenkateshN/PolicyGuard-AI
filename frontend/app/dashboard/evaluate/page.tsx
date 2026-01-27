@@ -291,25 +291,25 @@ export default function EvaluatePage() {
 
                 <TabsContent value="compliance">
                     <div className="mb-6">
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 p-6 rounded-xl shadow-sm">
-                            <div className="flex items-start justify-between gap-6">
-                                <div className="flex items-start gap-4 flex-1">
-                                    <div className="p-3 bg-blue-600 rounded-lg shadow-md">
-                                        <Shield className="w-6 h-6 text-white" />
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 p-8 rounded-xl shadow-sm">
+                            <div className="flex items-center justify-between gap-8 flex-wrap lg:flex-nowrap">
+                                <div className="flex items-center gap-5 flex-1 min-w-0">
+                                    <div className="p-4 bg-blue-600 rounded-xl shadow-md flex-shrink-0">
+                                        <Shield className="w-8 h-8 text-white" />
                                     </div>
-                                    <div className="flex-1">
-                                        <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1">
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 mb-3">
                                             Fiduciary Shield: High-Context Policy Reasoning
                                         </h3>
-                                        <div className="flex flex-wrap items-center gap-2 mb-2">
-                                            <Badge variant="outline" className="text-xs bg-white/80 dark:bg-zinc-900/80 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300">
+                                        <div className="flex flex-wrap items-center gap-3 mb-3">
+                                            <Badge variant="outline" className="text-sm bg-white/80 dark:bg-zinc-900/80 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300">
                                                 Gemini 1.5 Pro
                                             </Badge>
-                                            <Badge className="text-xs bg-blue-600 hover:bg-blue-700 text-white">
+                                            <Badge className="text-sm bg-blue-600 hover:bg-blue-700 text-white">
                                                 ADVANCED_MODE
                                             </Badge>
                                         </div>
-                                        <p className="text-sm text-blue-700 dark:text-blue-300">
+                                        <p className="text-base text-blue-700 dark:text-blue-300">
                                             Active Reasoning on policy edge cases
                                         </p>
                                     </div>
@@ -319,7 +319,7 @@ export default function EvaluatePage() {
                                     onClick={handleRunEvaluation}
                                     disabled={evaluationStatus === 'running'}
                                     size="lg"
-                                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all flex-shrink-0"
                                 >
                                     <Play className="w-5 h-5 mr-2" />
                                     {evaluationStatus === 'running' ? 'Analyzing...' : 'Start Audit'}
@@ -328,190 +328,191 @@ export default function EvaluatePage() {
                         </div>
                     </div>
 
-                    {/* Top Row: Input + Timeline */}
-                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-8">
-                        {/* Left: Input */}
-                        <div className="lg:col-span-4 space-y-6">
-                            <div className="p-6 bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-sm">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-lg font-semibold">Workflow Specification</h3>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-sm text-gray-500">Auto-generate from docs</span>
-                                        <Button
-                                            variant={isAutoGenerateOn ? "default" : "outline"}
-                                            size="sm"
-                                            onClick={() => setIsAutoGenerateOn(!isAutoGenerateOn)}
-                                            className={isAutoGenerateOn ? "bg-blue-600 hover:bg-blue-700 text-white" : ""}
-                                        >
-                                            {isAutoGenerateOn ? "ON" : "OFF"}
-                                        </Button>
+                    {/* Timeline: Full Width */}
+                    <div className="mb-8">
+                        <GuardrailTimeline steps={timelineSteps} />
+                    </div>
+
+                    {/* Workflow Input: Full Width */}
+                    <div className="mb-8">
+                        <div className="p-6 bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-sm">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold">Workflow Specification</h3>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm text-gray-500">Auto-generate from docs</span>
+                                    <Button
+                                        variant={isAutoGenerateOn ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={() => setIsAutoGenerateOn(!isAutoGenerateOn)}
+                                        className={isAutoGenerateOn ? "bg-blue-600 hover:bg-blue-700 text-white" : ""}
+                                    >
+                                        {isAutoGenerateOn ? "ON" : "OFF"}
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* File Upload Zone */}
+                            {isAutoGenerateOn && (
+                                <div className="mb-6 p-6 border-2 border-dashed border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center transition-all">
+                                    <div className="flex flex-col items-center gap-2">
+                                        <div className="p-3 bg-white dark:bg-zinc-800 rounded-full shadow-sm">
+                                            <FileIcon className="w-6 h-6 text-blue-500" />
+                                        </div>
+                                        <div className="font-medium text-blue-900 dark:text-blue-200">
+                                            {isAnalyzingDoc ? "AI Analysis in progress..." : "Upload PRD or Architecture Doc"}
+                                        </div>
+                                        {!isAnalyzingDoc && (
+                                            <>
+                                                <p className="text-xs text-blue-700 dark:text-blue-300 mb-2">
+                                                    We'll automatically extract intent, data flows, and safeguards.
+                                                </p>
+                                                <input
+                                                    type="file"
+                                                    className="hidden"
+                                                    id="doc-upload"
+                                                    accept=".pdf,.docx,.txt,.md"
+                                                    onChange={handleFileUpload}
+                                                />
+                                                <label htmlFor="doc-upload">
+                                                    <Button size="sm" variant="secondary" className="cursor-pointer" asChild>
+                                                        <span>Select File</span>
+                                                    </Button>
+                                                </label>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="space-y-6 h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                                {/* 1. AI System Intent */}
+                                <div className="space-y-4 p-4 border rounded-md bg-gray-50 dark:bg-zinc-950">
+                                    <h4 className="font-medium text-blue-600 flex items-center gap-2">
+                                        <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs">1</span>
+                                        AI System Intent
+                                    </h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Purpose</Label>
+                                            <input
+                                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                placeholder="e.g. Customer support chatbot"
+                                                value={workflowData.intent.purpose}
+                                                onChange={(e) => setWorkflowData(prev => ({ ...prev, intent: { ...prev.intent, purpose: e.target.value } }))}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Target Users</Label>
+                                            <input
+                                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                placeholder="e.g. Banking customers"
+                                                value={workflowData.intent.users}
+                                                onChange={(e) => setWorkflowData(prev => ({ ...prev, intent: { ...prev.intent, users: e.target.value } }))}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* File Upload Zone */}
-                                {isAutoGenerateOn && (
-                                    <div className="mb-6 p-6 border-2 border-dashed border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center transition-all">
-                                        <div className="flex flex-col items-center gap-2">
-                                            <div className="p-3 bg-white dark:bg-zinc-800 rounded-full shadow-sm">
-                                                <FileIcon className="w-6 h-6 text-blue-500" />
-                                            </div>
-                                            <div className="font-medium text-blue-900 dark:text-blue-200">
-                                                {isAnalyzingDoc ? "AI Analysis in progress..." : "Upload PRD or Architecture Doc"}
-                                            </div>
-                                            {!isAnalyzingDoc && (
-                                                <>
-                                                    <p className="text-xs text-blue-700 dark:text-blue-300 mb-2">
-                                                        We'll automatically extract intent, data flows, and safeguards.
-                                                    </p>
-                                                    <input
-                                                        type="file"
-                                                        className="hidden"
-                                                        id="doc-upload"
-                                                        accept=".pdf,.docx,.txt,.md"
-                                                        onChange={handleFileUpload}
-                                                    />
-                                                    <label htmlFor="doc-upload">
-                                                        <Button size="sm" variant="secondary" className="cursor-pointer" asChild>
-                                                            <span>Select File</span>
-                                                        </Button>
-                                                    </label>
-                                                </>
-                                            )}
-                                        </div>
+                                {/* 2. Data Interaction */}
+                                <div className="space-y-4 p-4 border rounded-md bg-gray-50 dark:bg-zinc-950">
+                                    <h4 className="font-medium text-blue-600 flex items-center gap-2">
+                                        <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs">2</span>
+                                        Data Interaction
+                                    </h4>
+                                    <div className="space-y-2">
+                                        <Label>Data Types & Sensitivity</Label>
+                                        <textarea
+                                            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            placeholder="What data does it touch? (e.g. PII, Financial data, Health records)"
+                                            value={workflowData.data.types}
+                                            onChange={(e) => setWorkflowData(prev => ({ ...prev, data: { ...prev.data, types: e.target.value } }))}
+                                        />
                                     </div>
-                                )}
+                                </div>
 
-                                <div className="space-y-6 h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                                    {/* 1. AI System Intent */}
-                                    <div className="space-y-4 p-4 border rounded-md bg-gray-50 dark:bg-zinc-950">
-                                        <h4 className="font-medium text-blue-600 flex items-center gap-2">
-                                            <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs">1</span>
-                                            AI System Intent
-                                        </h4>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label>Purpose</Label>
-                                                <input
-                                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                                    placeholder="e.g. Customer support chatbot"
-                                                    value={workflowData.intent.purpose}
-                                                    onChange={(e) => setWorkflowData(prev => ({ ...prev, intent: { ...prev.intent, purpose: e.target.value } }))}
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label>Target Users</Label>
-                                                <input
-                                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                                    placeholder="e.g. Banking customers"
-                                                    value={workflowData.intent.users}
-                                                    onChange={(e) => setWorkflowData(prev => ({ ...prev, intent: { ...prev.intent, users: e.target.value } }))}
-                                                />
-                                            </div>
-                                        </div>
+                                {/* 3. Decision & Output */}
+                                <div className="space-y-4 p-4 border rounded-md bg-gray-50 dark:bg-zinc-950">
+                                    <h4 className="font-medium text-blue-600 flex items-center gap-2">
+                                        <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs">3</span>
+                                        Decision & Output Behavior
+                                    </h4>
+                                    <div className="space-y-2">
+                                        <Label>Output Type & Impact</Label>
+                                        <textarea
+                                            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            placeholder="What does it output? (e.g. Financial advice, Loan approval decision)"
+                                            value={workflowData.decision.output}
+                                            onChange={(e) => setWorkflowData(prev => ({ ...prev, decision: { ...prev.decision, output: e.target.value } }))}
+                                        />
                                     </div>
+                                </div>
 
-                                    {/* 2. Data Interaction */}
-                                    <div className="space-y-4 p-4 border rounded-md bg-gray-50 dark:bg-zinc-950">
-                                        <h4 className="font-medium text-blue-600 flex items-center gap-2">
-                                            <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs">2</span>
-                                            Data Interaction
-                                        </h4>
+                                {/* 4. Safeguards */}
+                                <div className="space-y-4 p-4 border rounded-md bg-gray-50 dark:bg-zinc-950">
+                                    <h4 className="font-medium text-blue-600 flex items-center gap-2">
+                                        <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs">4</span>
+                                        Existing Safeguards
+                                    </h4>
+                                    <div className="space-y-2">
+                                        <Label>Controls</Label>
+                                        <input
+                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            placeholder="e.g. Content filtering, Human-in-the-loop"
+                                            value={workflowData.safeguards.controls}
+                                            onChange={(e) => setWorkflowData(prev => ({ ...prev, safeguards: { ...prev.safeguards, controls: e.target.value } }))}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* 5. Deployment Environment */}
+                                <div className="space-y-4 p-4 border rounded-md bg-gray-50 dark:bg-zinc-950">
+                                    <h4 className="font-medium text-blue-600 flex items-center gap-2">
+                                        <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs">5</span>
+                                        Deployment Context
+                                    </h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <Label>Data Types & Sensitivity</Label>
-                                            <textarea
-                                                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                                placeholder="What data does it touch? (e.g. PII, Financial data, Health records)"
-                                                value={workflowData.data.types}
-                                                onChange={(e) => setWorkflowData(prev => ({ ...prev, data: { ...prev.data, types: e.target.value } }))}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* 3. Decision & Output */}
-                                    <div className="space-y-4 p-4 border rounded-md bg-gray-50 dark:bg-zinc-950">
-                                        <h4 className="font-medium text-blue-600 flex items-center gap-2">
-                                            <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs">3</span>
-                                            Decision & Output Behavior
-                                        </h4>
-                                        <div className="space-y-2">
-                                            <Label>Output Type & Impact</Label>
-                                            <textarea
-                                                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                                placeholder="What does it output? (e.g. Financial advice, Loan approval decision)"
-                                                value={workflowData.decision.output}
-                                                onChange={(e) => setWorkflowData(prev => ({ ...prev, decision: { ...prev.decision, output: e.target.value } }))}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* 4. Safeguards */}
-                                    <div className="space-y-4 p-4 border rounded-md bg-gray-50 dark:bg-zinc-950">
-                                        <h4 className="font-medium text-blue-600 flex items-center gap-2">
-                                            <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs">4</span>
-                                            Existing Safeguards
-                                        </h4>
-                                        <div className="space-y-2">
-                                            <Label>Controls</Label>
+                                            <Label>Region</Label>
                                             <input
                                                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                                placeholder="e.g. Content filtering, Human-in-the-loop"
-                                                value={workflowData.safeguards.controls}
-                                                onChange={(e) => setWorkflowData(prev => ({ ...prev, safeguards: { ...prev.safeguards, controls: e.target.value } }))}
+                                                placeholder="e.g. EU, India, Global"
+                                                value={workflowData.deployment.region}
+                                                onChange={(e) => setWorkflowData(prev => ({ ...prev, deployment: { ...prev.deployment, region: e.target.value } }))}
                                             />
                                         </div>
-                                    </div>
-
-                                    {/* 5. Deployment Environment */}
-                                    <div className="space-y-4 p-4 border rounded-md bg-gray-50 dark:bg-zinc-950">
-                                        <h4 className="font-medium text-blue-600 flex items-center gap-2">
-                                            <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs">5</span>
-                                            Deployment Context
-                                        </h4>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label>Region</Label>
-                                                <input
-                                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                                    placeholder="e.g. EU, India, Global"
-                                                    value={workflowData.deployment.region}
-                                                    onChange={(e) => setWorkflowData(prev => ({ ...prev, deployment: { ...prev.deployment, region: e.target.value } }))}
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label>Scale</Label>
-                                                <input
-                                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                                    placeholder="e.g. Internal pilot, Public beta"
-                                                    value={workflowData.deployment.scale}
-                                                    onChange={(e) => setWorkflowData(prev => ({ ...prev, deployment: { ...prev.deployment, scale: e.target.value } }))}
-                                                />
-                                            </div>
+                                        <div className="space-y-2">
+                                            <Label>Scale</Label>
+                                            <input
+                                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                placeholder="e.g. Internal pilot, Public beta"
+                                                value={workflowData.deployment.scale}
+                                                onChange={(e) => setWorkflowData(prev => ({ ...prev, deployment: { ...prev.deployment, scale: e.target.value } }))}
+                                            />
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        {/* Right: Timeline */}
-                        <div className="lg:col-span-1 space-y-4">
-                            <GuardrailTimeline steps={timelineSteps} />
-                            {evaluationStatus === 'running' && (
-                                <div className="p-4 bg-zinc-900 rounded-lg border border-zinc-800 font-mono text-[10px] space-y-2 text-cyan-500 overflow-hidden shadow-2xl">
-                                    <div className="flex items-center gap-2 border-b border-zinc-800 pb-2 mb-2">
-                                        <Terminal className="w-3 h-3" />
-                                        <span className="uppercase tracking-widest font-bold">Reasoning_Trace_v2</span>
-                                    </div>
-                                    <div className="animate-pulse flex flex-col gap-1">
-                                        <p>&gt; Fetching active policy set...</p>
-                                        <p>&gt; Identifying semantic anchors in workflow...</p>
-                                        <p>&gt; Running cross-policy contradiction detection...</p>
-                                        <p className="text-white">&gt; Gemini reasoning on policy edge cases...</p>
-                                        <p className="text-zinc-600">&gt; [WAIT] Quantizing risk simulations...</p>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
                     </div>
+
+                    {/* Reasoning Trace (when running) */}
+                    {evaluationStatus === 'running' && (
+                        <div className="mb-8">
+                            <div className="p-4 bg-zinc-900 rounded-lg border border-zinc-800 font-mono text-[10px] space-y-2 text-cyan-500 overflow-hidden shadow-2xl">
+                                <div className="flex items-center gap-2 border-b border-zinc-800 pb-2 mb-2">
+                                    <Terminal className="w-3 h-3" />
+                                    <span className="uppercase tracking-widest font-bold">Reasoning_Trace_v2</span>
+                                </div>
+                                <div className="animate-pulse flex flex-col gap-1">
+                                    <p>&gt; Fetching active policy set...</p>
+                                    <p>&gt; Identifying semantic anchors in workflow...</p>
+                                    <p>&gt; Running cross-policy contradiction detection...</p>
+                                    <p className="text-white">&gt; Gemini reasoning on policy edge cases...</p>
+                                    <p className="text-zinc-600">&gt; [WAIT] Quantizing risk simulations...</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Bottom Row: Full Width Results */}
                     {evaluationStatus === 'done' && complianceReport && (

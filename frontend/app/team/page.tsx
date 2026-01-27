@@ -1,10 +1,14 @@
 "use client";
 
 import React from 'react';
-import { Github, Linkedin, Shield, Hexagon } from 'lucide-react';
+import { Github, Linkedin, Shield, Hexagon, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 
 export default function TeamPage() {
+    const router = useRouter();
+
     const team = [
         {
             name: "Tharun N V",
@@ -36,12 +40,23 @@ export default function TeamPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-[#020617] text-slate-200 pt-32 pb-20 px-6 font-sans relative overflow-hidden">
+        <div className="min-h-screen bg-[#020617] text-slate-200 pt-10 pb-20 px-6 font-sans relative overflow-hidden">
             {/* Cyber Grid Overlay */}
             <div className="absolute inset-0 bg-grid-cyber pointer-events-none opacity-20 z-0"></div>
 
             {/* Decorative Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-cyan-600/10 rounded-full blur-[120px] -z-10"></div>
+
+            {/* Back Button */}
+            <div className="max-w-7xl mx-auto mb-8 relative z-10">
+                <Button
+                    variant="ghost"
+                    onClick={() => router.back()}
+                    className="hover:bg-white/10 hover:text-white text-gray-400 gap-2"
+                >
+                    <ArrowLeft className="w-4 h-4" /> Back
+                </Button>
+            </div>
 
             <div className="max-w-7xl mx-auto text-center mb-16 relative z-10">
                 <motion.div

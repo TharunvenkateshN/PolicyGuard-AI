@@ -40,7 +40,7 @@ export default function DashboardLayout({
             {/* Mobile Header - Top of flex-col */}
             <DashboardMobileNav />
 
-            <div className="flex flex-1 overflow-hidden relative z-10">
+            <div className="flex flex-1 overflow-hidden relative">
                 {/* Desktop Sidebar - hidden on mobile */}
                 <Sidebar className="hidden lg:flex w-64 h-full border-r border-slate-800/10" />
 
