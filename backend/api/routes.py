@@ -71,7 +71,7 @@ async def upload_policy(file: UploadFile = File(...)):
             print(f"[WARN] Summarization failed: {e}")
             summary = f"Summary unavailable: {str(e)[:50]}"
         
-        # 2. Store Policy
+        # 2. Store Policy with timeout
         pid = str(uuid.uuid4())
         policy = PolicyDocument(
             id=pid,
@@ -80,7 +80,15 @@ async def upload_policy(file: UploadFile = File(...)):
             summary=summary,
             is_active=True
         )
-        policy_db.add_policy(policy)
+        try:
+            await asyncio.wait_for(
+                asyncio.to_thread(policy_db.add_policy, policy),
+                timeout=10.0
+            )
+        except asyncio.TimeoutError:
+            print("[WARN] Policy save to Firebase timed out, but policy added to memory")
+        except Exception as e:
+            print(f"[WARN] Policy save to Firebase failed: {e}")
         
         # 3. Create Chunks & Vectors for RAG with timeout
         try:
