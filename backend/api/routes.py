@@ -82,14 +82,43 @@ async def upload_policy(file: UploadFile = File(...)):
         )
         policy_db.add_policy(policy)
         
-        # 3. Create Chunks & Vectors for RAG
-        chunks = await ingestor.chunk_policy(text)
-        vectors = []
-        for chunk in chunks:
-            vec = await gemini.create_embedding(chunk)
-            vectors.append(vec)
+        # 3. Create Chunks & Vectors for RAG with timeout
+        try:
+            chunks = await asyncio.wait_for(
+                ingestor.chunk_policy(text),
+                timeout=5.0
+            )
             
-        policy_db.add_policy_vectors(pid, chunks, vectors)
+            vectors = []
+            for chunk in chunks:
+                try:
+                    vec = await asyncio.wait_for(
+                        gemini.create_embedding(chunk),
+                        timeout=5.0
+                    )
+                    vectors.append(vec)
+                except asyncio.TimeoutError:
+                    print(f"[WARN] Embedding generation timed out for chunk")
+                    break  # Skip remaining chunks if one times out
+                except Exception as e:
+                    print(f"[WARN] Embedding generation failed: {e}")
+                    break
+            
+            if vectors:  # Only save if we have some vectors
+                try:
+                    # Use asyncio.to_thread for sync Firebase call with timeout
+                    await asyncio.wait_for(
+                        asyncio.to_thread(policy_db.add_policy_vectors, pid, chunks[:len(vectors)], vectors),
+                        timeout=10.0
+                    )
+                except asyncio.TimeoutError:
+                    print("[WARN] Vector storage timed out")
+                except Exception as e:
+                    print(f"[WARN] Vector storage failed: {e}")
+        except asyncio.TimeoutError:
+            print("[WARN] Chunking timed out")
+        except Exception as e:
+            print(f"[WARN] RAG processing failed: {e}")
         
         return policy
     except Exception as e:
