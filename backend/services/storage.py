@@ -14,44 +14,52 @@ class PolicyStorage:
         self.db = None
         self._initialized = False
         self._local_vector_path = "vectors.json"
+        self._local_store_path = "policy_store.json"
+        self._use_firebase = settings.USE_FIREBASE
         import threading
         self._lock = threading.Lock()
         
-        # Init Firebase Mandatory
-        try:
-            if not firebase_admin._apps:
-                # Check if it's a JSON string or a file path
-                creds_input = settings.FIREBASE_CREDENTIALS
-                if creds_input.strip().startswith('{'):
-                    # It's a JSON string
-                    creds_dict = json.loads(creds_input)
-                    cred = credentials.Certificate(creds_dict)
-                elif os.path.exists(creds_input):
-                    # It's a file path
-                    cred = credentials.Certificate(creds_input)
-                else:
-                    raise FileNotFoundError(f"Firebase Credentials not found at {creds_input} and not provided as JSON string.")
+        if self._use_firebase:
+            # Init Firebase
+            try:
+                if not firebase_admin._apps:
+                    # Check if it's a JSON string or a file path
+                    creds_input = settings.FIREBASE_CREDENTIALS
+                    if creds_input.strip().startswith('{'):
+                        # It's a JSON string
+                        creds_dict = json.loads(creds_input)
+                        cred = credentials.Certificate(creds_dict)
+                    elif os.path.exists(creds_input):
+                        # It's a file path
+                        cred = credentials.Certificate(creds_input)
+                    else:
+                        raise FileNotFoundError(f"Firebase Credentials not found at {creds_input} and not provided as JSON string.")
+                    
+                    firebase_admin.initialize_app(cred)
                 
-                firebase_admin.initialize_app(cred)
-            
-            self.db = firestore.client()
-            print("✅ Connected to Firebase Firestore (Production Mode)")
-            
-            # Load data in background thread to avoid blocking requests
-            import threading
-            loading_thread = threading.Thread(target=self._load_from_firebase_background, daemon=True)
-            loading_thread.start()
-            print("🔄 Loading Firebase data in background...")
-            
-        except Exception as e:
-            print(f"❌ CRITICAL FIREBASE ERROR: {e}")
-            print("\n" + "!"*60)
-            print("  FIREBASE CONNECTION FAILED")
-            print("  1. Place 'serviceAccountKey.json' in /backend")
-            print("  2. OR set FIREBASE_CREDENTIALS env var with the JSON string")
-            print("  3. Run 'python migrate_to_firebase.py' after connecting")
-            print("!"*60 + "\n")
-            print("Application running in CRIPPLED state.")
+                self.db = firestore.client()
+                print("✅ Connected to Firebase Firestore (Production Mode)")
+                
+                # Load data in background thread to avoid blocking requests
+                import threading
+                loading_thread = threading.Thread(target=self._load_from_firebase_background, daemon=True)
+                loading_thread.start()
+                print("🔄 Loading Firebase data in background...")
+                
+            except Exception as e:
+                print(f"❌ CRITICAL FIREBASE ERROR: {e}")
+                print("\n" + "!"*60)
+                print("  FIREBASE CONNECTION FAILED")
+                print("  1. Place 'serviceAccountKey.json' in /backend")
+                print("  2. OR set FIREBASE_CREDENTIALS env var with the JSON string")
+                print("  3. Run 'python migrate_to_firebase.py' after connecting")
+                print("!"*60 + "\n")
+                print("Application running in CRIPPLED state.")
+        else:
+            # Use local JSON storage (fast, no network)
+            print("🚀 Using LOCAL JSON storage (Development Mode - Fast)")
+            self._load_from_local_json()
+            print(f"✅ Loaded {len(self._policies)} policies from {self._local_store_path}")
 
     # --- Loading Logic ---
     def _load_from_firebase(self):
@@ -91,6 +99,40 @@ class PolicyStorage:
         """Load Firebase data in background thread without blocking requests"""
         with self._lock:
             self._load_from_firebase()
+    
+    def _load_from_local_json(self):
+        """Load policies from local JSON file (fast, no network overhead)"""
+        try:
+            if os.path.exists(self._local_store_path):
+                with open(self._local_store_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    # Only load policies, not evaluations (to save RAM)
+                    policies_data = data.get('policies', [])
+                    self._policies = [PolicyDocument(**p) for p in policies_data]
+                    self._initialized = True
+            else:
+                print(f"⚠️ {self._local_store_path} not found, starting with empty storage")
+                self._policies = []
+                self._initialized = True
+        except Exception as e:
+            print(f"Error loading from local JSON: {e}")
+            self._policies = []
+            self._initialized = True
+    
+    def _save_to_local_json(self):
+        """Save policies to local JSON file (only when USE_FIREBASE=false)"""
+        if self._use_firebase:
+            return  # Don't save locally if using Firebase
+        
+        try:
+            data = {
+                'policies': [p.model_dump() for p in self._policies],
+                'evaluations': self._evaluations[:100]  # Limit to 100 to prevent bloat
+            }
+            with open(self._local_store_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            print(f"Error saving to local JSON: {e}")
 
     # --- CRUD Operations ---
     def add_policy(self, policy: PolicyDocument):
@@ -99,6 +141,9 @@ class PolicyStorage:
             try:
                 self.db.collection('policies').document(policy.id).set(policy.model_dump())
             except Exception as e: print(f"Firebase Error: {e}")
+        else:
+            # Save to local JSON if not using Firebase
+            self._save_to_local_json()
 
     # --- Vector Search Logic ---
     def add_policy_vectors(self, policy_id: str, chunks: List[str], vectors: List[List[float]]):
