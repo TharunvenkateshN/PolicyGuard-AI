@@ -35,6 +35,7 @@ interface RiskData {
 
 export default function MonitorPage() {
     // --- Global Data ---
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     const [data, setData] = useState<MonitorData>({ traces_per_min: 0, blocking_rate: 0, active_policies: 0, traces: [] });
     const [risk, setRisk] = useState<RiskData>({ risk_score: 0, risk_label: "Calculating...", factors: [] });
     const [riskHistory, setRiskHistory] = useState<any[]>([]);
@@ -47,8 +48,8 @@ export default function MonitorPage() {
     // --- Fetching Logic ---
     useEffect(() => {
         const fetchMonitor = async () => {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
             try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 120000); // 120s timeout
@@ -75,6 +76,7 @@ export default function MonitorPage() {
     useEffect(() => {
         const SIM_SERVICE_ID = "agent-core-001";
         const simulateTelemetry = async () => {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
             const baseLatency = 200;
             const randomLatency = Math.floor(Math.random() * 100) + baseLatency;
             const errorSpike = Math.random() > 0.85 ? 0.05 : 0.001;

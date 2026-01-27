@@ -280,7 +280,7 @@ class GeminiService:
         try:
              # Using Retry helper with REDUCED retries to save quota
              response = await self._generate_with_retry(
-                model="gemini-1.5-flash", 
+                model=settings.GEMINI_MODEL, 
                 contents=prompt,
                 retries=1 # Only try once, then failover to save tokens
              )
