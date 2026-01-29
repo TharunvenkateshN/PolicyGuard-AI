@@ -30,6 +30,15 @@ export default function ProxyPage() {
     const [serviceName, setServiceName] = useState("trading-bot-v1");
     const [isLoaded, setIsLoaded] = useState(false);
 
+    // Live Telemetry State
+    const [telemetryHistory, setTelemetryHistory] = useState<any[]>([]);
+    const [serviceRisk, setServiceRisk] = useState<{ score: number, label: string, factors: string[] }>({
+        score: 0,
+        label: 'Healthy',
+        factors: []
+    });
+    const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+
     // Persistence & Firebase Toggle
     const USE_FIREBASE_SYNC = true; // Set to true to enable Firebase sync (local-first approach)
 
@@ -91,6 +100,41 @@ export default function ProxyPage() {
             syncToFirebase();
         }
     }, [activeStream, wizardStep, isSlaConnected, serviceName, selectedLang, isLoaded]);
+
+    // Live Telemetry Polling
+    useEffect(() => {
+        if (!isSlaConnected || !isLoaded) return;
+
+        const fetchTelemetry = async () => {
+            try {
+                // 1. Fetch History
+                const historyRes = await fetch(`${apiUrl}/api/v1/telemetry/history/${serviceName}`);
+                if (historyRes.ok) {
+                    const history = await historyRes.json();
+                    setTelemetryHistory(history);
+                }
+
+                // 2. Fetch Risk
+                const riskRes = await fetch(`${apiUrl}/api/v1/telemetry/risk/${serviceName}`);
+                if (riskRes.ok) {
+                    const risk = await riskRes.json();
+                    setServiceRisk({
+                        score: risk.risk_score,
+                        label: risk.risk_label,
+                        factors: risk.factors || []
+                    });
+                }
+
+                setLastUpdated(new Date());
+            } catch (e) {
+                console.error("Telemetry fetch failed", e);
+            }
+        };
+
+        fetchTelemetry(); // Initial fetch
+        const interval = setInterval(fetchTelemetry, 3000); // Poll every 3s
+        return () => clearInterval(interval);
+    }, [isSlaConnected, serviceName, isLoaded, apiUrl]);
 
     const handleSlaConnect = () => {
         setIsConnecting(true);
@@ -655,11 +699,11 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                                         <div>
                                             <CardTitle className="text-lg flex items-center gap-2">
-                                                <Activity className="w-5 h-5 text-purple-600" />
+                                                <Activity className={`w-5 h-5 ${serviceRisk.score > 70 ? 'text-red-500' : serviceRisk.score > 30 ? 'text-yellow-500' : 'text-purple-600'}`} />
                                                 Active Monitoring: <span className="text-indigo-600 font-mono">{serviceName}</span>
                                             </CardTitle>
                                             <CardDescription className="flex items-center gap-2 mt-1">
-                                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                                <div className={`w-2 h-2 rounded-full animate-pulse ${serviceRisk.score > 70 ? 'bg-red-500' : serviceRisk.score > 30 ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
                                                 Real-time stability stream connected via <strong>{selectedLang === 'node' ? 'Node.js Express' : selectedLang}</strong>
                                             </CardDescription>
                                         </div>
@@ -674,34 +718,54 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                     <CardContent className="pt-6">
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                             <div className="space-y-4">
-                                                <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-100 dark:border-zinc-800 shadow-sm flex flex-col items-center justify-center text-center">
-                                                    <Activity className="w-5 h-5 text-purple-400 mb-2" />
-                                                    <div className="text-2xl font-bold">Healthy</div>
+                                                <div className={`p-4 bg-white dark:bg-zinc-900 rounded-xl border shadow-sm flex flex-col items-center justify-center text-center transition-all duration-500 ${serviceRisk.score > 70 ? 'border-red-200 dark:border-red-900/40 bg-red-50/10' :
+                                                        serviceRisk.score > 30 ? 'border-yellow-200 dark:border-yellow-900/40 bg-yellow-50/10' :
+                                                            'border-gray-100 dark:border-zinc-800'
+                                                    }`}>
+                                                    <Activity className={`w-5 h-5 mb-2 ${serviceRisk.score > 70 ? 'text-red-500' :
+                                                            serviceRisk.score > 30 ? 'text-yellow-500' :
+                                                                'text-purple-400'
+                                                        }`} />
+                                                    <div className={`text-2xl font-bold ${serviceRisk.score > 70 ? 'text-red-600' :
+                                                            serviceRisk.score > 30 ? 'text-yellow-600' :
+                                                                ''
+                                                        }`}>{serviceRisk.label}</div>
                                                     <div className="text-[10px] text-gray-400 uppercase font-bold tracking-tight">System Status</div>
                                                 </div>
                                                 <div className="p-3 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-lg border border-indigo-100 dark:border-indigo-800">
                                                     <div className="flex justify-between items-center text-xs mb-1">
                                                         <span className="text-indigo-700 dark:text-indigo-300 font-medium">Auto-Remediation</span>
-                                                        <Badge className="bg-green-500/20 text-green-600 dark:text-green-400 border-none px-1.5 py-0 h-4 text-[9px]">READY</Badge>
+                                                        <Badge className={`${serviceRisk.score > 0 ? 'bg-green-500/20 text-green-600' : 'bg-gray-500/10 text-gray-400'} border-none px-1.5 py-0 h-4 text-[9px]`}>
+                                                            {serviceRisk.score > 0 ? 'READY' : 'STANDBY'}
+                                                        </Badge>
                                                     </div>
-                                                    <p className="text-[10px] text-indigo-900/60 dark:text-indigo-300/60 leading-tight">Gemini has generated 3 fix scripts for common failures in this stack.</p>
+                                                    <p className="text-[10px] text-indigo-900/60 dark:text-indigo-300/60 leading-tight">
+                                                        {serviceRisk.score > 70 ? 'Critical failure detected. remediation scripts staged.' : serviceRisk.score > 30 ? 'Moderate risks detected. Optimization suggested.' : 'Gemini is monitoring for common failures in this stack.'}
+                                                    </p>
                                                 </div>
                                             </div>
 
                                             <div className="md:col-span-2 bg-zinc-50 dark:bg-zinc-900/40 rounded-xl border border-gray-100 dark:border-zinc-800 p-5">
                                                 <div className="flex items-center justify-between mb-4">
                                                     <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400">Recent Telemetry Bursts</h4>
-                                                    <Badge variant="outline" className="text-[9px] py-0 h-4">Last 5 min</Badge>
+                                                    <Badge variant="outline" className="text-[9px] py-0 h-4">{telemetryHistory.length > 0 ? 'Live Data' : 'Waiting for Data'}</Badge>
                                                 </div>
                                                 <div className="h-24 flex items-end gap-1 px-2">
-                                                    {[40, 60, 45, 90, 65, 30, 80, 50, 40, 70, 85, 45, 60, 30, 95, 40, 55, 75, 50, 60].map((h, i) => (
-                                                        <div
-                                                            key={i}
-                                                            className="flex-1 bg-indigo-500/20 dark:bg-indigo-500/10 hover:bg-indigo-500 rounded-t-sm transition-colors cursor-help"
-                                                            style={{ height: `${h}%` }}
-                                                            title={`Latency: ${h + 20}ms`}
-                                                        />
-                                                    ))}
+                                                    {telemetryHistory.length > 0 ? (
+                                                        telemetryHistory.map((point: any, i: number) => (
+                                                            <div
+                                                                key={i}
+                                                                className={`flex-1 rounded-t-sm transition-all duration-700 cursor-help ${point.risk_score > 70 ? 'bg-red-500' : point.risk_score > 30 ? 'bg-yellow-500' : 'bg-indigo-500'
+                                                                    }`}
+                                                                style={{ height: `${Math.max(10, point.risk_score)}%` }}
+                                                                title={`Latency: ${point.latency_ms}ms | Risk: ${point.risk_score}`}
+                                                            />
+                                                        ))
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-gray-200 dark:border-zinc-800 rounded-lg">
+                                                            <span className="text-[10px] text-gray-400">Waiting for {serviceName} telemetry...</span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <div className="mt-4 flex justify-between">
                                                     <Button
@@ -711,12 +775,13 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                                         onClick={() => {
                                                             setIsSlaConnected(false);
                                                             setWizardStep(1);
+                                                            setTelemetryHistory([]);
                                                         }}
                                                     >
                                                         Disconnect Service
                                                     </Button>
                                                     <div className="text-[10px] text-gray-400 flex items-center gap-1">
-                                                        <Clock className="w-3 h-3" /> Updated 2s ago
+                                                        <Clock className="w-3 h-3" /> Updated {Math.floor((new Date().getTime() - lastUpdated.getTime()) / 1000)}s ago
                                                     </div>
                                                 </div>
                                             </div>
