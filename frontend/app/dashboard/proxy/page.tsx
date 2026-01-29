@@ -705,18 +705,23 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                             <div className="space-y-4">
                                                 <div className={`p-4 bg-white dark:bg-zinc-900 rounded-xl border shadow-sm flex flex-col items-center justify-center text-center transition-all duration-500 ${serviceRisk.score > 70 ? 'border-red-200 dark:border-red-900/40 bg-red-50/10' :
-                                                        serviceRisk.score > 30 ? 'border-yellow-200 dark:border-yellow-900/40 bg-yellow-50/10' :
-                                                            'border-gray-100 dark:border-zinc-800'
+                                                    serviceRisk.score > 30 ? 'border-yellow-200 dark:border-yellow-900/40 bg-yellow-50/10' :
+                                                        'border-gray-100 dark:border-zinc-800'
                                                     }`}>
                                                     <Activity className={`w-5 h-5 mb-2 ${serviceRisk.score > 70 ? 'text-red-500' :
-                                                            serviceRisk.score > 30 ? 'text-yellow-500' :
-                                                                'text-purple-400'
+                                                        serviceRisk.score > 30 ? 'text-yellow-500' :
+                                                            'text-purple-400'
                                                         }`} />
-                                                    <div className={`text-2xl font-bold ${serviceRisk.score > 70 ? 'text-red-600' :
-                                                            serviceRisk.score > 30 ? 'text-yellow-600' :
-                                                                ''
-                                                        }`}>{serviceRisk.label}</div>
-                                                    <div className="text-[10px] text-gray-400 uppercase font-bold tracking-tight">System Status</div>
+                                                    <div className={`text-[10px] text-gray-400 uppercase font-bold tracking-tight mb-1`}>Deployment Verdict</div>
+                                                    <div className={`text-3xl font-black tracking-tighter transition-all duration-300 ${serviceRisk.score > 70 ? 'text-red-600 scale-110' :
+                                                        serviceRisk.score > 30 ? 'text-yellow-600' :
+                                                            'text-green-600'
+                                                        }`}>
+                                                        {serviceRisk.score > 70 ? 'BLOCKED' : serviceRisk.score > 30 ? 'CAUTION' : 'PASSED'}
+                                                    </div>
+                                                    <div className="text-[10px] text-gray-400 mt-2 font-medium italic">
+                                                        {serviceRisk.score > 70 ? 'Policy violation detected' : serviceRisk.score > 30 ? 'Risk threshold reached' : 'Compliance threshold met'}
+                                                    </div>
                                                 </div>
                                                 <div className="p-3 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-lg border border-indigo-100 dark:border-indigo-800">
                                                     <div className="flex justify-between items-center text-xs mb-1">
