@@ -1,6 +1,8 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { db, auth } from '@/lib/firebase';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
@@ -26,6 +28,69 @@ export default function ProxyPage() {
     const [isConnecting, setIsConnecting] = useState(false);
     const [isSlaConnected, setIsSlaConnected] = useState(false);
     const [serviceName, setServiceName] = useState("trading-bot-v1");
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    // Persistence & Firebase Toggle
+    const USE_FIREBASE_SYNC = true; // Set to true to enable Firebase sync (local-first approach)
+
+    // Load state from localStorage & Firebase on mount
+    useEffect(() => {
+        const loadInitialState = async () => {
+            // 1. Try LocalStorage
+            const savedConfig = localStorage.getItem('pg_stability_config');
+            let initialConfig = savedConfig ? JSON.parse(savedConfig) : null;
+
+            // 2. Try Firebase (Only if explicitly enabled and auth is ready)
+            // Note: We check it inside the effect to handle async auth state
+            if (USE_FIREBASE_SYNC && auth.currentUser) {
+                try {
+                    const docSnap = await getDoc(doc(db, "users", auth.currentUser.uid, "integrations", "stability"));
+                    if (docSnap.exists()) {
+                        initialConfig = { ...initialConfig, ...docSnap.data() };
+                    }
+                } catch (e) {
+                    console.error("Firebase load failed", e);
+                }
+            }
+
+            if (initialConfig) {
+                if (initialConfig.activeStream) setActiveStream(initialConfig.activeStream);
+                if (initialConfig.wizardStep) setWizardStep(initialConfig.wizardStep);
+                if (initialConfig.isSlaConnected !== undefined) setIsSlaConnected(initialConfig.isSlaConnected);
+                if (initialConfig.serviceName) setServiceName(initialConfig.serviceName);
+                if (initialConfig.selectedLang) setSelectedLang(initialConfig.selectedLang);
+            }
+            setIsLoaded(true);
+        };
+
+        loadInitialState();
+    }, []);
+
+    // Save state to localStorage whenever it changes
+    useEffect(() => {
+        if (!isLoaded) return; // CRITICAL: Don't overwrite saved data with defaults on first render
+
+        const config = {
+            activeStream,
+            wizardStep,
+            isSlaConnected,
+            serviceName,
+            selectedLang
+        };
+        localStorage.setItem('pg_stability_config', JSON.stringify(config));
+
+        // Firebase Sync (Optional/local-first)
+        if (USE_FIREBASE_SYNC && auth.currentUser) {
+            const syncToFirebase = async () => {
+                try {
+                    await setDoc(doc(db, "users", auth.currentUser!.uid, "integrations", "stability"), config, { merge: true });
+                } catch (e) {
+                    console.error("Firebase sync failed", e);
+                }
+            };
+            syncToFirebase();
+        }
+    }, [activeStream, wizardStep, isSlaConnected, serviceName, selectedLang, isLoaded]);
 
     const handleSlaConnect = () => {
         setIsConnecting(true);

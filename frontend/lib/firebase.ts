@@ -1,5 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -16,13 +17,15 @@ console.log("Initializing Firebase with project:", firebaseConfig.projectId);
 // Initialize Firebase (Singleton pattern)
 let app;
 let auth;
+let db;
 
 try {
     app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     auth = getAuth(app);
+    db = getFirestore(app);
     console.log("Firebase initialized successfully");
 } catch (error) {
     console.error("Firebase initialization failed:", error);
 }
 
-export { app, auth };
+export { app, auth, db };
