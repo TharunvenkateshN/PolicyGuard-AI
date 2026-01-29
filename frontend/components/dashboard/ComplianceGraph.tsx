@@ -149,11 +149,13 @@ const ComplianceGraph: React.FC<ComplianceGraphProps> = ({ report }) => {
                 linkDirectionalParticleColor={() => "#06b6d4"}
 
                 // Scene Lighting
-                enableNodeDrag={true}
+                enableNodeDrag={false}
                 showNavInfo={false}
                 // Fix for the crash: dispose controls when unmounting
                 onEngineStop={() => { }}
                 cooldownTicks={100}
+                // Safety check for renderer to avoid DragControls crash
+                rendererConfig={{ antialias: true, alpha: true }}
             />
         </div>
     );

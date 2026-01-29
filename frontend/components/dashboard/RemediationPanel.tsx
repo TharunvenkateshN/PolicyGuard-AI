@@ -59,12 +59,20 @@ interface RemediationPanelProps {
     violations: Violation[];
     policySummary: string;
     report: any; // Full report object for Graph
+    autoStart?: boolean;
 }
 
-export function RemediationPanel({ originalText, violations, policySummary, report }: RemediationPanelProps) {
-    const [isOpen, setIsOpen] = useState(false);
+export function RemediationPanel({ originalText, violations, policySummary, report, autoStart = false }: RemediationPanelProps) {
+    const [isOpen, setIsOpen] = useState(autoStart);
     const [activeTab, setActiveTab] = useState("detail");
     const [isFixing, setIsFixing] = useState(false);
+
+    // Auto-trigger generation if autoStart is true
+    React.useEffect(() => {
+        if (autoStart && !isFixing && !remediatedDoc) {
+            handleAutoRemediate();
+        }
+    }, [autoStart]);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isExplaining, setIsExplaining] = useState(false);
 
@@ -91,7 +99,7 @@ export function RemediationPanel({ originalText, violations, policySummary, repo
         setIsFixing(true);
         setRemediatedDoc(""); // Clear previous
         try {
-            const violationStrings = violations.map(v => `${v.policy_area}: ${v.reason}`);
+            const violationStrings = violations.length > 0 ? violations.map(v => `${v.policy_area}: ${v.reason}`) : ["Proactive Benefit: General Security Hardening", "Proactive Benefit: Best Practice Implementation"];
             const res = await fetch(`${serverUrl}/api/v1/remediate/doc`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -150,7 +158,7 @@ export function RemediationPanel({ originalText, violations, policySummary, repo
     const getExplanation = async () => {
         setIsExplaining(true);
         try {
-            const violationStrings = violations.map(v => `${v.policy_area}: ${v.reason}`);
+            const violationStrings = violations.length > 0 ? violations.map(v => `${v.policy_area}: ${v.reason}`) : ["Proactive Hardening: Ensure robustness", "Defense in Depth: Implement safeguards even if currently compliant"];
             const res = await fetch(`${serverUrl}/api/v1/remediate/explain`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

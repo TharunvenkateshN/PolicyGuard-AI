@@ -61,51 +61,15 @@ export function ReadinessScorecard({ report, onDownload }: ReadinessScorecardPro
 
     return (
         <div className="space-y-4">
-            <div className="bg-zinc-100 dark:bg-zinc-900 px-4 py-3 rounded-lg border border-zinc-200 dark:border-zinc-800 space-y-2">
-                <div className="flex justify-between items-center text-[10px] font-mono text-zinc-500 uppercase tracking-widest">
-                    <div className="flex gap-4">
-                        <span>Report ID: {report.report_id}</span>
-                        <span>Analyzed: {new Date(report.timestamp).toLocaleString()}</span>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                        <span>Tamper-Evident Forensic State</span>
-                    </div>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
-                    <div className="flex flex-col">
-                        <span className="text-[8px] text-zinc-400 uppercase font-bold">Policy Hash</span>
-                        <span className="text-[9px] font-mono text-zinc-600 truncate">{report.forensic_digest.policy_hash}</span>
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="text-[8px] text-zinc-400 uppercase font-bold">Workflow Hash</span>
-                        <span className="text-[9px] font-mono text-zinc-600 truncate">{report.forensic_digest.workflow_hash}</span>
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="text-[8px] text-zinc-400 uppercase font-bold">Model Version</span>
-                        <span className="text-[9px] font-mono text-zinc-600 truncate">{report.forensic_digest.model_version}</span>
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="text-[8px] text-zinc-400 uppercase font-bold">Prompt Hash</span>
-                        <span className="text-[9px] font-mono text-zinc-600 truncate">{report.forensic_digest.prompt_hash}</span>
-                    </div>
-                </div>
-            </div>
 
-            <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-md flex items-start gap-3 text-xs text-blue-800">
+
+            <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-md flex items-start gap-3 text-xs text-blue-800 mb-6">
                 <Shield className="w-4 h-4 shrink-0 mt-0.5" />
                 <p>
                     <strong>Demonstrative Compliance Analysis:</strong> This report identifies plausible failure classes using analogical reasoning.
                     It is a risk modeling tool for <strong>Human-in-the-Loop Authorization</strong>, not a legal guarantee.
                 </p>
             </div>
-
-            <div className="flex justify-end">
-                <Button onClick={handleDownloadPDF} variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-2" />
-                    Export Forensic Audit Log
-                </Button>
-            </div >
 
             <div ref={reportRef} className="space-y-6 bg-white dark:bg-zinc-950 p-6 rounded-xl border shadow-sm">
 
@@ -453,6 +417,34 @@ export function ReadinessScorecard({ report, onDownload }: ReadinessScorecardPro
                         )}
                     </CardContent>
                 </Card>
+
+                {/* Technical Metadata Footer */}
+                <div className="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-800">
+                    <div className="flex flex-col gap-4">
+                        <div className="flex justify-between items-center text-[10px] text-zinc-400 font-mono uppercase tracking-widest">
+                            <span>Report ID: {report.report_id}</span>
+                            <span>Generated: {new Date(report.timestamp).toLocaleString()}</span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-4 text-[9px] text-zinc-500 font-mono">
+                            <div>
+                                <span className="block font-bold text-zinc-400">Policy Hash</span>
+                                <span className="truncate block">{report.forensic_digest.policy_hash}</span>
+                            </div>
+                            <div>
+                                <span className="block font-bold text-zinc-400">Workflow Hash</span>
+                                <span className="truncate block">{report.forensic_digest.workflow_hash}</span>
+                            </div>
+                            <div>
+                                <span className="block font-bold text-zinc-400">Model</span>
+                                <span className="truncate block">{report.forensic_digest.model_version}</span>
+                            </div>
+                            <div>
+                                <span className="block font-bold text-zinc-400">Prompt Hash</span>
+                                <span className="truncate block">{report.forensic_digest.prompt_hash}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div >
     )

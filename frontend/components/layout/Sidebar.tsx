@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Home, Shield, Activity, Settings, FileText, ChevronRight, BarChart3, LogOut, Zap, MessageSquare, Wrench } from 'lucide-react';
+import { Home, Shield, Activity, Settings, FileText, ChevronRight, BarChart3, LogOut, Zap, MessageSquare, Wrench, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/context/UserContext';
 
@@ -11,8 +11,9 @@ const navItems = [
     { name: 'AI Gatekeeper', href: '/dashboard/proxy', icon: Shield },
     { name: 'Evaluate', href: '/dashboard/evaluate', icon: Activity },
     { name: 'Remediate', href: '/dashboard/remediate', icon: Wrench },
+    { name: 'Red Team', href: '/dashboard/redteam', icon: Flame },
     { name: 'Monitor', href: '/dashboard/monitor', icon: BarChart3 },
-    { name: 'SLA Monitor', href: '/dashboard/sla', icon: Activity },
+    { name: 'SLA Monitor', href: '/dashboard/sla', icon: Zap },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 

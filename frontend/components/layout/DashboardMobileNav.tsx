@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Menu, X, Shield, Home, FileText, MessageSquare, Activity, BarChart3, Zap, Settings, LogOut, ChevronRight, Wrench } from 'lucide-react';
+import { Menu, X, Shield, Home, FileText, MessageSquare, Activity, BarChart3, Zap, Settings, LogOut, ChevronRight, Wrench, Flame } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,6 +16,7 @@ const navItems = [
     { name: 'AI Gatekeeper', href: '/dashboard/proxy', icon: Shield },
     { name: 'Evaluate', href: '/dashboard/evaluate', icon: Activity },
     { name: 'Remediate', href: '/dashboard/remediate', icon: Wrench },
+    { name: 'Red Team', href: '/dashboard/redteam', icon: Flame },
     { name: 'Monitor', href: '/dashboard/monitor', icon: BarChart3 },
     { name: 'SLA Designer', href: '/dashboard/sla', icon: Zap },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },

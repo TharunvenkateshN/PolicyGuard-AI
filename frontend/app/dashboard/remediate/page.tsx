@@ -18,7 +18,7 @@ interface Violation {
 export default function RemediatePage() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { showToast } = useToast();
+    const { addToast } = useToast();
 
     const [violations, setViolations] = useState<Violation[]>([]);
     const [workflowName, setWorkflowName] = useState<string>('');
@@ -101,7 +101,9 @@ export default function RemediatePage() {
         );
     }
 
-    if (violations.length === 0) {
+    const autoStart = searchParams.get('autoStart') === 'true';
+
+    if (violations.length === 0 && !autoStart) {
         return (
             <div className="space-y-8 max-w-4xl mx-auto px-4">
                 {/* Simple Header */}
@@ -498,8 +500,8 @@ def encrypt_phi(data: dict) -> bytes:
         );
     }
 
-    const failedViolations = violations.filter(v => v.status === 'fail');
-    const passedChecks = violations.filter(v => v.status === 'pass');
+    const failedViolations = violations.filter(v => v.status !== 'Compliant' && v.status !== 'Pass');
+    const passedChecks = violations.filter(v => v.status === 'Compliant' || v.status === 'Pass');
 
     return (
         <div className="space-y-6">
@@ -585,15 +587,16 @@ def encrypt_phi(data: dict) -> bytes:
                 </CardContent>
             </Card>
 
-            {/* Remediation Panel */}
-            {failedViolations.length > 0 && (
-                <RemediationPanel
-                    originalText={workflowDescription}
-                    violations={violations}
-                    policySummary={policySummary}
-                    report={report}
-                />
-            )}
+            {/* Remediation Panel - Always Visible if violations exist OR autoStart/demo mode */}
+            {/* {failedViolations.length > 0 && ( */}
+            <RemediationPanel
+                originalText={workflowDescription}
+                violations={violations}
+                policySummary={policySummary}
+                report={report}
+                autoStart={searchParams.get('autoStart') === 'true'}
+            />
+            {/* )} */}
         </div>
     );
 }
