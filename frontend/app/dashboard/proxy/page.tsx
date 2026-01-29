@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, Shield, AlertTriangle, Terminal, Copy, Activity, Server, Zap, ArrowRight, Eye, Clock } from 'lucide-react';
+import { CheckCircle2, Shield, AlertTriangle, Terminal, Copy, Activity, Server, Zap, ArrowRight, Eye, Clock, Code2, Cpu } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -20,19 +20,96 @@ export default function ProxyPage() {
 
     // View State
     const [activeStream, setActiveStream] = useState<'stream1' | 'stream2'>('stream1');
+    const [wizardStep, setWizardStep] = useState(1);
 
     // SLA Connection State
     const [isConnecting, setIsConnecting] = useState(false);
     const [isSlaConnected, setIsSlaConnected] = useState(false);
-    const [serviceName, setServiceName] = useState("payment-service-prod");
+    const [serviceName, setServiceName] = useState("trading-bot-v1");
 
     const handleSlaConnect = () => {
         setIsConnecting(true);
-        // Simulate handshake
+        // Simulate handshake & redirect
         setTimeout(() => {
             setIsConnecting(false);
             setIsSlaConnected(true);
+            router.push('/dashboard/sla');
         }, 2000);
+    };
+
+    const stabilitySnippets = {
+        python: `
+# -----------------------------------------------------------------------------
+# PURPOSE: "Fire-and-Forget" Telemetry Sidecar
+# WHY: Push internal metrics to PolicyGuard WITHOUT slowing down
+#      your main user response (Zero Latency Impact).
+# -----------------------------------------------------------------------------
+import requests
+import time
+from threading import Thread
+
+def send_telemetry(payload):
+    """Async worker to push metrics without blocking main thread"""
+    try:
+        requests.post(
+            "${apiUrl}/api/v1/telemetry/ingest",
+            json=payload,
+            timeout=2.0 # Fast timeout to prevent hanging
+        )
+    except Exception as e:
+        print(f"[PolicyGuard] Telemetry Error: {e}")
+
+# Example Integration Hook
+def after_ai_request(latency_ms):
+    telemetry = {
+        "service_id": "${serviceName}",
+        "error_rate": 0.0,
+        "latency_ms": latency_ms,
+        "request_count": 1,
+        "metadata": { "platform": "policyguard-v1" }
+    }
+    
+    # Fire and forget (Non-blocking)
+    Thread(target=send_telemetry, args=(telemetry,)).start()`,
+        node: `
+// -----------------------------------------------------------------------------
+// PURPOSE: "Non-Blocking" Event Loop Telemetry
+// WHY: Hooks into your AI logic to log metrics strictly AFTER
+//      the response is ready. User sees zero latency impact.
+// -----------------------------------------------------------------------------
+const axios = require('axios');
+
+const pgClient = axios.create({
+    baseURL: '${apiUrl}',
+    timeout: 2000
+});
+
+async function logStability(latency) {
+    // Non-blocking async push
+    pgClient.post('/api/v1/telemetry/ingest', {
+        service_id: '${serviceName}',
+        error_rate: 0,
+        latency_ms: latency,
+        request_count: 1
+    }).catch(err => {
+        console.error('[PolicyGuard] Metrics Failed', err.message); 
+    });
+}
+
+// Example: Call logStability(ms) after your Gemini generateContent()`,
+        curl: `
+# -----------------------------------------------------------------------------
+# PURPOSE: Manual / CI Pipeline Verification
+# WHY: Verify your SLA connection or simulate traffic spikes from a script.
+# -----------------------------------------------------------------------------
+curl -X POST ${apiUrl}/api/v1/telemetry/ingest \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "service_id": "${serviceName}",
+    "error_rate": 0.00,
+    "latency_ms": 230,
+    "request_count": 50
+  }'`
     };
 
     const snippets = {
@@ -302,337 +379,286 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                         </Card>
                     </div>
                 ) : (
-                    /* STREAM 2 CONTENT */
+                    /* STREAM 2 CONTENT - WIZARD FLOW */
                     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300 max-w-5xl mx-auto">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center text-purple-600">2</div>
-                            <h2 className="text-xl font-bold">Stream 2: System Stability Configuration</h2>
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center text-purple-600 font-bold">2</div>
+                                <h2 className="text-xl font-bold">Stream 2: System Stability</h2>
+                            </div>
+                            {isSlaConnected && (
+                                <Badge variant="outline" className="border-green-500 text-green-500 bg-green-500/10 gap-1.5 py-1 px-3">
+                                    <CheckCircle2 className="w-3.5 h-3.5" /> Stability Active
+                                </Badge>
+                            )}
                         </div>
 
                         {!isSlaConnected ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                                {/* LEFT: Connection Form */}
-                                <Tabs defaultValue="python" className="w-full h-full flex flex-col">
+                            <div className="space-y-6">
+                                {/* Wizard Steps Indicator */}
+                                <div className="flex items-center justify-center mb-8">
+                                    {[1, 2, 3].map((step) => (
+                                        <React.Fragment key={step}>
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${wizardStep >= step ? 'bg-purple-600 text-white shadow-lg' : 'bg-gray-200 dark:bg-zinc-800 text-gray-400'
+                                                }`}>
+                                                {step}
+                                            </div>
+                                            {step < 3 && (
+                                                <div className={`w-16 h-1 transition-all duration-300 ${wizardStep > step ? 'bg-purple-600' : 'bg-gray-200 dark:bg-zinc-800'
+                                                    }`} />
+                                            )}
+                                        </React.Fragment>
+                                    ))}
+                                </div>
 
-                                    {/* Enterprise Guide Banner */}
-                                    <div className="mb-6 p-4 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg flex gap-3">
-                                        <div className="mt-0.5">
-                                            <Server className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                {wizardStep === 1 && (
+                                    <Card className="border-purple-100 dark:border-purple-900/30 max-w-2xl mx-auto overflow-hidden shadow-xl">
+                                        <div className="h-2 bg-gradient-to-r from-purple-500 to-indigo-500"></div>
+                                        <CardHeader className="text-center pt-8">
+                                            <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                                <Activity className="w-8 h-8 text-purple-600" />
+                                            </div>
+                                            <CardTitle className="text-2xl">Bootstrap System Stability</CardTitle>
+                                            <CardDescription>
+                                                Start monitoring your AI system's health, latency, and reliability with Gemini-powered AIOps.
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4 pb-8">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="service-name">Application/Service Name</Label>
+                                                <Input
+                                                    id="service-name"
+                                                    placeholder="e.g., payment-bot-v1"
+                                                    value={serviceName}
+                                                    onChange={(e) => setServiceName(e.target.value)}
+                                                    className="focus-visible:ring-purple-500"
+                                                />
+                                                <p className="text-[10px] text-gray-500 italic">This ID will be used to identify your metrics in the dashboard.</p>
+                                            </div>
+                                            <Button
+                                                className="w-full bg-purple-600 hover:bg-purple-700 text-white shadow-md group h-11"
+                                                onClick={() => setWizardStep(2)}
+                                                disabled={!serviceName.trim()}
+                                            >
+                                                Next: Select Tech Stack <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                )}
+
+                                {wizardStep === 2 && (
+                                    <div className="space-y-6 max-w-4xl mx-auto">
+                                        <div className="text-center mb-4">
+                                            <h3 className="text-lg font-bold">Select your AI Backend Language</h3>
+                                            <p className="text-sm text-gray-500">We'll generate tailored code for your specific stack.</p>
                                         </div>
-                                        <div>
-                                            <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200">Sidecar Integration Pattern</h4>
-                                            <p className="text-xs text-blue-700 dark:text-blue-300 mt-1 leading-relaxed">
-                                                Use this pattern for deep telemetry that the Proxy cannot capture (e.g. internal memory usage, database query times).
-                                                Ideally, implemented as an <strong>asynchronous background task</strong> or <strong>middleware</strong> to avoid blocking the main thread.
-                                            </p>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            {[
+                                                { id: 'python', name: 'Python', desc: 'FastAPI, Flask, Django', icon: <Terminal className="w-8 h-8 text-blue-500" /> },
+                                                { id: 'node', name: 'Node.js', desc: 'Express, NestJS, Next.js', icon: <Code2 className="w-8 h-8 text-green-500" /> },
+                                                { id: 'curl', name: 'Shell / CI', desc: 'cURL, Bash Scripts', icon: <Server className="w-8 h-8 text-gray-500" /> }
+                                            ].map((stack) => (
+                                                <Card
+                                                    key={stack.id}
+                                                    className={`cursor-pointer transition-all border-2 group hover:shadow-lg ${selectedLang === stack.id ? 'border-purple-500 bg-purple-50/50 dark:bg-purple-900/20' : 'border-gray-100 dark:border-zinc-800 hover:border-purple-200'
+                                                        }`}
+                                                    onClick={() => setSelectedLang(stack.id)}
+                                                >
+                                                    <CardContent className="p-6 text-center">
+                                                        <div className="flex justify-center mb-4 group-hover:scale-110 transition-transform">{stack.icon}</div>
+                                                        <h4 className="font-bold">{stack.name}</h4>
+                                                        <p className="text-xs text-gray-500 mt-1">{stack.desc}</p>
+                                                    </CardContent>
+                                                </Card>
+                                            ))}
+                                        </div>
+                                        <div className="flex justify-between items-center mt-8">
+                                            <Button variant="ghost" onClick={() => setWizardStep(1)}>Back</Button>
+                                            <Button
+                                                className="bg-purple-600 hover:bg-purple-700 text-white"
+                                                onClick={() => setWizardStep(3)}
+                                            >
+                                                Generate Integration Code <Zap className="ml-2 w-4 h-4" />
+                                            </Button>
                                         </div>
                                     </div>
+                                )}
 
-                                    <TabsList className="grid w-full grid-cols-3 mb-4 h-9 bg-zinc-100 dark:bg-zinc-800/50 p-1 rounded-lg">
-                                        <TabsTrigger value="python" className="text-xs font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-zinc-700">Python (FastAPI/Flask)</TabsTrigger>
-                                        <TabsTrigger value="node" className="text-xs font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-zinc-700">Node.js (Express)</TabsTrigger>
-                                        <TabsTrigger value="curl" className="text-xs font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-zinc-700">cURL (Test)</TabsTrigger>
-                                    </TabsList>
-
-                                    <TabsContent value="python" className="flex-1 mt-0">
-                                        <div className="relative group h-full">
-                                            <div className="absolute right-3 top-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button variant="secondary" size="sm" className="h-7 text-xs bg-white/10 hover:bg-white/20 text-white border-white/10 backdrop-blur-sm shadow-sm" onClick={() => navigator.clipboard.writeText(`
-# -----------------------------------------------------------------------------
-# PURPOSE: "Fire-and-Forget" Telemetry Sidecar
-# WHY: Push internal metrics (RAM, DB Latency) to PolicyGuard WITHOUT
-#      slowing down your main user response (Zero Latency Impact).
-# -----------------------------------------------------------------------------
-import requests
-import time
-from threading import Thread
-
-def send_telemetry(payload):
-    """Async worker to push metrics without blocking main thread"""
-    try:
-        requests.post(
-            "${apiUrl}/api/v1/telemetry/ingest",
-            json=payload,
-            timeout=2.0 # Fast timeout to prevent hanging
-        )
-    except Exception as e:
-        print(f"[PolicyGuard] Telemetry Error: {e}")
-
-# Example Middleware / Hook
-def after_request_handler(response):
-    # Capture metrics from your existing observability tools
-    telemetry = {
-        "service_id": "${serviceName}",
-        "error_rate": 1.0 if response.status_code >= 500 else 0.0,
-        "latency_ms": int((time.time() - request.start_time) * 1000),
-        "request_count": 1,
-        "metadata": { "region": "us-east-1" }
-    }
-    
-    # 3. Fire and forget (Non-blocking)
-    Thread(target=send_telemetry, args=(telemetry,)).start()`)}><Copy className="w-3 h-3 mr-1" /> Copy Snippet</Button>
+                                {wizardStep === 3 && (
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start max-w-6xl mx-auto">
+                                        <div className="lg:col-span-2 space-y-4">
+                                            <Card className="border-purple-100 dark:border-purple-800 shadow-xl overflow-hidden">
+                                                <CardHeader className="bg-purple-50/50 dark:bg-purple-900/10 border-b border-purple-100 dark:border-purple-800">
+                                                    <div className="flex justify-between items-center">
+                                                        <div>
+                                                            <CardTitle className="text-lg">Integration Guide</CardTitle>
+                                                            <CardDescription>Add this non-blocking telemetry sidecar to your app.</CardDescription>
+                                                        </div>
+                                                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+                                                            {selectedLang.toUpperCase()}
+                                                        </Badge>
+                                                    </div>
+                                                </CardHeader>
+                                                <CardContent className="p-0">
+                                                    <div className="relative group">
+                                                        <div className="absolute right-3 top-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <Button
+                                                                variant="secondary"
+                                                                size="sm"
+                                                                className="h-8 text-xs bg-white/10 hover:bg-white/20 text-white border-white/10 backdrop-blur-sm shadow-sm"
+                                                                onClick={() => navigator.clipboard.writeText(stabilitySnippets[selectedLang as keyof typeof stabilitySnippets])}
+                                                            >
+                                                                <Copy className="w-3.5 h-3.5 mr-1.5" /> Copy Code
+                                                            </Button>
+                                                        </div>
+                                                        <SyntaxHighlighter
+                                                            language={selectedLang === 'curl' ? 'bash' : selectedLang}
+                                                            style={vscDarkPlus}
+                                                            customStyle={{ margin: 0, height: '420px', fontSize: '12px', lineHeight: '1.6', padding: '1.25rem' }}
+                                                            showLineNumbers={true}
+                                                            wrapLines={true}
+                                                        >
+                                                            {stabilitySnippets[selectedLang as keyof typeof stabilitySnippets]}
+                                                        </SyntaxHighlighter>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                            <div className="flex justify-between items-center p-4 bg-zinc-50 dark:bg-zinc-900 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-lg">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="relative flex h-3 w-3">
+                                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                                                    </div>
+                                                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Listening for telemetry from <code className="text-purple-600 font-bold">{serviceName}</code>...</span>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Button variant="outline" size="sm" onClick={() => setWizardStep(2)}>Back</Button>
+                                                    <Button
+                                                        size="sm"
+                                                        className="bg-green-600 hover:bg-green-700 text-white font-bold px-6"
+                                                        onClick={handleSlaConnect}
+                                                        disabled={isConnecting}
+                                                    >
+                                                        {isConnecting ? (
+                                                            <><span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span> Testing...</>
+                                                        ) : (
+                                                            <>Finalize Integration <ArrowRight className="ml-2 w-4 h-4" /></>
+                                                        )}
+                                                    </Button>
+                                                </div>
                                             </div>
-                                            <SyntaxHighlighter
-                                                language="python"
-                                                style={vscDarkPlus}
-                                                customStyle={{ margin: 0, borderRadius: '0.75rem', height: '360px', fontSize: '12px', lineHeight: '1.5', padding: '1.25rem' }}
-                                                showLineNumbers={true}
-                                                wrapLines={true}
-                                            >
-                                                {`# -----------------------------------------------------------------------------
-# PURPOSE: "Fire-and-Forget" Telemetry Sidecar
-# WHY: Push internal metrics to PolicyGuard WITHOUT slowing down
-#      your main user response (Zero Latency Impact).
-# -----------------------------------------------------------------------------
-import requests
-import time
-from threading import Thread
-
-def send_telemetry(payload):
-    """Async worker to push metrics without blocking main thread"""
-    try:
-        requests.post(
-            "${apiUrl}/api/v1/telemetry/ingest",
-            json=payload,
-            timeout=2.0 # Fast timeout to prevent hanging
-        )
-    except Exception as e:
-        print(f"[PolicyGuard] Telemetry Error: {e}")
-
-# Example Middleware / Hook
-def after_request_handler(response):
-    # Capture metrics from your existing observability tools
-    telemetry = {
-        "service_id": "${serviceName}",
-        "error_rate": 1.0 if response.status_code >= 500 else 0.0,
-        "latency_ms": int((time.time() - request.start_time) * 1000),
-        "request_count": 1,
-        "metadata": { "region": "us-east-1" }
-    }
-    
-    # Fire and forget
-    Thread(target=send_telemetry, args=(telemetry,)).start()`}
-                                            </SyntaxHighlighter>
                                         </div>
-                                    </TabsContent>
 
-                                    <TabsContent value="node" className="flex-1 mt-0">
-                                        <div className="relative group h-full">
-                                            <div className="absolute right-3 top-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button variant="secondary" size="sm" className="h-7 text-xs bg-white/10 hover:bg-white/20 text-white border-white/10 backdrop-blur-sm shadow-sm" onClick={() => navigator.clipboard.writeText(`
-// -----------------------------------------------------------------------------
-// PURPOSE: "Non-Blocking" Event Loop Telemetry
-// WHY: Hooks into the 'finish' event to log metrics strictly AFTER
-//      the response is sent to the user. Zero Latency impact.
-// -----------------------------------------------------------------------------
-const axios = require('axios');
+                                        <div className="space-y-4">
+                                            <Card className="border-blue-100 dark:border-blue-900/30 bg-blue-50/30 dark:bg-blue-900/5">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-sm flex items-center gap-2">
+                                                        <Zap className="w-4 h-4 text-blue-500" /> What happens next?
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="space-y-3">
+                                                    <div className="text-xs text-gray-600 dark:text-gray-400 flex gap-2">
+                                                        <div className="font-bold text-blue-500">1.</div>
+                                                        <p>Once you run the code, PolicyGuard starts receiving <strong>Sub-millisecond heartbeats</strong>.</p>
+                                                    </div>
+                                                    <div className="text-xs text-gray-600 dark:text-gray-400 flex gap-2">
+                                                        <div className="font-bold text-blue-500">2.</div>
+                                                        <p>The <strong>SLA Dashboard</strong> will automatically detect the new service stream.</p>
+                                                    </div>
+                                                    <div className="text-xs text-gray-600 dark:text-gray-400 flex gap-2">
+                                                        <div className="font-bold text-blue-500">3.</div>
+                                                        <p>Gemini begins building a <strong>Performance Baseline</strong> to detect anomalies.</p>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
 
-// Robust Client with Retry & Timeout
-const pgClient = axios.create({
-    baseURL: '${apiUrl}',
-    timeout: 2000, // 2s timeout
-    headers: { 'Content-Type': 'application/json' }
-});
-
-// Middleware Example (Express.js)
-app.use(async (req, res, next) => {
-    const start = Date.now();
-    
-    // Continue Response
-    res.on('finish', () => {
-        const duration = Date.now() - start;
-        
-        // Non-blocking async push
-        pgClient.post('/api/v1/telemetry/ingest', {
-            service_id: '${serviceName}',
-            error_rate: res.statusCode >= 500 ? 1 : 0,
-            latency_ms: duration,
-            request_count: 1
-        }).catch(err => {
-            // Siltently fail - do not crash main app
-            console.error('[PolicyGuard] Metrics Push Failed', err.message); 
-        });
-    });
-    
-    next();
-});`)}><Copy className="w-3 h-3 mr-1" /> Copy Snippet</Button>
+                                            <div className="p-4 rounded-xl border border-dashed border-gray-200 dark:border-zinc-800 text-center">
+                                                <div className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-2">Ingestion Endpoint</div>
+                                                <code className="text-xs font-mono text-purple-500 bg-purple-50 dark:bg-purple-900/10 px-2 py-1 rounded select-all">
+                                                    {apiUrl}/api/v1/telemetry/ingest
+                                                </code>
                                             </div>
-                                            <SyntaxHighlighter
-                                                language="javascript"
-                                                style={vscDarkPlus}
-                                                customStyle={{ margin: 0, borderRadius: '0.75rem', height: '360px', fontSize: '12px', lineHeight: '1.5', padding: '1.25rem' }}
-                                                showLineNumbers={true}
-                                                wrapLines={true}
-                                            >
-                                                {`// -----------------------------------------------------------------------------
-// PURPOSE: "Non-Blocking" Event Loop Telemetry
-// WHY: Hooks into the 'finish' event to log metrics strictly AFTER
-//      the response is sent to the user. Zero Latency impact.
-// -----------------------------------------------------------------------------
-const axios = require('axios');
-
-// Robust Client with Retry & Timeout
-const pgClient = axios.create({
-    baseURL: '${apiUrl}',
-    timeout: 2000, // 2s timeout
-    headers: { 'Content-Type': 'application/json' }
-});
-
-// Middleware Example (Express.js)
-app.use(async (req, res, next) => {
-    const start = Date.now();
-    
-    // Continue Response
-    res.on('finish', () => {
-        const duration = Date.now() - start;
-        
-        // Non-blocking async push
-        pgClient.post('/api/v1/telemetry/ingest', {
-            service_id: '${serviceName}',
-            error_rate: res.statusCode >= 500 ? 1 : 0,
-            latency_ms: duration,
-            request_count: 1
-        }).catch(err => {
-            // Siltently fail - do not crash main app
-            console.error('[PolicyGuard] Metrics Push Failed', err.message); 
-        });
-    });
-    
-    next();
-});`}
-                                            </SyntaxHighlighter>
                                         </div>
-                                    </TabsContent>
-
-                                    <TabsContent value="curl" className="flex-1 mt-0">
-                                        <div className="relative group h-full">
-                                            <div className="absolute right-3 top-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button variant="secondary" size="sm" className="h-7 text-xs bg-white/10 hover:bg-white/20 text-white border-white/10 backdrop-blur-sm shadow-sm" onClick={() => navigator.clipboard.writeText(`
-# -----------------------------------------------------------------------------
-# PURPOSE: Manual / CI Pipeline Verification
-# WHY: Verify your SLA connection or simulate traffic spikes from a script.
-# -----------------------------------------------------------------------------
-curl -X POST ${apiUrl}/api/v1/telemetry/ingest \\
-  --connect-timeout 2 \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "service_id": "${serviceName}",
-    "error_rate": 0.00,
-    "latency_ms": 230,
-    "request_count": 50,
-    "environment": "production"
-  }'`)}><Copy className="w-3 h-3 mr-1" /> Copy Snippet</Button>
-                                            </div>
-                                            <SyntaxHighlighter
-                                                language="bash"
-                                                style={vscDarkPlus}
-                                                customStyle={{ margin: 0, borderRadius: '0.75rem', height: '360px', fontSize: '12px', lineHeight: '1.5', padding: '1.25rem' }}
-                                                showLineNumbers={true}
-                                                wrapLines={true}
-                                            >
-                                                {`# -----------------------------------------------------------------------------
-# PURPOSE: Manual / CI Pipeline Verification
-# WHY: Verify your SLA connection or simulate traffic spikes from a script.
-# -----------------------------------------------------------------------------
-curl -X POST ${apiUrl}/api/v1/telemetry/ingest \\
-  --connect-timeout 2 \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "service_id": "${serviceName}",
-    "error_rate": 0.00,
-    "latency_ms": 230,
-    "request_count": 50,
-    "environment": "production"
-  }'`}
-                                            </SyntaxHighlighter>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            /* CONNECTED STATE - ACTIVE DASHBOARD SUMMARY */
+                            <div className="max-w-4xl mx-auto space-y-6">
+                                <Card className="border-purple-500/30 bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/10 dark:to-black overflow-hidden shadow-2xl">
+                                    <div className="h-1 bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)]"></div>
+                                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                        <div>
+                                            <CardTitle className="text-lg flex items-center gap-2">
+                                                <Activity className="w-5 h-5 text-purple-600" />
+                                                Active Monitoring: <span className="text-indigo-600 font-mono">{serviceName}</span>
+                                            </CardTitle>
+                                            <CardDescription className="flex items-center gap-2 mt-1">
+                                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                                Real-time stability stream connected via <strong>{selectedLang === 'node' ? 'Node.js Express' : selectedLang}</strong>
+                                            </CardDescription>
                                         </div>
-                                    </TabsContent>
-                                </Tabs>
-
-                                {/* RIGHT: Value Prop / Preview */}
-                                <Card className="border-purple-100 dark:border-purple-900/30 bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/10 dark:to-zinc-900 h-full">
-                                    <CardHeader>
-                                        <CardTitle className="text-base text-purple-700 dark:text-purple-300 flex items-center gap-2">
-                                            <Activity className="w-5 h-5" />
-                                            Why Connect Stream 2?
-                                        </CardTitle>
+                                        <Button
+                                            size="sm"
+                                            className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                                            onClick={() => router.push('/dashboard/sla')}
+                                        >
+                                            Open SLA Monitor <ArrowRight className="ml-2 w-4 h-4" />
+                                        </Button>
                                     </CardHeader>
-                                    <CardContent className="space-y-5">
-                                        <div className="flex gap-3">
-                                            <div className="mt-1 bg-purple-100 dark:bg-purple-900/50 p-1.5 rounded-md h-fit">
-                                                <Activity className="w-4 h-4 text-purple-600" />
+                                    <CardContent className="pt-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div className="space-y-4">
+                                                <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-100 dark:border-zinc-800 shadow-sm flex flex-col items-center justify-center text-center">
+                                                    <Activity className="w-5 h-5 text-purple-400 mb-2" />
+                                                    <div className="text-2xl font-bold">Healthy</div>
+                                                    <div className="text-[10px] text-gray-400 uppercase font-bold tracking-tight">System Status</div>
+                                                </div>
+                                                <div className="p-3 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-lg border border-indigo-100 dark:border-indigo-800">
+                                                    <div className="flex justify-between items-center text-xs mb-1">
+                                                        <span className="text-indigo-700 dark:text-indigo-300 font-medium">Auto-Remediation</span>
+                                                        <Badge className="bg-green-500/20 text-green-600 dark:text-green-400 border-none px-1.5 py-0 h-4 text-[9px]">READY</Badge>
+                                                    </div>
+                                                    <p className="text-[10px] text-indigo-900/60 dark:text-indigo-300/60 leading-tight">Gemini has generated 3 fix scripts for common failures in this stack.</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h4 className="font-semibold text-sm">Predictive Risk Scoring</h4>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                                    Gemini analyzes latency trends to predict SLA breaches 1 hour in advance.
-                                                </p>
-                                            </div>
-                                        </div>
 
-                                        <div className="flex gap-3">
-                                            <div className="mt-1 bg-blue-100 dark:bg-blue-900/50 p-1.5 rounded-md h-fit">
-                                                <Zap className="w-4 h-4 text-blue-600" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-semibold text-sm">Auto-Remediation</h4>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                                    Get copy-paste CLI commands (e.g. <code className="text-xs">kubectl scale</code>) generated by AI to fix issues instantly.
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex gap-3">
-                                            <div className="mt-1 bg-orange-100 dark:bg-orange-900/50 p-1.5 rounded-md h-fit">
-                                                <Shield className="w-4 h-4 text-orange-600" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-semibold text-sm">Root Cause Analysis</h4>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                                    Automatic correlation of "High Latency" with "Garbage Collection Spikes".
-                                                </p>
+                                            <div className="md:col-span-2 bg-zinc-50 dark:bg-zinc-900/40 rounded-xl border border-gray-100 dark:border-zinc-800 p-5">
+                                                <div className="flex items-center justify-between mb-4">
+                                                    <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400">Recent Telemetry Bursts</h4>
+                                                    <Badge variant="outline" className="text-[9px] py-0 h-4">Last 5 min</Badge>
+                                                </div>
+                                                <div className="h-24 flex items-end gap-1 px-2">
+                                                    {[40, 60, 45, 90, 65, 30, 80, 50, 40, 70, 85, 45, 60, 30, 95, 40, 55, 75, 50, 60].map((h, i) => (
+                                                        <div
+                                                            key={i}
+                                                            className="flex-1 bg-indigo-500/20 dark:bg-indigo-500/10 hover:bg-indigo-500 rounded-t-sm transition-colors cursor-help"
+                                                            style={{ height: `${h}%` }}
+                                                            title={`Latency: ${h + 20}ms`}
+                                                        />
+                                                    ))}
+                                                </div>
+                                                <div className="mt-4 flex justify-between">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="h-7 text-[10px] text-gray-500 hover:text-red-500 underline"
+                                                        onClick={() => {
+                                                            setIsSlaConnected(false);
+                                                            setWizardStep(1);
+                                                        }}
+                                                    >
+                                                        Disconnect Service
+                                                    </Button>
+                                                    <div className="text-[10px] text-gray-400 flex items-center gap-1">
+                                                        <Clock className="w-3 h-3" /> Updated 2s ago
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </CardContent>
                                 </Card>
                             </div>
-                        ) : (
-                            <Card className="border-purple-500/30 bg-purple-500/5 max-w-3xl mx-auto">
-                                <CardHeader>
-                                    <CardTitle className="text-base flex justify-between items-center text-purple-400">
-                                        Telemetry Stream Active
-                                        <Badge className="bg-purple-500 hover:bg-purple-600">Connected</Badge>
-                                    </CardTitle>
-                                    <CardDescription className="text-purple-300/70">
-                                        Gemini is actively monitoring <strong>{serviceName}</strong>.
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-6">
-                                    <div className="grid grid-cols-3 gap-4">
-                                        <div className="p-4 bg-purple-500/10 rounded-lg border border-purple-500/20 flex flex-col items-center justify-center text-center">
-                                            <Activity className="w-6 h-6 text-purple-400 mb-2" />
-                                            <div className="text-2xl font-bold text-white">98.2%</div>
-                                            <div className="text-xs text-purple-300">Health Score</div>
-                                        </div>
-                                        <div className="p-4 bg-purple-500/10 rounded-lg border border-purple-500/20 flex flex-col items-center justify-center text-center">
-                                            <Clock className="w-6 h-6 text-blue-400 mb-2" />
-                                            <div className="text-2xl font-bold text-white">42ms</div>
-                                            <div className="text-xs text-purple-300">P95 Latency</div>
-                                        </div>
-                                        <div className="p-4 bg-purple-500/10 rounded-lg border border-purple-500/20 flex flex-col items-center justify-center text-center">
-                                            <Server className="w-6 h-6 text-green-400 mb-2" />
-                                            <div className="text-2xl font-bold text-white">Healthy</div>
-                                            <div className="text-xs text-purple-300">Pod Status</div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-end">
-                                        <Button variant="outline" className="text-xs border-purple-500 text-purple-400 hover:bg-purple-500/10" onClick={() => setIsSlaConnected(false)}>
-                                            Disconnect Service
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
                         )}
                     </div>
                 )}

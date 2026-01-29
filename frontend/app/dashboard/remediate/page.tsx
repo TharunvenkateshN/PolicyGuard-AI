@@ -386,7 +386,10 @@ export default function RemediatePage() {
                                 {selectedDemoViolation === 'hipaa' && (
                                     <div className="space-y-3">
                                         <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
-                                            <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">📄 Document Fix</h5>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <FileText className="w-4 h-4 text-blue-600" />
+                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100">Document Fix</h5>
+                                            </div>
                                             <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2 font-mono bg-white dark:bg-gray-900 p-3 rounded">
                                                 <p><strong>Section 4.1: PHI Transmission Security</strong></p>
                                                 <p>All PHI transmissions MUST use:</p>
@@ -397,7 +400,10 @@ export default function RemediatePage() {
                                             </div>
                                         </div>
                                         <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded border border-green-200 dark:border-green-800">
-                                            <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">💻 Code Guardrail</h5>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <Code className="w-4 h-4 text-green-600" />
+                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100">Code Guardrail</h5>
+                                            </div>
                                             <pre className="text-xs text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 p-3 rounded overflow-x-auto">
                                                 {`from cryptography.fernet import Fernet
 
@@ -416,7 +422,10 @@ def encrypt_phi(data: dict) -> bytes:
                                 {selectedDemoViolation === 'soc2' && (
                                     <div className="space-y-3">
                                         <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
-                                            <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">📄 Document Fix</h5>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <FileText className="w-4 h-4 text-blue-600" />
+                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100">Document Fix</h5>
+                                            </div>
                                             <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2 font-mono bg-white dark:bg-gray-900 p-3 rounded">
                                                 <p><strong>Section 5.3: Access Control Policy</strong></p>
                                                 <p>Implement role-based access control (RBAC):</p>
@@ -427,18 +436,21 @@ def encrypt_phi(data: dict) -> bytes:
                                             </div>
                                         </div>
                                         <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded border border-green-200 dark:border-green-800">
-                                            <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">💻 Code Guardrail</h5>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <Code className="w-4 h-4 text-green-600" />
+                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100">Code Guardrail</h5>
+                                            </div>
                                             <pre className="text-xs text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 p-3 rounded overflow-x-auto">
                                                 {`def require_role(required_role: str):
-    """Decorator to enforce role-based access"""
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            user = get_current_user()
-            if not user.has_role(required_role):
-                raise PermissionDeniedError()
-            return func(*args, **kwargs)
-        return wrapper
-    return decorator`}
+                                    """Decorator to enforce role-based access"""
+                                    def decorator(func):
+                                        def wrapper(*args, **kwargs):
+                                            user = get_current_user()
+                                            if not user.has_role(required_role):
+                                                raise PermissionDeniedError()
+                                            return func(*args, **kwargs)
+                                        return wrapper
+                                    return decorator`}
                                             </pre>
                                         </div>
                                     </div>
@@ -447,7 +459,10 @@ def encrypt_phi(data: dict) -> bytes:
                                 {selectedDemoViolation === 'pci' && (
                                     <div className="space-y-3">
                                         <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
-                                            <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">📄 Document Fix</h5>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <FileText className="w-4 h-4 text-blue-600" />
+                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100">Document Fix</h5>
+                                            </div>
                                             <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2 font-mono bg-white dark:bg-gray-900 p-3 rounded">
                                                 <p><strong>Section 6.1: Payment Data Handling</strong></p>
                                                 <p>Card data MUST be tokenized:</p>
@@ -458,15 +473,18 @@ def encrypt_phi(data: dict) -> bytes:
                                             </div>
                                         </div>
                                         <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded border border-green-200 dark:border-green-800">
-                                            <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">💻 Code Guardrail</h5>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <Code className="w-4 h-4 text-green-600" />
+                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100">Code Guardrail</h5>
+                                            </div>
                                             <pre className="text-xs text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 p-3 rounded overflow-x-auto">
                                                 {`def tokenize_card(card_number: str) -> str:
-    """Tokenize card number via payment gateway"""
-    # Never log or store full card number
-    token = payment_gateway.tokenize(card_number)
-    last_four = card_number[-4:]
-    db.store_payment_method(token, last_four)
-    return token  # Return token, not card number`}
+                                    """Tokenize card number via payment gateway"""
+                                    # Never log or store full card number
+                                    token = payment_gateway.tokenize(card_number)
+                                    last_four = card_number[-4:]
+                                    db.store_payment_method(token, last_four)
+                                    return token  # Return token, not card number`}
                                             </pre>
                                         </div>
                                     </div>
