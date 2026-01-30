@@ -46,7 +46,6 @@ export default function ProxyPage() {
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
     const [gatekeeperStats, setGatekeeperStats] = useState<any>(null);
     const [auditLogs, setAuditLogs] = useState<any[]>([]);
-    const consoleEndRef = React.useRef<HTMLDivElement>(null);
 
     // Persistence & Firebase Toggle
     const USE_FIREBASE_SYNC = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true'; // Respect global firebase toggle
@@ -171,7 +170,7 @@ export default function ProxyPage() {
         };
 
         fetchGatekeeperStats();
-        const interval = setInterval(fetchGatekeeperStats, 3000);
+        const interval = setInterval(fetchGatekeeperStats, 2000); // Poll every 2s for "real-time" sync
         return () => clearInterval(interval);
     }, [isGatekeeperConnected, isLoaded, apiUrl]);
 
@@ -195,13 +194,6 @@ export default function ProxyPage() {
         const interval = setInterval(fetchAuditLogs, 2000); // Poll every 2s for "real-time" feel
         return () => clearInterval(interval);
     }, [isGatekeeperConnected, isLoaded, apiUrl]);
-
-    // Auto-scroll console
-    useEffect(() => {
-        if (consoleEndRef.current) {
-            consoleEndRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, [auditLogs]);
 
     const handleSlaConnect = () => {
         setIsConnecting(true);
@@ -728,7 +720,7 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                         <div>
                                             <div className="text-[10px] text-gray-400 uppercase font-bold tracking-tight">Blocked Prompts</div>
                                             <div className="text-2xl font-black text-red-600">
-                                                {gatekeeperStats?.pii_blocks || 0}
+                                                {(gatekeeperStats?.pii_blocks || 0) + (gatekeeperStats?.policy_violations || 0)}
                                             </div>
                                         </div>
                                     </Card>
@@ -742,8 +734,7 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-0">
-                                            <div className="bg-slate-950 p-6 h-[250px] font-mono text-[11px] overflow-y-hidden relative group">
-                                                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-950 z-10 pointer-events-none" />
+                                            <div className="bg-slate-950 p-6 h-[250px] font-mono text-[11px] overflow-y-auto custom-scrollbar relative group">
                                                 <div className="space-y-1">
                                                     <div className="text-green-400 opacity-80">[{new Date().toLocaleTimeString()}] INTERCEPTION SYSTEM ACTIVE</div>
                                                     <div className="text-gray-500">[{new Date().toLocaleTimeString()}] Connected to Gateway: {gatewayId}</div>
@@ -755,8 +746,8 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                                             <div key={i} className="flex gap-2">
                                                                 <span className="text-gray-500 min-w-[70px]">[{log.timestamp}]</span>
                                                                 <span className={`font-bold ${log.status === 'PASS' ? 'text-green-500' :
-                                                                        log.status === 'BLOCK' ? 'text-red-500' :
-                                                                            log.status === 'WARN' ? 'text-yellow-500' : 'text-blue-400'
+                                                                    log.status === 'BLOCK' ? 'text-red-500' :
+                                                                        log.status === 'WARN' ? 'text-yellow-500' : 'text-blue-400'
                                                                     }`}>
                                                                     [{log.status}]
                                                                 </span>
@@ -766,7 +757,6 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                                     ) : (
                                                         <div className="text-gray-500 animate-pulse italic mt-4 px-4 text-center">Waiting for proxied traffic...</div>
                                                     )}
-                                                    <div ref={consoleEndRef} />
                                                 </div>
                                             </div>
                                         </CardContent>

@@ -75,7 +75,7 @@ async def gemini_proxy(model_name: str, request: Request, background_tasks: Back
         import re
         pii_patterns = {
             "email": r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+",
-            "ssn": r"\d{3}-\d{2}-\d{4}",
+            "ssn": r"\d{3}[ -]\d{2}[ -]\d{4}", # Support spaces and hyphens
             "phone": r"\b\d{3}[-.]?\d{3}[-.]?\d{4}\b"
         }
         
@@ -92,9 +92,15 @@ async def gemini_proxy(model_name: str, request: Request, background_tasks: Back
                         policy_violation=True,
                         endpoint=f"/v1beta/models/{model_name}:generateContent"
                     )
-                    raise HTTPException(
-                        status_code=400, 
-                        detail=f"Security Policy Violation: request contains sensitive PII ({p_type}). Please redact before sending."
+                    return JSONResponse(
+                        status_code=400,
+                        content={
+                            "error": {
+                                "message": f"PolicyGuard Blocked: Request contains sensitive PII ({p_type}).",
+                                "code": "PII_VIOLATION",
+                                "policy": "Consumer Safety"
+                            }
+                        }
                     )
 
             # Check 2: Financial Harm / Illegal Advice (NEW)
@@ -109,9 +115,15 @@ async def gemini_proxy(model_name: str, request: Request, background_tasks: Back
                     policy_violation=True,
                     endpoint=f"/v1beta/models/{model_name}:generateContent"
                 )
-                raise HTTPException(
-                    status_code=403, 
-                    detail="Security Policy Violation: Request triggers Financial Harm safety filters."
+                return JSONResponse(
+                    status_code=403,
+                    content={
+                        "error": {
+                            "message": "PolicyGuard Blocked: Potential Financial Harm / Illegal Advice detected.",
+                            "code": "POLICY_VIOLATION",
+                            "policy": "System Stability"
+                        }
+                    }
                 )
         
         # 3. FORWARD TO GOOGLE GEMINI

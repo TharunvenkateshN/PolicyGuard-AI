@@ -113,19 +113,50 @@ export default function OverviewPage() {
 
                 // 4. Fetch Monitor Data (for logs)
                 const monitorRes = await fetch(`${apiUrl}/api/v1/dashboard/monitor`);
+                let evaluationTraces = [];
                 if (monitorRes.ok) {
                     const data = await monitorRes.json();
-                    // Transform monitor traces into log entries
-                    const newLogs = (data.traces || []).map((t: any) => ({
+                    evaluationTraces = (data.traces || []).map((t: any) => ({
                         id: t.id,
                         timestamp: t.timestamp,
                         level: t.status === 'block' ? 'ERROR' : t.status === 'warn' ? 'WARN' : 'INFO',
-                        service: 'API-Gateway',
-                        // Format as HTTP Access Log: [Method] [Path] [Status] [Latency]
-                        message: `POST /v1/chat/completions ${t.status === 'block' ? '403 Forbidden' : '200 OK'} - ${t.details ? t.details.substring(0, 30) + '...' : 'Request processed'}`,
-                        latency: Math.floor(Math.random() * 200) + 50
+                        service: 'RedTeam',
+                        message: `[SCAN] ${t.agent}: ${t.details}`,
+                        latency: 0
                     }));
-                    if (newLogs.length > 0) setLogs(prev => [...newLogs, ...prev].slice(0, 50));
+                }
+
+                // 5. Fetch Proxy Logs (Live)
+                const proxyLogsRes = await fetch(`${apiUrl}/api/v1/proxy/logs`);
+                let proxyLogs = [];
+                if (proxyLogsRes.ok) {
+                    const data = await proxyLogsRes.json();
+                    proxyLogs = data.map((l: any, i: number) => ({
+                        id: `PRX-${i}`,
+                        timestamp: l.timestamp,
+                        level: l.status === 'BLOCK' ? 'ERROR' : l.status === 'WARN' ? 'WARN' : 'INFO',
+                        service: 'Proxy',
+                        message: `[GATEKEEPER] ${l.event}`,
+                        latency: 0
+                    }));
+                }
+
+                // Merge and Sort Logs
+                const allLogs = [...proxyLogs, ...evaluationTraces].slice(0, 50);
+                setLogs(allLogs);
+
+                // 6. Fetch Global SLA Metrics (for counters)
+                const slaMetricsRes = await fetch(`${apiUrl}/api/v1/sla/metrics`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (slaMetricsRes.ok) {
+                    const slaData = await slaMetricsRes.json();
+                    setStats(prev => ({
+                        ...prev,
+                        violations: (prev.violations || 0) + (slaData.pii_blocks || 0) + (slaData.policy_violations || 0),
+                        traces_analyzed: (prev.traces_analyzed || 0) + (slaData.total_requests || 0)
+                    }));
                 }
 
             } catch (error) {
@@ -380,36 +411,36 @@ export default function OverviewPage() {
                             </CardHeader>
                             <CardContent className="p-0 flex-1 overflow-hidden relative min-h-[500px]">
                                 <div className="absolute inset-0 overflow-y-auto divide-y divide-gray-100 dark:divide-zinc-800">
-                                    {stats.recent_evaluations.map((item, idx) => (
+                                    {logs.map((item, idx) => (
                                         <div key={idx} className="p-4 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors flex items-start gap-4 group">
-                                            <div className={`mt-1 h-8 w-8 rounded-full flex items-center justify-center shrink-0 border ${item.verdict === 'PASS'
+                                            <div className={`mt-1 h-8 w-8 rounded-full flex items-center justify-center shrink-0 border ${item.level !== 'ERROR'
                                                 ? 'bg-green-50/50 border-green-200 text-green-600 dark:bg-green-900/20 dark:border-green-900/30'
                                                 : 'bg-red-50/50 border-red-200 text-red-600 dark:bg-red-900/20 dark:border-red-900/30'
                                                 }`}>
-                                                {item.verdict === 'PASS' ? <CheckCircle2 className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                                                {item.level !== 'ERROR' ? <CheckCircle2 className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between mb-0.5">
-                                                    <p className={`text-sm font-medium truncat ${theme.text.primary}`}>
-                                                        {item.workflow_name || 'Workflow Evaluation'}
-                                                    </p>
-                                                    <span className="text-[10px] text-gray-400 font-mono">{new Date(item.timestamp).toLocaleTimeString()}</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold tracking-tighter ${item.service === 'Proxy' ? 'bg-indigo-100 text-indigo-600' : 'bg-purple-100 text-purple-600'
+                                                            }`}>
+                                                            {item.service}
+                                                        </span>
+                                                        <p className={`text-sm font-medium truncate ${theme.text.primary}`}>
+                                                            {item.message}
+                                                        </p>
+                                                    </div>
+                                                    <span className="text-[10px] text-gray-400 font-mono">{item.timestamp.includes('T') ? new Date(item.timestamp).toLocaleTimeString() : item.timestamp}</span>
                                                 </div>
                                                 <p className="text-xs text-gray-500 line-clamp-1">
-                                                    {item.verdict === 'PASS' ? 'Passed all policy checks. No critical risks found.' : 'Blocked due to critical policy violation.'}
+                                                    {item.level === 'INFO' ? 'Request validated and passed.' :
+                                                        item.level === 'ERROR' ? 'Security Policy Violation: request blocked.' :
+                                                            'Audit warning: potential compliance issue.'}
                                                 </p>
                                             </div>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                onClick={() => router.push(`/dashboard/evaluate?report_id=${item.id || ''}`)}
-                                            >
-                                                <ArrowRight className="w-4 h-4 text-gray-400" />
-                                            </Button>
                                         </div>
                                     ))}
-                                    {stats.recent_evaluations.length === 0 && (
+                                    {logs.length === 0 && (
                                         <div className="flex flex-col items-center justify-center h-full text-gray-400 p-8">
                                             <ShieldCheck className="w-8 h-8 mb-2 opacity-20" />
                                             <p>No audits recorded yet.</p>
