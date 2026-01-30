@@ -33,7 +33,12 @@ class MetricsStore:
         self.requests: deque = deque(maxlen=max_history)
         self.audit_logs: deque = deque(maxlen=50) # Keep last 50 audit events
         self.start_time = datetime.now()
-        self.total_downtime_seconds = 0.0
+        self.db = None
+        # Lazy load db connection
+        try:
+             from services.storage import policy_db
+             self.db = policy_db.db
+        except: pass
         
     def record_request(
         self,
@@ -53,6 +58,20 @@ class MetricsStore:
             endpoint=endpoint
         )
         self.requests.append(metric)
+        
+        # Persist to Firebase if available
+        if self._firestore:
+            try:
+                self._firestore.collection('proxy_metrics').add({
+                    "timestamp": metric.timestamp.isoformat(),
+                    "duration_ms": duration_ms,
+                    "status_code": status_code,
+                    "pii_detected": pii_detected,
+                    "policy_violation": policy_violation,
+                    "endpoint": endpoint
+                })
+            except Exception as e:
+                print(f"Failed to persist metric: {e}")
 
     def record_audit_log(self, event: str, status: str = "INFO", details: Optional[str] = None):
         """Record a real-time audit event"""
@@ -63,6 +82,13 @@ class MetricsStore:
             details=details
         )
         self.audit_logs.append(log)
+        
+        # Persist to Firebase if available
+        if self._firestore:
+            try:
+                self._firestore.collection('proxy_logs').add(asdict(log))
+            except Exception as e:
+                 print(f"Failed to persist audit log: {e}")
 
     def get_audit_logs(self) -> List[Dict]:
         """Get recent audit logs"""
