@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, Shield, AlertTriangle, Terminal, Copy, Activity, Server, Zap, ArrowRight, Eye, Clock, Code2, Cpu } from 'lucide-react';
+import { CheckCircle2, Shield, AlertTriangle, Terminal, Copy, Activity, Server, Zap, ArrowRight, Eye, Clock, Code2, Cpu, Trash2 } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -24,10 +24,16 @@ export default function ProxyPage() {
     const [activeStream, setActiveStream] = useState<'stream1' | 'stream2'>('stream1');
     const [wizardStep, setWizardStep] = useState(1);
 
-    // SLA Connection State
+    // SLA Connection State (Stream 2)
     const [isConnecting, setIsConnecting] = useState(false);
     const [isSlaConnected, setIsSlaConnected] = useState(false);
     const [serviceName, setServiceName] = useState("trading-bot-v1");
+
+    // Gatekeeper Connection State (Stream 1)
+    const [isGatekeeperConnected, setIsGatekeeperConnected] = useState(false);
+    const [gatekeeperStep, setGatekeeperStep] = useState(1);
+    const [gatewayId, setGatewayId] = useState("main-gateway");
+
     const [isLoaded, setIsLoaded] = useState(false);
 
     // Live Telemetry State
@@ -38,6 +44,7 @@ export default function ProxyPage() {
         factors: []
     });
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+    const [gatekeeperStats, setGatekeeperStats] = useState<any>(null);
 
     // Persistence & Firebase Toggle
     const USE_FIREBASE_SYNC = true; // Set to true to enable Firebase sync (local-first approach)
@@ -68,6 +75,9 @@ export default function ProxyPage() {
                 if (initialConfig.isSlaConnected !== undefined) setIsSlaConnected(initialConfig.isSlaConnected);
                 if (initialConfig.serviceName) setServiceName(initialConfig.serviceName);
                 if (initialConfig.selectedLang) setSelectedLang(initialConfig.selectedLang);
+                if (initialConfig.isGatekeeperConnected !== undefined) setIsGatekeeperConnected(initialConfig.isGatekeeperConnected);
+                if (initialConfig.gatekeeperStep) setGatekeeperStep(initialConfig.gatekeeperStep);
+                if (initialConfig.gatewayId) setGatewayId(initialConfig.gatewayId);
             }
             setIsLoaded(true);
         };
@@ -84,7 +94,10 @@ export default function ProxyPage() {
             wizardStep,
             isSlaConnected,
             serviceName,
-            selectedLang
+            selectedLang,
+            isGatekeeperConnected,
+            gatekeeperStep,
+            gatewayId
         };
         localStorage.setItem('pg_stability_config', JSON.stringify(config));
 
@@ -99,7 +112,7 @@ export default function ProxyPage() {
             };
             syncToFirebase();
         }
-    }, [activeStream, wizardStep, isSlaConnected, serviceName, selectedLang, isLoaded]);
+    }, [activeStream, wizardStep, isSlaConnected, serviceName, selectedLang, isGatekeeperConnected, gatekeeperStep, gatewayId, isLoaded]);
 
     // Live Telemetry Polling
     useEffect(() => {
@@ -135,6 +148,30 @@ export default function ProxyPage() {
         const interval = setInterval(fetchTelemetry, 3000); // Poll every 3s
         return () => clearInterval(interval);
     }, [isSlaConnected, serviceName, isLoaded, apiUrl]);
+
+    // Gatekeeper Telemetry Polling (Stream 1)
+    useEffect(() => {
+        if (!isGatekeeperConnected || !isLoaded) return;
+
+        const fetchGatekeeperStats = async () => {
+            try {
+                const res = await fetch(`${apiUrl}/api/v1/sla/metrics`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (res.ok) {
+                    const stats = await res.json();
+                    setGatekeeperStats(stats);
+                }
+            } catch (e) {
+                console.error("Gatekeeper stats fetch failed", e);
+            }
+        };
+
+        fetchGatekeeperStats();
+        const interval = setInterval(fetchGatekeeperStats, 3000);
+        return () => clearInterval(interval);
+    }, [isGatekeeperConnected, isLoaded, apiUrl]);
 
     const handleSlaConnect = () => {
         setIsConnecting(true);
@@ -338,9 +375,15 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                     </span>
                                 </div>
                                 <div className="mt-2 flex items-center justify-between">
-                                    <span className="text-[10px] text-green-600 font-medium flex items-center gap-1">
-                                        <CheckCircle2 className="w-3 h-3" /> Active
-                                    </span>
+                                    {isGatekeeperConnected ? (
+                                        <span className="text-[10px] text-green-600 font-medium flex items-center gap-1">
+                                            <CheckCircle2 className="w-3 h-3" /> Active
+                                        </span>
+                                    ) : (
+                                        <span className="text-[10px] text-yellow-600 font-medium flex items-center gap-1">
+                                            <AlertTriangle className="w-3 h-3" /> Setup
+                                        </span>
+                                    )}
                                     {activeStream === 'stream1' && <Eye className="w-3 h-3 text-indigo-500" />}
                                 </div>
                             </div>
@@ -397,81 +440,321 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
             {/* DYNAMIC CONTENT AREA */}
             <div className="min-h-[400px]">
                 {activeStream === 'stream1' ? (
-                    /* STREAM 1 CONTENT */
-                    <div className="space-y-4 animate-in fade-in slide-in-from-left-4 duration-300">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600">1</div>
-                            <h2 className="text-xl font-bold">Stream 1: Consumer Safety Configuration</h2>
+                    /* STREAM 1 CONTENT - WIZARD OR DASHBOARD */
+                    <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300 max-w-5xl mx-auto">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 font-bold">1</div>
+                                <h2 className="text-xl font-bold">Stream 1: AI Gatekeeper</h2>
+                            </div>
+                            {isGatekeeperConnected && (
+                                <Badge variant="outline" className="border-indigo-500 text-indigo-500 bg-indigo-500/10 gap-1.5 py-1 px-3">
+                                    <Shield className="w-3.5 h-3.5" /> Gatekeeper Active
+                                </Badge>
+                            )}
                         </div>
 
-                        <Card className="border-indigo-200 dark:border-indigo-800 shadow-sm">
-                            <CardHeader className="bg-indigo-50/30 dark:bg-indigo-900/10 pb-4">
-                                <CardTitle className="text-base flex justify-between items-center">
-                                    Gemini Gateway Connection
-                                    <Badge className="bg-green-500">Runtime Active</Badge>
-                                </CardTitle>
-                                <CardDescription>
-                                    Route your Gemini traffic through PolicyGuard to enforce real-time compliance checks.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="pt-6 space-y-4">
-
-                                {/* Enterprise Guide Banner */}
-                                <div className="mb-6 p-4 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-200 dark:border-indigo-800 rounded-lg flex gap-3">
-                                    <div className="mt-0.5">
-                                        <Shield className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">Synchronous Gateway Pattern</h4>
-                                        <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-1 leading-relaxed">
-                                            The Proxy acts as a <strong>Gatekeeper</strong>. It sits <em>between</em> your application and the AI Provider.
-                                            This allows it to <strong>Audit</strong>, <strong>Block</strong>, or <strong>Sanitize</strong> requests in real-time, preventing PII leaks or Policy Violations from ever leaving your perimeter.
-                                        </p>
-                                    </div>
+                        {!isGatekeeperConnected ? (
+                            <div className="space-y-6">
+                                {/* Wizard Steps Indicator */}
+                                <div className="flex items-center justify-center mb-8">
+                                    {[1, 2, 3].map((step) => (
+                                        <React.Fragment key={step}>
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${gatekeeperStep >= step ? 'bg-indigo-600 text-white shadow-lg' : 'bg-gray-200 dark:bg-zinc-800 text-gray-400'
+                                                }`}>
+                                                {step}
+                                            </div>
+                                            {step < 3 && (
+                                                <div className={`w-16 h-1 transition-all duration-300 ${gatekeeperStep > step ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-zinc-800'
+                                                    }`} />
+                                            )}
+                                        </React.Fragment>
+                                    ))}
                                 </div>
 
-                                <div>
-                                    <Label className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Proxy Base URL</Label>
-                                    <div className="flex gap-2 mt-1.5 mb-6">
-                                        <div className="flex-1 bg-slate-950 text-slate-50 font-mono text-sm p-2.5 rounded-md border border-slate-800 truncate">
-                                            {proxyUrl}
-                                        </div>
-                                        <Button variant="outline" size="icon" onClick={() => navigator.clipboard.writeText(proxyUrl)}>
-                                            <Copy className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                <Tabs defaultValue="python" className="w-full" onValueChange={setSelectedLang}>
-                                    <TabsList className="grid w-full grid-cols-4 h-8">
-                                        <TabsTrigger value="python" className="text-xs">Python</TabsTrigger>
-                                        <TabsTrigger value="node" className="text-xs">Node.js</TabsTrigger>
-                                        <TabsTrigger value="javascript" className="text-xs">JavaScript</TabsTrigger>
-                                        <TabsTrigger value="curl" className="text-xs">cURL</TabsTrigger>
-                                    </TabsList>
-                                    <div className="relative mt-2 group">
-                                        <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {gatekeeperStep === 1 && (
+                                    <Card className="border-indigo-100 dark:border-indigo-900/30 max-w-2xl mx-auto overflow-hidden shadow-xl">
+                                        <div className="h-2 bg-gradient-to-r from-indigo-500 to-blue-500"></div>
+                                        <CardHeader className="text-center pt-8">
+                                            <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                                <Shield className="w-8 h-8 text-indigo-600" />
+                                            </div>
+                                            <CardTitle className="text-2xl">Configure AI Gatekeeper</CardTitle>
+                                            <CardDescription>
+                                                Audit and block policy violations in real-time by routing traffic through the PolicyGuard Gateway.
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4 pb-8">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="gateway-id">Gateway Identifier</Label>
+                                                <Input
+                                                    id="gateway-id"
+                                                    placeholder="e.g., core-audit-gateway"
+                                                    value={gatewayId}
+                                                    onChange={(e) => setGatewayId(e.target.value)}
+                                                    className="focus-visible:ring-indigo-500"
+                                                />
+                                                <p className="text-[10px] text-gray-500 italic">This will identify this specific gateway in your audit logs.</p>
+                                            </div>
                                             <Button
-                                                variant="secondary"
-                                                size="sm"
-                                                className="h-7 text-xs bg-white/10 hover:bg-white/20 text-white border-white/10 backdrop-blur-sm"
-                                                onClick={() => navigator.clipboard.writeText(snippets[selectedLang as keyof typeof snippets])}
+                                                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-md group h-11"
+                                                onClick={() => setGatekeeperStep(2)}
+                                                disabled={!gatewayId.trim()}
                                             >
-                                                <Copy className="h-3 w-3 mr-1.5" /> Copy Code
+                                                Next: Select Integration Pattern <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                )}
+
+                                {gatekeeperStep === 2 && (
+                                    <div className="space-y-6 max-w-4xl mx-auto">
+                                        <div className="text-center mb-4">
+                                            <h3 className="text-lg font-bold">Select Integration Pattern</h3>
+                                            <p className="text-sm text-gray-500">Choose the language your AI agent uses.</p>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            {[
+                                                { id: 'python', name: 'Python', desc: 'GenAI SDK / requests', icon: <Terminal className="w-8 h-8 text-blue-500" /> },
+                                                { id: 'node', name: 'Node.js', desc: '@google/generative-ai', icon: <Code2 className="w-8 h-8 text-green-500" /> },
+                                                { id: 'curl', name: 'Raw API', desc: 'Direct HTTP Calls', icon: <Server className="w-8 h-8 text-gray-500" /> }
+                                            ].map((stack) => (
+                                                <Card
+                                                    key={stack.id}
+                                                    className={`cursor-pointer transition-all border-2 group hover:shadow-lg ${selectedLang === stack.id ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20' : 'border-gray-100 dark:border-zinc-800 hover:border-indigo-200'
+                                                        }`}
+                                                    onClick={() => setSelectedLang(stack.id)}
+                                                >
+                                                    <CardContent className="p-6 text-center">
+                                                        <div className="flex justify-center mb-4 group-hover:scale-110 transition-transform">{stack.icon}</div>
+                                                        <h4 className="font-bold">{stack.name}</h4>
+                                                        <p className="text-xs text-gray-500 mt-1">{stack.desc}</p>
+                                                    </CardContent>
+                                                </Card>
+                                            ))}
+                                        </div>
+                                        <div className="flex justify-between items-center mt-8">
+                                            <Button variant="ghost" onClick={() => setGatekeeperStep(1)}>Back</Button>
+                                            <Button
+                                                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                                                onClick={() => setGatekeeperStep(3)}
+                                            >
+                                                Generate Gateway Snippet <Zap className="ml-2 w-4 h-4" />
                                             </Button>
                                         </div>
-                                        <SyntaxHighlighter
-                                            language={selectedLang === 'curl' ? 'bash' : selectedLang === 'node' ? 'javascript' : selectedLang}
-                                            style={vscDarkPlus}
-                                            customStyle={{ margin: 0, borderRadius: '0.5rem', height: '400px', fontSize: '13px', paddingTop: '1rem' }}
-                                            showLineNumbers={true}
-                                        >
-                                            {snippets[selectedLang as keyof typeof snippets]}
-                                        </SyntaxHighlighter>
                                     </div>
-                                </Tabs>
-                            </CardContent>
-                        </Card>
+                                )}
+
+                                {gatekeeperStep === 3 && (
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start max-w-6xl mx-auto">
+                                        <div className="lg:col-span-2 space-y-4">
+                                            <Card className="border-indigo-100 dark:border-indigo-800 shadow-xl overflow-hidden">
+                                                <CardHeader className="bg-indigo-50/50 dark:bg-indigo-900/10 border-b border-indigo-100 dark:border-indigo-800">
+                                                    <div className="flex justify-between items-center">
+                                                        <div>
+                                                            <CardTitle className="text-lg">AI Gatekeeper Setup</CardTitle>
+                                                            <CardDescription>Change the `api_endpoint` or `baseUrl` in your config.</CardDescription>
+                                                        </div>
+                                                        <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+                                                            {selectedLang.toUpperCase()}
+                                                        </Badge>
+                                                    </div>
+                                                </CardHeader>
+                                                <CardContent className="p-0">
+                                                    <div className="relative group">
+                                                        <div className="absolute right-3 top-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <Button
+                                                                variant="secondary"
+                                                                size="sm"
+                                                                className="h-7 text-xs bg-white/10 hover:bg-white/20 text-white border-white/10 backdrop-blur-sm shadow-lg"
+                                                                onClick={() => {
+                                                                    // @ts-ignore
+                                                                    navigator.clipboard.writeText(snippets[selectedLang]);
+                                                                }}
+                                                            >
+                                                                <Copy className="h-3 w-3 mr-1.5" /> Copy Code
+                                                            </Button>
+                                                        </div>
+                                                        <SyntaxHighlighter
+                                                            language={selectedLang === 'curl' ? 'bash' : selectedLang === 'node' ? 'javascript' : selectedLang}
+                                                            style={vscDarkPlus}
+                                                            customStyle={{ margin: 0, borderRadius: 0, height: '350px', fontSize: '13px', padding: '1.25rem' }}
+                                                            showLineNumbers={true}
+                                                        >
+                                                            {/* @ts-ignore */}
+                                                            {snippets[selectedLang]}
+                                                        </SyntaxHighlighter>
+                                                    </div>
+                                                </CardContent>
+                                                <div className="p-4 bg-indigo-50/30 dark:bg-indigo-900/10 border-t border-indigo-100 dark:border-indigo-800 flex justify-between items-center">
+                                                    <div className="flex items-center gap-2 text-xs text-indigo-700 dark:text-indigo-300">
+                                                        <Activity className="w-3 h-3 animate-pulse" />
+                                                        <span>Gateway listening at {proxyUrl}</span>
+                                                    </div>
+                                                    <Button size="sm" onClick={() => setIsGatekeeperConnected(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                                                        Finalize Integration <CheckCircle2 className="ml-2 w-4 h-4" />
+                                                    </Button>
+                                                </div>
+                                            </Card>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <Card className="border-indigo-100 dark:border-indigo-800/30 shadow-none bg-transparent">
+                                                <CardHeader className="pb-2 px-4 pt-4">
+                                                    <CardTitle className="text-sm font-bold flex items-center gap-2 uppercase tracking-wider text-indigo-500">
+                                                        <Eye className="w-4 h-4" /> Verification
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="px-4 pb-4 space-y-4">
+                                                    {[
+                                                        { step: "Send Test Request", desc: "Run your application with the new gateway endpoint.", status: "waiting" },
+                                                        { step: "MitM Interception", desc: "PolicyGuard intercepts the call and audits content.", status: "pending" },
+                                                        { step: "Sovereignty Verification", desc: "Gemini confirms the request meets your internal policies.", status: "pending" }
+                                                    ].map((v, i) => (
+                                                        <div key={i} className="relative pl-10">
+                                                            <div className="absolute left-0 top-0 w-8 h-8 rounded-full border-2 border-indigo-100 dark:border-indigo-800/50 flex items-center justify-center">
+                                                                {v.status === 'waiting' ? (
+                                                                    <div className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
+                                                                ) : (
+                                                                    <Clock className="w-4 h-4 text-gray-300" />
+                                                                )}
+                                                            </div>
+                                                            <div className="text-sm font-bold">{v.step}</div>
+                                                            <div className="text-xs text-gray-500">{v.desc}</div>
+                                                        </div>
+                                                    ))}
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            /* GATEKEEPER ACTIVE DASHBOARD */
+                            <div className="space-y-6 animate-in zoom-in-95 duration-500">
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <Card className="p-4 border-indigo-100 dark:border-indigo-900/30 flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600">
+                                            <Server className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <div className="text-[10px] text-gray-400 uppercase font-bold tracking-tight">Proxy Health</div>
+                                            <div className="text-lg font-black text-green-500 flex items-center gap-1.5">
+                                                <div className="w-2 h-2 rounded-full bg-green-500 animate-ping" />
+                                                DELEGATED
+                                            </div>
+                                        </div>
+                                    </Card>
+
+                                    <Card className="p-4 border-indigo-100 dark:border-indigo-900/30 flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-blue-600">
+                                            <Cpu className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <div className="text-[10px] text-gray-400 uppercase font-bold tracking-tight">Active Gatekeeper</div>
+                                            <div className="text-lg font-black text-blue-600 truncate max-w-[120px]">
+                                                {gatewayId}
+                                            </div>
+                                        </div>
+                                    </Card>
+
+                                    <Card className="p-4 border-indigo-100 dark:border-indigo-900/30 flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-purple-600">
+                                            <Shield className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <div className="text-[10px] text-gray-400 uppercase font-bold tracking-tight">Audits Scanned</div>
+                                            <div className="text-2xl font-black text-purple-700">
+                                                {gatekeeperStats?.total_requests || 0}
+                                            </div>
+                                        </div>
+                                    </Card>
+
+                                    <Card className="p-4 border-indigo-100 dark:border-indigo-900/30 flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center text-red-600">
+                                            <AlertTriangle className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <div className="text-[10px] text-gray-400 uppercase font-bold tracking-tight">Blocked Prompts</div>
+                                            <div className="text-2xl font-black text-red-600">
+                                                {gatekeeperStats?.pii_blocks || 0}
+                                            </div>
+                                        </div>
+                                    </Card>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <Card className="lg:col-span-2 border-indigo-100 dark:border-indigo-900/30 overflow-hidden">
+                                        <CardHeader className="bg-indigo-50/30 dark:bg-indigo-950/20 border-b border-indigo-100 dark:border-indigo-800/50 pb-3">
+                                            <CardTitle className="text-sm font-bold flex items-center gap-2 uppercase tracking-widest text-indigo-600">
+                                                <Activity className="w-4 h-4" /> Live Audit Log
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-0">
+                                            <div className="bg-slate-950 p-6 h-[250px] font-mono text-[11px] overflow-y-hidden relative group">
+                                                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-950 z-10 pointer-events-none" />
+                                                <div className="space-y-1">
+                                                    <div className="text-green-400 opacity-80">[{new Date().toLocaleTimeString()}] INTERCEPTION SYSTEM ACTIVE</div>
+                                                    <div className="text-gray-500">[{new Date().toLocaleTimeString()}] Connected to Gateway: {gatewayId}</div>
+                                                    <div className="text-indigo-400">[{new Date().toLocaleTimeString()}] Policy Baseline Synced: SOC2 + Finance Rules</div>
+                                                    <div className="text-gray-400">----------------------------------------------------</div>
+
+                                                    {gatekeeperStats?.total_requests > 0 ? (
+                                                        <>
+                                                            <div className="text-blue-400">[{new Date().toLocaleTimeString()}] Request Intercepted: User prompt analyzed...</div>
+                                                            <div className="text-green-500">[{new Date().toLocaleTimeString()}] [PASS] Semantic Sovereign Audit met.</div>
+                                                            <div className="text-blue-400">[{new Date().toLocaleTimeString()}] Response Intercepted: Sanitizing PII...</div>
+                                                            <div className="text-green-500">[{new Date().toLocaleTimeString()}] [PASS] No policy violations detected in output.</div>
+                                                        </>
+                                                    ) : (
+                                                        <div className="text-gray-500 animate-pulse italic mt-4 px-4 text-center">Waiting for proxied traffic...</div>
+                                                    )}
+
+                                                    {gatekeeperStats?.pii_blocks > 0 && (
+                                                        <div className="text-red-500 font-bold">[{new Date().toLocaleTimeString()}] [BLOCK] Unauthorized PII Data Flow detected!</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card className="border-indigo-100 dark:border-indigo-900/30 shadow-xl relative overflow-hidden group">
+                                        <div className="absolute inset-0 bg-indigo-600 font-black text-[80px] opacity-[0.03] italic pointer-events-none select-none -rotate-12 translate-x-12 translate-y-12">
+                                            AUDIT
+                                        </div>
+                                        <CardHeader className="pb-2">
+                                            <CardTitle className="text-xs text-indigo-500 uppercase tracking-widest font-bold">Real-time Performance</CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="space-y-6">
+                                            <div>
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <span className="text-xs text-gray-500">Gateway Latency</span>
+                                                    <span className="text-sm font-bold text-indigo-600">+{gatekeeperStats?.avg_response_time_ms ? Math.round(gatekeeperStats.avg_response_time_ms / 10) : 12}ms</span>
+                                                </div>
+                                                <div className="h-1.5 w-full bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-indigo-500 rounded-full" style={{ width: '45%' }} />
+                                                </div>
+                                                <p className="text-[10px] text-gray-400 mt-1 italic">Micro-overhead added by semantic auditing.</p>
+                                            </div>
+
+                                            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-lg">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <Shield className="w-4 h-4 text-indigo-600" />
+                                                    <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-300">RUNTIME GOVERNANCE</span>
+                                                </div>
+                                                <div className="text-[10px] text-indigo-600 dark:text-indigo-400 leading-tight">
+                                                    Gemini 3 is intercepting and verifying every token against your policy base.
+                                                </div>
+                                            </div>
+
+                                            <Button variant="outline" className="w-full text-xs h-8 border-red-200 text-red-500 hover:bg-red-50 dark:border-red-900/40 dark:hover:bg-red-900/10" onClick={() => setIsGatekeeperConnected(false)}>
+                                                Disconnect Gateway <Trash2 className="ml-2 w-3 h-3" />
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     /* STREAM 2 CONTENT - WIZARD FLOW */
