@@ -54,14 +54,14 @@ export default function MonitorPage() {
     }, []);
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex justify-between items-center">
+        <div className="space-y-8 animate-in fade-in duration-500 max-w-[1600px] mx-auto pb-20">
+            <div className="flex justify-between items-center bg-white dark:bg-zinc-900 p-8 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-sm">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                        <Shield className="h-8 w-8 text-indigo-500" />
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
+                        <Shield className="h-10 w-10 text-indigo-500" />
                         Safety Console (Stream 1)
                     </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2">
+                    <p className="text-muted-foreground mt-2 text-lg">
                         Real-time audit logs of every prompt intercepted by PolicyGuard.
                     </p>
                 </div>

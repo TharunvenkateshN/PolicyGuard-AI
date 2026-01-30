@@ -12,20 +12,25 @@ const firebaseConfig = {
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-console.log("Initializing Firebase with project:", firebaseConfig.projectId);
+const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
 // Initialize Firebase (Singleton pattern)
-let app;
-let auth;
-let db;
+let app: any = null;
+let auth: any = null;
+let db: any = null;
 
-try {
-    app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-    console.log("Firebase initialized successfully");
-} catch (error) {
-    console.error("Firebase initialization failed:", error);
+if (USE_FIREBASE) {
+    console.log("Initializing Firebase with project:", firebaseConfig.projectId);
+    try {
+        app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+        console.log("Firebase initialized successfully");
+    } catch (error) {
+        console.error("Firebase initialization failed:", error);
+    }
+} else {
+    console.log("Firebase is DISABLED (Local Mode)");
 }
 
 export { app, auth, db };

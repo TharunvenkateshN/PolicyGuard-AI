@@ -48,7 +48,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         // @ts-ignore - firebase auth type safety
         if (!auth) {
-            console.error("Firebase Auth not initialized");
+            const isLocalMode = process.env.NEXT_PUBLIC_USE_FIREBASE !== 'true';
+            if (isLocalMode) {
+                console.log("🔑 Auth: Local Mode Active (Guest Auth only)");
+            } else {
+                console.error("❌ Firebase Auth not initialized");
+            }
             if (!cachedUser) setIsLoading(false);
             return;
         }
@@ -102,6 +107,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     const login = async (email: string, password: string) => {
+        if (!auth) {
+            // Support a mock login for testing even in local mode
+            if (email === "admin@dev.local" && password === "password") {
+                const mockUser: any = {
+                    uid: 'mock_admin_1',
+                    email: 'admin@dev.local',
+                    displayName: 'Admin (Local)',
+                    emailVerified: true,
+                    isAnonymous: false,
+                };
+                setUser(mockUser);
+                localStorage.setItem('pg_auth_user', JSON.stringify(mockUser));
+                router.push('/dashboard');
+                return;
+            }
+            throw new Error("Local Mode: Please use 'One-Click Test Access' OR 'admin@dev.local' / 'password'.");
+        }
         await signInWithEmailAndPassword(auth, email, password);
         router.push('/dashboard');
     };
@@ -116,16 +138,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             isAnonymous: true,
         };
         setUser(mockUser);
+        localStorage.setItem('pg_auth_user', JSON.stringify(mockUser));
         router.push('/dashboard');
     };
 
     const signup = async (email: string, password: string, name: string) => {
+        if (!auth) {
+            throw new Error("Authentication is disabled in Local Mode.");
+        }
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         router.push('/dashboard');
     };
 
     const logout = async () => {
-        await signOut(auth);
+        if (auth) {
+            await signOut(auth);
+        }
         setUser(null);
         localStorage.removeItem('pg_auth_user');
         router.push('/login');

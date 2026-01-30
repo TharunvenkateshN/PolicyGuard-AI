@@ -271,7 +271,7 @@ export default function EvaluatePage() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 pb-20">
+        <div className="max-w-[1400px] mx-auto space-y-8 pb-20 px-4">
 
             <div className="w-full">
                 <div className="mb-6">
@@ -319,9 +319,9 @@ export default function EvaluatePage() {
 
                 {/* Workflow Input: Full Width */}
                 <div className="mb-8">
-                    <div className="p-6 bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-sm">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold">Workflow Specification</h3>
+                    <div className="p-8 bg-white dark:bg-zinc-900 rounded-2xl border-2 border-gray-100 dark:border-zinc-800 shadow-xl shadow-blue-500/5">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-xl font-bold text-foreground">Workflow Specification</h3>
                             <div className="flex items-center gap-4">
                                 {evaluationStatus === 'done' && (
                                     <Button
@@ -382,14 +382,14 @@ export default function EvaluatePage() {
 
                         <div className="space-y-6 h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                             {/* 1. AI System Intent */}
-                            <div className="space-y-4 p-4 border rounded-md bg-gray-50 dark:bg-zinc-950">
-                                <h4 className="font-medium text-blue-600 flex items-center gap-2">
-                                    <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs">1</span>
+                            <div className="space-y-4 p-5 border-2 border-gray-50/50 dark:border-zinc-800/50 rounded-xl bg-slate-50/30 dark:bg-zinc-950/50">
+                                <h4 className="font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2 uppercase tracking-tight text-xs">
+                                    <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-[10px] font-black">1</span>
                                     AI System Intent
                                 </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label>Purpose</Label>
+                                        <Label className="text-foreground font-semibold">Purpose</Label>
                                         <input
                                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                             placeholder="e.g. Customer support chatbot"

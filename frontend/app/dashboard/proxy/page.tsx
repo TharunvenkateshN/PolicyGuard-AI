@@ -49,7 +49,7 @@ export default function ProxyPage() {
     const consoleEndRef = React.useRef<HTMLDivElement>(null);
 
     // Persistence & Firebase Toggle
-    const USE_FIREBASE_SYNC = true; // Set to true to enable Firebase sync (local-first approach)
+    const USE_FIREBASE_SYNC = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true'; // Respect global firebase toggle
 
     // Load state from localStorage & Firebase on mount
     useEffect(() => {
@@ -60,7 +60,7 @@ export default function ProxyPage() {
 
             // 2. Try Firebase (Only if explicitly enabled and auth is ready)
             // Note: We check it inside the effect to handle async auth state
-            if (USE_FIREBASE_SYNC && auth.currentUser) {
+            if (USE_FIREBASE_SYNC && auth?.currentUser) {
                 try {
                     const docSnap = await getDoc(doc(db, "users", auth.currentUser.uid, "integrations", "stability"));
                     if (docSnap.exists()) {
@@ -104,7 +104,7 @@ export default function ProxyPage() {
         localStorage.setItem('pg_stability_config', JSON.stringify(config));
 
         // Firebase Sync (Optional/local-first)
-        if (USE_FIREBASE_SYNC && auth.currentUser) {
+        if (USE_FIREBASE_SYNC && auth?.currentUser) {
             const syncToFirebase = async () => {
                 try {
                     await setDoc(doc(db, "users", auth.currentUser!.uid, "integrations", "stability"), config, { merge: true });
@@ -354,11 +354,11 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
     return (
         <div className="space-y-8 animate-in fade-in duration-500 p-2">
             <div>
-                <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100 flex items-center gap-3">
+                <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
                     <Shield className="h-8 w-8 text-indigo-500" />
                     AI Integration Hub
                 </h1>
-                <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-3xl">
+                <p className="text-muted-foreground mt-2 max-w-3xl">
                     Centralize your AI governance. Click a stream below to configure:
                 </p>
             </div>
@@ -369,10 +369,10 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
 
                 {/* User's AI */}
                 <div className="flex flex-col items-center z-10">
-                    <div className="w-16 h-16 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-700 flex items-center justify-center mb-3">
-                        <Terminal className="w-8 h-8 text-gray-600 dark:text-gray-300" />
+                    <div className="w-16 h-16 bg-white dark:bg-zinc-800 rounded-2xl shadow-xl border border-gray-200 dark:border-zinc-700 flex items-center justify-center mb-3">
+                        <Terminal className="w-8 h-8 text-slate-800 dark:text-slate-100" />
                     </div>
-                    <span className="font-bold text-sm">Your AI Agent</span>
+                    <span className="font-bold text-sm text-foreground">Your AI Agent</span>
                 </div>
 
                 {/* Connection Line */}
@@ -382,64 +382,64 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
 
                 {/* PolicyGuard Hub */}
                 <div className="flex flex-col items-center z-10 w-full max-w-md">
-                    <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border-2 border-indigo-500 p-4 w-full transition-transform hover:scale-[1.01]">
+                    <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border-2 border-indigo-500 p-5 w-full transition-transform hover:scale-[1.01]">
                         <div className="flex items-center justify-center gap-2 mb-4">
-                            <Shield className="w-5 h-5 text-indigo-500" />
-                            <span className="font-bold">PolicyGuard Gatekeeper</span>
+                            <Shield className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                            <span className="font-black text-foreground uppercase tracking-tight">PolicyGuard Gatekeeper</span>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
                             {/* Stream 1 Selector */}
                             <div
                                 onClick={() => setActiveStream('stream1')}
-                                className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 group
+                                className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 group shadow-sm
                                     ${activeStream === 'stream1'
-                                        ? 'bg-indigo-100 dark:bg-indigo-900/40 border-indigo-500 ring-2 ring-indigo-500/20'
-                                        : 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/40'
+                                        ? 'bg-indigo-50 dark:bg-indigo-900/40 border-indigo-600 ring-4 ring-indigo-500/10'
+                                        : 'bg-indigo-50/30 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
                                     }`}
                             >
                                 <div className="flex items-center gap-2 mb-2 group-hover:translate-x-1 transition-transform">
-                                    <Shield className={`w-4 h-4 ${activeStream === 'stream1' ? 'text-indigo-700' : 'text-indigo-600'}`} />
-                                    <span className={`font-bold text-xs ${activeStream === 'stream1' ? 'text-indigo-800 dark:text-indigo-200' : 'text-indigo-700 dark:text-indigo-300'}`}>
+                                    <Shield className={`w-4 h-4 ${activeStream === 'stream1' ? 'text-indigo-700 dark:text-indigo-400' : 'text-indigo-600 dark:text-indigo-400'}`} />
+                                    <span className={`font-black text-[10px] tracking-widest ${activeStream === 'stream1' ? 'text-indigo-800 dark:text-indigo-200' : 'text-indigo-700 dark:text-indigo-300'}`}>
                                         STREAM 1: SAFETY
                                     </span>
                                 </div>
                                 <div className="mt-2 flex items-center justify-between">
                                     {isGatekeeperConnected ? (
-                                        <span className="text-[10px] text-green-600 font-medium flex items-center gap-1">
-                                            <CheckCircle2 className="w-3 h-3" /> Active
+                                        <span className="text-[10px] text-green-700 dark:text-green-400 font-bold flex items-center gap-1 bg-green-100 dark:bg-green-500/10 px-1.5 py-0.5 rounded">
+                                            <CheckCircle2 className="w-3 h-3" /> ACTIVE
                                         </span>
                                     ) : (
-                                        <span className="text-[10px] text-yellow-600 font-medium flex items-center gap-1">
-                                            <AlertTriangle className="w-3 h-3" /> Setup
+                                        <span className="text-[10px] text-yellow-700 dark:text-yellow-400 font-bold flex items-center gap-1 bg-yellow-100 dark:bg-yellow-500/10 px-1.5 py-0.5 rounded">
+                                            <AlertTriangle className="w-3 h-3" /> SETUP
                                         </span>
                                     )}
-                                    {activeStream === 'stream1' && <Eye className="w-3 h-3 text-indigo-500" />}
+                                    {activeStream === 'stream1' && <Eye className="w-3.5 h-3.5 text-indigo-600" />}
                                 </div>
                             </div>
 
                             {/* Stream 2 Selector */}
                             <div
                                 onClick={() => setActiveStream('stream2')}
-                                className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 group
+                                className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 group shadow-sm
                                     ${activeStream === 'stream2'
-                                        ? 'bg-purple-100 dark:bg-purple-900/40 border-purple-500 ring-2 ring-purple-500/20'
-                                        : `bg-purple-50 dark:bg-purple-900/20 border-purple-100 dark:border-purple-800/50 hover:bg-purple-100 dark:hover:bg-purple-900/40 ${isSlaConnected ? '' : 'opacity-70'}`
+                                        ? 'bg-purple-50 dark:bg-purple-900/40 border-purple-600 ring-4 ring-purple-500/10'
+                                        : `bg-purple-50/30 dark:bg-purple-900/10 border-purple-100 dark:border-purple-800/50 hover:bg-purple-50 dark:hover:bg-purple-900/30 ${isSlaConnected ? '' : 'opacity-70'}`
                                     }`}
                             >
                                 <div className="flex items-center gap-2 mb-2 group-hover:translate-x-1 transition-transform">
-                                    <Activity className={`w-4 h-4 ${activeStream === 'stream2' ? 'text-purple-700' : 'text-purple-600'}`} />
-                                    <span className={`font-bold text-xs ${activeStream === 'stream2' ? 'text-purple-800 dark:text-purple-200' : 'text-purple-700 dark:text-purple-300'}`}>
+                                    <Activity className={`w-4 h-4 ${activeStream === 'stream2' ? 'text-purple-700 dark:text-purple-400' : 'text-purple-600 dark:text-purple-400'}`} />
+                                    <span className={`font-black text-[10px] tracking-widest ${activeStream === 'stream2' ? 'text-purple-800 dark:text-purple-200' : 'text-purple-700 dark:text-purple-300'}`}>
                                         STREAM 2: STABILITY
                                     </span>
                                 </div>
                                 <div className="mt-2 flex items-center justify-between">
                                     {isSlaConnected ? (
-                                        <span className="text-green-600 flex items-center gap-1 text-[10px] font-medium"><CheckCircle2 className="w-3 h-3" /> Active</span>
+                                        <span className="text-[10px] text-green-700 dark:text-green-400 font-bold flex items-center gap-1 bg-green-100 dark:bg-green-500/10 px-1.5 py-0.5 rounded"><CheckCircle2 className="w-3 h-3" /> ACTIVE</span>
                                     ) : (
-                                        <span className="text-yellow-600 flex items-center gap-1 text-[10px] font-medium"><AlertTriangle className="w-3 h-3" /> Pending</span>
+                                        <span className="text-[10px] text-yellow-700 dark:text-yellow-400 font-bold flex items-center gap-1 bg-yellow-100 dark:bg-yellow-500/10 px-1.5 py-0.5 rounded"><AlertTriangle className="w-3 h-3" /> PENDING</span>
                                     )}
-                                    {activeStream === 'stream2' && <Eye className="w-3 h-3 text-purple-500" />}
+                                    {activeStream === 'stream2' && <Eye className="w-3.5 h-3.5 text-purple-600" />}
                                 </div>
                             </div>
                         </div>
