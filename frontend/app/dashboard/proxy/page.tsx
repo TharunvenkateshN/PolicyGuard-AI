@@ -496,13 +496,22 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                                 />
                                                 <p className="text-[10px] text-gray-500 italic">This will identify this specific gateway in your audit logs.</p>
                                             </div>
-                                            <Button
-                                                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-md group h-11"
-                                                onClick={() => setGatekeeperStep(2)}
-                                                disabled={!gatewayId.trim()}
-                                            >
-                                                Next: Select Integration Pattern <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                            </Button>
+                                            <div className="flex gap-4">
+                                                <Button
+                                                    variant="outline"
+                                                    className="flex-1 h-11"
+                                                    onClick={() => router.push('/dashboard')}
+                                                >
+                                                    Back to Dashboard
+                                                </Button>
+                                                <Button
+                                                    className="flex-[2] bg-indigo-600 hover:bg-indigo-700 text-white shadow-md group h-11"
+                                                    onClick={() => setGatekeeperStep(2)}
+                                                    disabled={!gatewayId.trim()}
+                                                >
+                                                    Next: Select Integration Pattern <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                                </Button>
+                                            </div>
                                         </CardContent>
                                     </Card>
                                 )}
@@ -591,9 +600,12 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                                         <Activity className="w-3 h-3 animate-pulse" />
                                                         <span>Gateway listening at {proxyUrl}</span>
                                                     </div>
-                                                    <Button size="sm" onClick={() => setIsGatekeeperConnected(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                                                        Finalize Integration <CheckCircle2 className="ml-2 w-4 h-4" />
-                                                    </Button>
+                                                    <div className="flex gap-2">
+                                                        <Button variant="outline" size="sm" onClick={() => setGatekeeperStep(2)}>Back</Button>
+                                                        <Button size="sm" onClick={() => setIsGatekeeperConnected(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                                                            Finalize Integration <CheckCircle2 className="ml-2 w-4 h-4" />
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                             </Card>
                                         </div>
@@ -646,7 +658,7 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                         </div>
                                     </Card>
 
-                                    <Card className="p-4 border-indigo-100 dark:border-indigo-900/30 flex items-center gap-4">
+                                    <Card className="p-4 border-indigo-100 dark:border-indigo-900/30 flex items-center gap-4 relative group">
                                         <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-blue-600">
                                             <Cpu className="w-6 h-6" />
                                         </div>
@@ -656,6 +668,15 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                                 {gatewayId}
                                             </div>
                                         </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            onClick={() => setIsGatekeeperConnected(false)}
+                                            title="Reconfigure Gatekeeper"
+                                        >
+                                            <Settings className="w-4 h-4 text-gray-400" />
+                                        </Button>
                                     </Card>
 
                                     <Card className="p-4 border-indigo-100 dark:border-indigo-900/30 flex items-center gap-4">
@@ -813,13 +834,22 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                                 />
                                                 <p className="text-[10px] text-gray-500 italic">This ID will be used to identify your metrics in the dashboard.</p>
                                             </div>
-                                            <Button
-                                                className="w-full bg-purple-600 hover:bg-purple-700 text-white shadow-md group h-11"
-                                                onClick={() => setWizardStep(2)}
-                                                disabled={!serviceName.trim()}
-                                            >
-                                                Next: Select Tech Stack <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                            </Button>
+                                            <div className="flex gap-4">
+                                                <Button
+                                                    variant="outline"
+                                                    className="flex-1 h-11"
+                                                    onClick={() => router.push('/dashboard')}
+                                                >
+                                                    Back to Dashboard
+                                                </Button>
+                                                <Button
+                                                    className="flex-[2] bg-purple-600 hover:bg-purple-700 text-white shadow-md group h-11"
+                                                    onClick={() => setWizardStep(2)}
+                                                    disabled={!serviceName.trim()}
+                                                >
+                                                    Next: Select Tech Stack <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                                </Button>
+                                            </div>
                                         </CardContent>
                                     </Card>
                                 )}
@@ -974,6 +1004,14 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                             <CardDescription className="flex items-center gap-2 mt-1">
                                                 <div className={`w-2 h-2 rounded-full animate-pulse ${serviceRisk.score > 70 ? 'bg-red-500' : serviceRisk.score > 30 ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
                                                 Real-time stability stream connected via <strong>{selectedLang === 'node' ? 'Node.js Express' : selectedLang}</strong>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-6 px-2 text-[10px] ml-2 text-gray-400 hover:text-purple-500"
+                                                    onClick={() => setIsSlaConnected(false)}
+                                                >
+                                                    <Settings className="w-3 h-3 mr-1" /> Reconfigure
+                                                </Button>
                                             </CardDescription>
                                         </div>
                                         <Button
