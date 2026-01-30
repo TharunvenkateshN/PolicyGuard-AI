@@ -10,13 +10,26 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useToast } from "@/components/ui/toast-context";
 
 // Types
+interface AttackVector {
+    name: string;
+    category: string;
+    method: string;
+    likelihood: string;
+    impact: string;
+    severity_score: number;
+    regulatory_violation?: string;
+    pii_risk?: string;
+    mitigation_suggestion: string;
+}
+
 interface RedTeamReport {
-    attack_vectors: string[];
-    resilience_score: number; // 0-100
-    successful_breaches: string[];
-    recommendations: string[];
     system_profile_analyzed: string;
     overall_resilience_score: number;
+    critical_finding?: string;
+    attack_vectors: AttackVector[];
+    resilience_score?: number; // Legacy/Fallback
+    successful_breaches?: string[];
+    recommendations?: string[];
 }
 
 export default function RedTeamPage() {
@@ -249,16 +262,61 @@ export default function RedTeamPage() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
                                         <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2">Vectors Detected</div>
-                                        <div className="text-2xl font-mono text-white">{redTeamReport.attack_vectors.length}</div>
+                                        <div className="text-2xl font-mono text-white">{redTeamReport.attack_vectors?.length || 0}</div>
                                     </div>
                                     <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
                                         <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2">Target Status</div>
-                                        <div className="text-2xl font-mono text-red-400">COMPROMISED</div>
+                                        <div className="text-2xl font-mono text-red-400">
+                                            {(redTeamReport.overall_resilience_score < 40) ? 'COMPROMISED' :
+                                                (redTeamReport.overall_resilience_score < 70) ? 'AT_RISK' : 'SECURE'}
+                                        </div>
                                     </div>
                                 </div>
 
+                                {redTeamReport.critical_finding && (
+                                    <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                                        <div className="text-red-500 text-xs font-bold uppercase tracking-widest mb-1 flex items-center gap-2">
+                                            <ShieldAlert className="w-3 h-3" /> Critical Finding
+                                        </div>
+                                        <p className="text-red-200 text-sm font-mono">{redTeamReport.critical_finding}</p>
+                                    </div>
+                                )}
+
+                                <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                    <h4 className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
+                                        <TargetIcon className="w-4 h-4 text-red-500" />
+                                        Advanced Attack Vectors
+                                    </h4>
+                                    {redTeamReport.attack_vectors?.map((vector, i) => (
+                                        <div key={i} className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 space-y-3">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <div className="text-white font-bold">{vector.name}</div>
+                                                    <div className="text-zinc-500 text-xs">{vector.category}</div>
+                                                </div>
+                                                <Badge className={`${vector.severity_score > 70 ? 'bg-red-500/20 text-red-500 border-red-500/30' : 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30'} border`}>
+                                                    {vector.severity_score} CVSS
+                                                </Badge>
+                                            </div>
+                                            <div className="text-sm text-zinc-400 bg-black/30 p-2 rounded border border-zinc-800/50 font-mono italic">
+                                                "{vector.method}"
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-2 text-[10px] uppercase tracking-wider">
+                                                <div className="text-zinc-500">Likelihood: <span className="text-zinc-300">{vector.likelihood}</span></div>
+                                                <div className="text-zinc-500">Impact: <span className="text-zinc-300">{vector.impact}</span></div>
+                                            </div>
+                                            <div className="bg-green-500/5 border border-green-500/10 rounded p-2 text-xs">
+                                                <div className="text-green-500 font-bold mb-1 flex items-center gap-1">
+                                                    <CheckCircle className="w-3 h-3" /> Recommended Mitigation
+                                                </div>
+                                                <div className="text-zinc-400">{vector.mitigation_suggestion}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
                                 <div className="bg-zinc-900/30 p-4 rounded-lg border border-zinc-800">
-                                    <h4 className="text-sm font-semibold text-zinc-300 mb-2">Target Analysis</h4>
+                                    <h4 className="text-sm font-semibold text-zinc-300 mb-2">Target Profiling Context</h4>
                                     <p className="text-sm text-zinc-400 leading-relaxed font-mono">
                                         {redTeamReport.system_profile_analyzed}
                                     </p>
