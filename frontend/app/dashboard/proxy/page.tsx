@@ -45,6 +45,8 @@ export default function ProxyPage() {
     });
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
     const [gatekeeperStats, setGatekeeperStats] = useState<any>(null);
+    const [auditLogs, setAuditLogs] = useState<any[]>([]);
+    const consoleEndRef = React.useRef<HTMLDivElement>(null);
 
     // Persistence & Firebase Toggle
     const USE_FIREBASE_SYNC = true; // Set to true to enable Firebase sync (local-first approach)
@@ -172,6 +174,34 @@ export default function ProxyPage() {
         const interval = setInterval(fetchGatekeeperStats, 3000);
         return () => clearInterval(interval);
     }, [isGatekeeperConnected, isLoaded, apiUrl]);
+
+    // Audit Log Polling
+    useEffect(() => {
+        if (!isGatekeeperConnected || !isLoaded) return;
+
+        const fetchAuditLogs = async () => {
+            try {
+                const res = await fetch(`${apiUrl}/api/v1/proxy/logs`);
+                if (res.ok) {
+                    const logs = await res.json();
+                    setAuditLogs(logs);
+                }
+            } catch (e) {
+                console.error("Audit logs fetch failed", e);
+            }
+        };
+
+        fetchAuditLogs();
+        const interval = setInterval(fetchAuditLogs, 2000); // Poll every 2s for "real-time" feel
+        return () => clearInterval(interval);
+    }, [isGatekeeperConnected, isLoaded, apiUrl]);
+
+    // Auto-scroll console
+    useEffect(() => {
+        if (consoleEndRef.current) {
+            consoleEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [auditLogs]);
 
     const handleSlaConnect = () => {
         setIsConnecting(true);
@@ -720,20 +750,23 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                                     <div className="text-indigo-400">[{new Date().toLocaleTimeString()}] Policy Baseline Synced: SOC2 + Finance Rules</div>
                                                     <div className="text-gray-400">----------------------------------------------------</div>
 
-                                                    {gatekeeperStats?.total_requests > 0 ? (
-                                                        <>
-                                                            <div className="text-blue-400">[{new Date().toLocaleTimeString()}] Request Intercepted: User prompt analyzed...</div>
-                                                            <div className="text-green-500">[{new Date().toLocaleTimeString()}] [PASS] Semantic Sovereign Audit met.</div>
-                                                            <div className="text-blue-400">[{new Date().toLocaleTimeString()}] Response Intercepted: Sanitizing PII...</div>
-                                                            <div className="text-green-500">[{new Date().toLocaleTimeString()}] [PASS] No policy violations detected in output.</div>
-                                                        </>
+                                                    {auditLogs.length > 0 ? (
+                                                        auditLogs.map((log, i) => (
+                                                            <div key={i} className="flex gap-2">
+                                                                <span className="text-gray-500 min-w-[70px]">[{log.timestamp}]</span>
+                                                                <span className={`font-bold ${log.status === 'PASS' ? 'text-green-500' :
+                                                                        log.status === 'BLOCK' ? 'text-red-500' :
+                                                                            log.status === 'WARN' ? 'text-yellow-500' : 'text-blue-400'
+                                                                    }`}>
+                                                                    [{log.status}]
+                                                                </span>
+                                                                <span className="text-gray-300">{log.event}</span>
+                                                            </div>
+                                                        ))
                                                     ) : (
                                                         <div className="text-gray-500 animate-pulse italic mt-4 px-4 text-center">Waiting for proxied traffic...</div>
                                                     )}
-
-                                                    {gatekeeperStats?.pii_blocks > 0 && (
-                                                        <div className="text-red-500 font-bold">[{new Date().toLocaleTimeString()}] [BLOCK] Unauthorized PII Data Flow detected!</div>
-                                                    )}
+                                                    <div ref={consoleEndRef} />
                                                 </div>
                                             </div>
                                         </CardContent>

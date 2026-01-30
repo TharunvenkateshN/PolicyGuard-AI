@@ -477,6 +477,11 @@ async def get_sla_history(hours: int = Body(24, embed=True)):
         "data_points": metrics_store.get_history(hours=hours)
     }
 
+@router.get("/proxy/logs")
+async def get_proxy_logs():
+    """Get recent proxy audit logs"""
+    return metrics_store.get_audit_logs()
+
 @router.post("/sla/uptime")
 async def get_uptime_stats():
     """Get detailed uptime statistics"""

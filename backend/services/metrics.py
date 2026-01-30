@@ -15,6 +15,14 @@ class RequestMetric:
     policy_violation: bool
     endpoint: str
 
+@dataclass
+class AuditLog:
+    """Real-time audit event log"""
+    timestamp: str
+    event: str
+    status: str # INFO, PASS, BLOCK, WARN
+    details: Optional[str] = None
+
 class MetricsStore:
     """
     In-memory metrics store for SLA tracking.
@@ -23,6 +31,7 @@ class MetricsStore:
     
     def __init__(self, max_history: int = 10000):
         self.requests: deque = deque(maxlen=max_history)
+        self.audit_logs: deque = deque(maxlen=50) # Keep last 50 audit events
         self.start_time = datetime.now()
         self.total_downtime_seconds = 0.0
         
@@ -44,6 +53,20 @@ class MetricsStore:
             endpoint=endpoint
         )
         self.requests.append(metric)
+
+    def record_audit_log(self, event: str, status: str = "INFO", details: Optional[str] = None):
+        """Record a real-time audit event"""
+        log = AuditLog(
+            timestamp=datetime.now().strftime("%I:%M:%S %p"),
+            event=event,
+            status=status,
+            details=details
+        )
+        self.audit_logs.append(log)
+
+    def get_audit_logs(self) -> List[Dict]:
+        """Get recent audit logs"""
+        return [asdict(log) for log in self.audit_logs]
     
     def _get_requests_in_window(self, minutes: int) -> List[RequestMetric]:
         """Get requests within the last N minutes"""

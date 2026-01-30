@@ -32,6 +32,7 @@ async def gemini_proxy(model_name: str, request: Request, background_tasks: Back
         # 1. Component Extraction
         try:
             body = await request.json()
+            metrics_store.record_audit_log(f"Interception Active: Auditing {model_name} payload", status="INFO")
         except Exception as e:
             metrics_store.record_request(
                 duration_ms=(time.time() - start_time) * 1000,
@@ -83,6 +84,7 @@ async def gemini_proxy(model_name: str, request: Request, background_tasks: Back
             for p_type, pattern in pii_patterns.items():
                 if re.search(pattern, user_prompt):
                     print(f"[PROXY] 🚨 PII DETECTED ({p_type.upper()}). Blocking Request.")
+                    metrics_store.record_audit_log(f"BLOCK: Unauthorized {p_type.upper()} Data Flow detected!", status="BLOCK")
                     metrics_store.record_request(
                         duration_ms=(time.time() - start_time) * 1000,
                         status_code=400,
@@ -99,6 +101,7 @@ async def gemini_proxy(model_name: str, request: Request, background_tasks: Back
             financial_harm_keywords = ["insider trading", "pump and dump", "evade taxes", "money laundering"]
             if any(keyword in user_prompt.lower() for keyword in financial_harm_keywords):
                 print(f"[PROXY] 🚨 FINANCIAL HARM DETECTED. Blocking Request.")
+                metrics_store.record_audit_log("BLOCK: Financial Safety Violation detected!", status="BLOCK")
                 metrics_store.record_request(
                     duration_ms=(time.time() - start_time) * 1000,
                     status_code=403, # Forbidden
@@ -118,6 +121,7 @@ async def gemini_proxy(model_name: str, request: Request, background_tasks: Back
             google_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
             
             # Forward the request
+            metrics_store.record_audit_log(f"PASS: Semantic Sovereign Audit met. Forwarding to Google...", status="PASS")
             upstream_response = await client.post(
                 google_url,
                 headers={"Content-Type": "application/json"},
