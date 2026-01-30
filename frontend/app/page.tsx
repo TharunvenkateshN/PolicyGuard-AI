@@ -106,12 +106,15 @@ export default function LandingPage() {
                         </div>
 
                         <h1 className="text-5xl lg:text-8xl font-extrabold tracking-tight leading-[1.1] mb-8 text-white">
-                            Secure AI Agents <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Pre & Post Deployment.</span>
+                            Govern AI Agents <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Before and After Deployment</span>
                         </h1>
 
-                        <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed mb-12">
-                            The complete trust layer for Autonomous Systems. Red Team your agents before launch, then protect them with real-time guardrails in production.
+                        <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4">
+                            A policy-driven control layer that helps teams detect, assess, and mitigate AI risks across the agent lifecycle.
+                        </p>
+                        <p className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed mb-12 italic">
+                            Red-team agents before launch, then monitor policy drift and operational risk in production.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -137,8 +140,9 @@ export default function LandingPage() {
             <section className="py-24 bg-[#080C14] border-y border-white/5">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl lg:text-5xl font-bold mb-4">Complete Lifecycle Protection</h2>
-                        <p className="text-gray-400">From the first line of code to millions of interactions.</p>
+                        <h2 className="text-3xl lg:text-5xl font-bold mb-4">Lifecycle-Aware AI Governance</h2>
+                        <p className="text-gray-400">From early development signals to live production behavior.</p>
+                        <p className="text-gray-600 text-xs mt-2">Designed to integrate at key decision points across build and run phases.</p>
                     </div>
 
                     <div className="grid lg:grid-cols-2 gap-12">
@@ -156,8 +160,8 @@ export default function LandingPage() {
 
                                 <div className="space-y-6">
                                     {[
-                                        { title: "Adversarial Red Teaming", desc: "Simulate OWASP Top 10 attacks (Injection, Jailbreaks) to find holes.", icon: Terminal },
-                                        { title: "Auto-Remediation", desc: "Generate secure Python/TS guardrail code automatically.", icon: Zap },
+                                        { title: "Adversarial Red Teaming (Policy-Focused)", desc: "Run structured adversarial scenarios aligned with common AI misuse and policy failure patterns.", icon: Terminal },
+                                        { title: "Guardrail Recommendations & Templates", desc: "Generate policy-aligned guardrail snippets and integration guidance for common AI workflows.", icon: Zap },
                                         { title: "AI Policy Assistant", desc: "Chat with your governance docs. Ask 'Is this HIPAA compliant?' to get citations.", icon: MessageSquare },
                                     ].map((feat, i) => (
                                         <div key={i} className="flex gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
@@ -186,9 +190,9 @@ export default function LandingPage() {
 
                                 <div className="space-y-6">
                                     {[
-                                        { title: "SLA & Latency Intelligence", desc: "Enforce strict latency budgets (<100ms) and predict cost overruns.", icon: Activity },
-                                        { title: "Shadow AI Detection", desc: "Identify unauthorized agent activity and API endpoints.", icon: AlertTriangle },
-                                        { title: "3D Visual Monitoring", desc: "Interactive map of all data flows and policy violations.", icon: LayoutDashboard },
+                                        { title: "Latency & Cost Risk Signals", desc: "Surface latency trends and cost risk indicators tied to agent behavior and policy thresholds.", icon: Activity },
+                                        { title: "Unauthorized Agent Activity Signals", desc: "Detect anomalous or unregistered agent behavior within monitored environments.", icon: AlertTriangle },
+                                        { title: "3D Visual Monitoring", desc: "Interactive map of observed interaction patterns and policy hits.", icon: LayoutDashboard },
                                     ].map((feat, i) => (
                                         <div key={i} className="flex gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
                                             <feat.icon className="w-6 h-6 text-gray-400 mt-1" />
@@ -214,13 +218,13 @@ export default function LandingPage() {
                         </div>
                         <h2 className="text-4xl lg:text-5xl font-bold mb-6">Visual Compliance Mapping</h2>
                         <p className="text-lg text-gray-400 mb-8 leading-relaxed">
-                            See your agent's brain. We map every API call, database query, and external interaction to your compliance policies in a 3D interactive graph.
+                            We map observed agent interactions—such as API calls and data flows—to relevant policy controls in an interactive graph view.
                         </p>
                         <ul className="space-y-4 mb-8">
                             {[
-                                "Real-time Data Flow Analysis",
+                                "Near-real-time Interaction Mapping",
                                 "Policy Violation Highlighting",
-                                "Infrastructure Dependency Mapping"
+                                "Observed Dependency Visualization"
                             ].map((item, i) => (
                                 <li key={i} className="flex items-center gap-3 text-gray-300">
                                     <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center">
@@ -263,7 +267,7 @@ export default function LandingPage() {
                             <span>PolicyGuard AI</span>
                         </div>
                         <p className="text-gray-500 max-w-sm mb-8 text-sm leading-relaxed">
-                            The comprehensive governance platform for the next generation of autonomous AI agents. Secure, monitor, and deploy with absolute confidence.
+                            A policy-driven governance layer for agentic systems. Helping teams detect, assess, and mitigate risks across the AI lifecycle.
                         </p>
                         <div className="flex gap-4">
                             {[1, 2, 3, 4].map((_, i) => (

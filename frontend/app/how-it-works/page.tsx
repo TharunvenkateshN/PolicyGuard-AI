@@ -35,26 +35,26 @@ export default function HowItWorksPage() {
         },
         {
             id: "05",
-            title: "Workflow Analysis",
-            desc: "Map your agent's behavior, data flows, and decision points. We create a complete behavioral blueprint of your AI system.",
+            title: "Interaction Map",
+            desc: "Map observed agent interactions and behavioral patterns. We create an indicative map of your AI system's operational surface.",
             icon: GitBranch
         },
         {
             id: "06",
-            title: "Red Team Initialization",
-            desc: "Prepare our adversarial testing suite with OWASP Top 10 attack vectors, prompt injection patterns, and PII extraction techniques.",
+            title: "Scenario Preparation",
+            desc: "Prepare adversarial testing scenarios based on common risk patterns and policy requirements.",
             icon: Shield
         },
         {
             id: "07",
-            title: "Vulnerability Scanning",
-            desc: "Automated security testing against OWASP Top 10 for LLMs: prompt injection, insecure output handling, training data poisoning, and more.",
+            title: "Risk Scanning",
+            desc: "Automated scanning for policy-based risk patterns, including adversarial prompt types and data exposure indicators.",
             icon: Bug
         },
         {
             id: "08",
-            title: "Attack Simulation",
-            desc: "Our Red Team AI simulates real-world attacks: indirect prompt injection, PII mining, jailbreak attempts, and data exfiltration.",
+            title: "Adversarial Simulation",
+            desc: "Our Red Team modules simulate potential adversarial interactions to identify latent policy weaknesses.",
             icon: Crosshair
         },
         {
@@ -65,26 +65,26 @@ export default function HowItWorksPage() {
         },
         {
             id: "10",
-            title: "Auto-Remediation",
-            desc: "Generate production-ready guardrail code in Python/TypeScript. Automatically patch vulnerabilities with secure, tested implementations.",
+            title: "Remediation Guidance",
+            desc: "Produce policy-aligned guardrail snippets and integration templates to help mitigate identified risks.",
             icon: Wrench
         },
         {
             id: "11",
-            title: "Real-time Monitoring",
-            desc: "Deploy our PII detection proxy layer. Monitor every request/response in real-time, detecting SSN, credit cards, medical records, and more.",
+            title: "Operation Monitoring",
+            desc: "Observe telemetry for key risk indicators in real-time within the operational environment.",
             icon: Eye
         },
         {
             id: "12",
-            title: "Compliance Enforcement",
-            desc: "Block policy violations in <100ms. Prevent PII leaks, unauthorized data access, and compliance breaches before they happen.",
+            title: "Risk Containment",
+            desc: "Flag or manage policy violations as they surface. Help minimize exposure to non-compliant agent behavior.",
             icon: Lock
         },
         {
             id: "13",
-            title: "SLA Monitoring & Guarantees",
-            desc: "Track system performance with 99.9% uptime SLA. Monitor response times, throughput, and compliance check latency with real-time dashboards.",
+            title: "Performance & Stability Signals",
+            desc: "Observe system performance indicators, response times, and throughput via a centralized stability dashboard.",
             icon: TrendingUp
         },
         {
@@ -121,7 +121,7 @@ export default function HowItWorksPage() {
                         How PolicyGuard Works
                     </h1>
                     <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-                        A comprehensive 15-step process from policy upload to continuous protection
+                        A structured approach to assisting teams with AI risk management and lifecycle governance.
                     </p>
                 </div>
 
@@ -150,8 +150,8 @@ export default function HowItWorksPage() {
 
                 {/* CTA */}
                 <div className="mt-20 text-center border-t border-white/10 pt-12">
-                    <h2 className="text-2xl font-semibold mb-4">Ready to Secure Your AI?</h2>
-                    <p className="text-gray-400 mb-6">Start protecting your AI agents with PolicyGuard today.</p>
+                    <h2 className="text-2xl font-semibold mb-4">Ready to Govern Your AI?</h2>
+                    <p className="text-gray-400 mb-6">Start improving your AI lifecycle management with PolicyGuard today.</p>
                     <Button
                         onClick={() => router.push('/signup')}
                         className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-base rounded-lg"
