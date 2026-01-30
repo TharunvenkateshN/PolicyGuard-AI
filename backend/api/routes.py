@@ -273,6 +273,16 @@ async def simulate_threat(request: WorkflowRequest):
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.post("/redteam/attack")
+async def redteam_attack(request: dict = Body(...)):
+    system_spec = request.get("system_spec", {})
+    policy_matrix = request.get("policy_matrix", [])
+    
+    return StreamingResponse(
+        gemini.generate_redteam_attack_stream(system_spec, policy_matrix),
+        media_type="text/event-stream"
+    )
+
 @router.post("/analyze-workflow-doc")
 async def analyze_workflow_doc(file: UploadFile = File(...)):
     try:

@@ -1,10 +1,10 @@
 {
   "policies": [
     {
-      "id": "48df3855-cfd4-42e9-a853-cabea40ed47f",
-      "name": "sample_policy2.txt",
-      "content": "# HEALTHCARE DATA PRIVACY & AI ETHICS POLICY\r\n\r\n## 1. Purpose\r\nTo ensure the security, privacy, and ethical handling of Protected Health Information (PHI) within all AI-driven services.\r\n\r\n## 2. Data Handling Requirements\r\n2.1. **Zero Retention of PII**: AI systems must NOT retain any personally identifiable information (PII) or PHI in logs, caches, or training datasets.\r\n2.2. **Encryption**: All patient data must be encrypted at rest and in transit (AES-256).\r\n2.3. **Data Residency**: All patient data must remain within the primary jurisdiction (e.g., EU or US) and never be transferred to valid third-party regions without explicit consent.\r\n\r\n## 3. AI Behavior Guidelines\r\n3.1. **No Medical Advice**: AI Agents are strictly prohibited from providing definitive medical diagnoses or treatment plans. They must disclaim their nature as non-human assistants.\r\n3.2. **Escalation**: Any query indicating an emergency or complex medical condition must be immediately escalated to a human professional.\r\n3.3. **Bias Prevention**: AI models must be regularly consolidated to ensure no racial, gender, or socioeconomic bias in output.\r\n\r\n## 4. Auditing\r\n4.1. All AI interactions must generate an anonymized audit trail for compliance review.\r\n4.2. Raw user prompts containing potential PHI must be sanitized before logging.\r\n",
-      "summary": "AI systems are prohibited from retaining PHI, transferring patient data, or providing definitive medical diagnoses or treatment plans.",
+      "id": "b5ed11ad-28fe-4cc9-b4b8-dc6a0b081f7b",
+      "name": "fin-bot policy.txt",
+      "content": "[\r\n    {\r\n        \"id\": \"fiduciary-duty-001\",\r\n        \"name\": \"Fiduciary Neutrality\",\r\n        \"description\": \"AI must not recommend specific stocks or cryptocurrencies to avoid unlicensed financial advice liability.\",\r\n        \"is_active\": true,\r\n        \"severity\": \"CRITICAL\"\r\n    },\r\n    {\r\n        \"id\": \"risk-transparency-002\",\r\n        \"name\": \"Risk Transparency\",\r\n        \"description\": \"Any discussion of investment must include a mandatory disclaimer that past performance does not guarantee future results.\",\r\n        \"is_active\": true,\r\n        \"severity\": \"HIGH\"\r\n    },\r\n    {\r\n        \"id\": \"crypto-block-003\",\r\n        \"name\": \"Crypto Recommendation Guard\",\r\n        \"description\": \"Strict prohibition on promising 'risk-free' or 'guaranteed' returns on volatile assets like Bitcoin or ETH.\",\r\n        \"is_active\": true,\r\n        \"severity\": \"CRITICAL\"\r\n    }\r\n]",
+      "summary": "AI cannot recommend specific investments or guarantee returns on volatile assets.",
       "is_active": true,
       "status": "Active",
       "version": "1.0.0",
