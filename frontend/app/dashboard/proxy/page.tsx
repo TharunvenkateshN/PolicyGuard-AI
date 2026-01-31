@@ -686,9 +686,13 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                         </div>
                                         <div>
                                             <div className="text-[10px] text-gray-400 uppercase font-bold tracking-tight">Proxy Health</div>
-                                            <div className="text-lg font-black text-green-500 flex items-center gap-1.5">
-                                                <div className="w-2 h-2 rounded-full bg-green-500 animate-ping" />
-                                                DELEGATED
+                                            <div className={`text-lg font-black flex items-center gap-1.5 ${gatekeeperStats?.sla_status === 'healthy' ? 'text-green-500' :
+                                                    gatekeeperStats?.sla_status === 'at_risk' ? 'text-yellow-500' : 'text-red-500'
+                                                }`}>
+                                                <div className={`w-2 h-2 rounded-full animate-ping ${gatekeeperStats?.sla_status === 'healthy' ? 'bg-green-500' :
+                                                        gatekeeperStats?.sla_status === 'at_risk' ? 'bg-yellow-500' : 'bg-red-500'
+                                                    }`} />
+                                                {gatekeeperStats?.sla_status ? gatekeeperStats.sla_status.toUpperCase() : 'CONNECTING...'}
                                             </div>
                                         </div>
                                     </Card>
@@ -733,7 +737,7 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                         <div>
                                             <div className="text-[10px] text-gray-400 uppercase font-bold tracking-tight">Blocked Prompts</div>
                                             <div className="text-2xl font-black text-red-600">
-                                                {(gatekeeperStats?.pii_blocks || 0) + (gatekeeperStats?.policy_violations || 0)}
+                                                {gatekeeperStats?.pg_blocks || 0}
                                             </div>
                                         </div>
                                     </Card>

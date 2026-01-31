@@ -1,0 +1,31 @@
+
+[ERROR] 'MetricsStore' object has no attribute '_firestore'
+Traceback (most recent call last):
+  File "C:\Users\tharu\hackathons\PolicyGuard-AI\backend\api\proxy.py", line 35, in gemini_proxy
+    metrics_store.record_audit_log(f"Interception Active: Auditing {model_name} payload", status="INFO")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tharu\hackathons\PolicyGuard-AI\backend\services\metrics.py", line 88, in record_audit_log
+    if self._firestore:
+       ^^^^^^^^^^^^^^^
+AttributeError: 'MetricsStore' object has no attribute '_firestore'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\tharu\hackathons\PolicyGuard-AI\backend\api\proxy.py", line 37, in gemini_proxy
+    metrics_store.record_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        duration_ms=(time.time() - start_time) * 1000,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        status_code=400,
+        ^^^^^^^^^^^^^^^^
+        endpoint=f"/v1beta/models/{model_name}:generateContent"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\tharu\hackathons\PolicyGuard-AI\backend\services\metrics.py", line 64, in record_request
+    if self._firestore:
+       ^^^^^^^^^^^^^^^
+AttributeError: 'MetricsStore' object has no attribute '_firestore'
+
+==================================================
