@@ -55,13 +55,13 @@ export default function MonitorPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500 max-w-[1600px] mx-auto pb-20">
-            <div className="flex justify-between items-center bg-white dark:bg-zinc-900 p-8 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-sm">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white dark:bg-zinc-900 p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-sm gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-                        <Shield className="h-10 w-10 text-indigo-500" />
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
+                        <Shield className="h-8 w-8 md:h-10 md:h-10 text-indigo-500" />
                         Safety Console (Stream 1)
                     </h1>
-                    <p className="text-muted-foreground mt-2 text-lg">
+                    <p className="text-muted-foreground mt-2 text-base md:text-lg">
                         Real-time audit logs of every prompt intercepted by PolicyGuard.
                     </p>
                 </div>
@@ -72,7 +72,7 @@ export default function MonitorPage() {
                 </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <Card className="border-indigo-100 dark:border-indigo-900/50">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-gray-500">Live Traces / Min</CardTitle>
@@ -101,7 +101,7 @@ export default function MonitorPage() {
                 </Card>
             </div>
 
-            <Card className="border-indigo-200 dark:border-indigo-900 shadow-sm">
+            <Card id="audit-log-stream" className="border-indigo-200 dark:border-indigo-900 shadow-sm">
                 <CardHeader className="bg-gray-50/50 dark:bg-zinc-900/50">
                     <CardTitle className="text-base font-semibold">Audit Log Stream</CardTitle>
                     <CardDescription>All authorized and blocked interactions.</CardDescription>

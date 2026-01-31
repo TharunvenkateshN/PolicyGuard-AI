@@ -90,6 +90,8 @@ export default function EvaluatePage() {
 
 
 
+    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
     const handleRunEvaluation = async () => {
         setEvaluationStatus('running');
         setComplianceReport(null);
@@ -97,41 +99,50 @@ export default function EvaluatePage() {
         // Reset Steps
         setTimelineSteps(prev => prev.map(s => ({ ...s, status: 'pending' as StepStatus })));
 
-        // Animate first few steps visually while we fetch
-        updateStepStatus(0, 'processing');
-
         try {
-            // 1. Fetch Policies (Verify context)
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
-            const policiesRes = await fetch(`${apiUrl}/api/v1/policies`);
-            const policies = await policiesRes.json();
-            updateStepStatus(0, 'completed');
 
-            // Dynamic Policy Count Update
+            // STEP 0: Policy Verification
+            updateStepStatus(0, 'processing');
+
+            // Parallel fetch and minimum wait for animation
+            const [policiesRes] = await Promise.all([
+                fetch(`${apiUrl}/api/v1/policies`),
+                sleep(1500) // Minimum 1.5s animation
+            ]);
+
+            const policies = await policiesRes.json();
+
+            // Update counts
             setTimelineSteps(prev => {
                 const newSteps = [...prev];
                 const activeCount = policies.filter((p: any) => p.is_active).length;
-                newSteps[0].description = `Loading ${activeCount} active policies`;
+                newSteps[0].description = `Verified ${activeCount} active policies`;
                 return newSteps;
             });
+            updateStepStatus(0, 'completed');
 
+            // STEP 1: Workflow Discovery
             updateStepStatus(1, 'processing');
-
-            // 2. Parse Intent
-            updateStepStatus(1, 'processing');
+            await sleep(2000); // Simulate parsing
             updateStepStatus(1, 'completed');
 
-            // 3. Simulate Traces
+            // STEP 2: Counterfactual Modeling
             updateStepStatus(2, 'processing');
+            await sleep(2000); // Simulate simulation
             updateStepStatus(2, 'completed');
+
+            // STEP 3: Semantic Risk Analysis (Real API Call)
             updateStepStatus(3, 'processing');
 
-            // 4. Call Real Evaluation API
-            const evalRes = await fetch(`${apiUrl}/api/v1/evaluate`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: "Workflow", description: JSON.stringify(workflowData, null, 2) })
-            });
+            const [evalRes] = await Promise.all([
+                fetch(`${apiUrl}/api/v1/evaluate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: "Workflow", description: JSON.stringify(workflowData, null, 2) })
+                }),
+                sleep(2500) // Minimum wait to ensure this step is seen clearly
+            ]);
 
             if (!evalRes.ok) {
                 const errorData = await evalRes.json();
@@ -139,20 +150,32 @@ export default function EvaluatePage() {
             }
 
             const result: ComplianceReport = await evalRes.json();
-
             updateStepStatus(3, 'completed');
-            updateStepStatus(4, 'processing');
 
-            // 5. Final Forensic Snapshot
+            // STEP 4: Forensic Snapshot
+            updateStepStatus(4, 'processing');
+            await sleep(1500); // Simulate hashing
             updateStepStatus(4, 'completed');
 
+            // Finalize
             setEvaluationStatus('done');
             setComplianceReport(result);
 
         } catch (error: any) {
             console.error(error);
             setEvaluationStatus('idle'); // Reset on error
-            toast.error(error.message || "Evaluation Failed: Possible Backend Connection Error");
+
+            // Check for quota error
+            if (error.message && error.message.includes('429')) {
+                toast.error("⚠️ Gemini API Quota Exceeded - Daily limit reached. The quota resets at midnight PT. Consider upgrading your API plan for production use.");
+            } else if (error.message && error.message.includes('RESOURCE_EXHAUSTED')) {
+                toast.error("⚠️ API Rate Limit Reached - Please wait a moment and try again. For higher limits, upgrade your Gemini API plan.");
+            } else {
+                toast.error(error.message || "Evaluation Failed: Possible Backend Connection Error");
+            }
+
+            // Reset all steps to pending
+            setTimelineSteps(prev => prev.map(s => ({ ...s, status: 'pending' as StepStatus })));
         }
     };
 
@@ -275,25 +298,25 @@ export default function EvaluatePage() {
 
             <div className="w-full">
                 <div className="mb-6">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 p-8 rounded-xl shadow-sm">
-                        <div className="flex items-center justify-between gap-8 flex-wrap lg:flex-nowrap">
-                            <div className="flex items-center gap-5 flex-1 min-w-0">
-                                <div className="p-4 bg-blue-600 rounded-xl shadow-md flex-shrink-0">
-                                    <Shield className="w-8 h-8 text-white" />
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-900/50 dark:to-indigo-900/20 border border-slate-200 dark:border-slate-800 p-4 md:p-8 rounded-xl shadow-sm backdrop-blur-sm">
+                        <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-6">
+                            <div className="flex items-start gap-4 flex-1">
+                                <div className="p-3 md:p-4 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg ring-1 ring-white/20 flex-shrink-0">
+                                    <Shield className="w-6 h-6 md:w-8 md:h-8 text-white" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 mb-3">
+                                    <h3 className="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-50 mb-2 md:mb-3 leading-tight">
                                         Fiduciary Shield: High-Context Policy Reasoning
                                     </h3>
-                                    <div className="flex flex-wrap items-center gap-3 mb-3">
-                                        <Badge variant="outline" className="text-sm bg-white/80 dark:bg-zinc-900/80 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300">
-                                            Gemini 1.5 Pro
+                                    <div className="flex flex-wrap items-center gap-2 mb-2 md:mb-3">
+                                        <Badge variant="outline" className="text-xs md:text-sm bg-white/80 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 text-blue-700 dark:text-blue-300">
+                                            Gemini 3
                                         </Badge>
-                                        <Badge className="text-sm bg-blue-600 hover:bg-blue-700 text-white">
+                                        <Badge className="text-xs md:text-sm bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-md shadow-blue-500/30">
                                             ADVANCED_MODE
                                         </Badge>
                                     </div>
-                                    <p className="text-base text-blue-700 dark:text-blue-300">
+                                    <p className="text-sm md:text-base text-slate-600 dark:text-slate-400">
                                         Active Reasoning on policy edge cases
                                     </p>
                                 </div>
@@ -303,9 +326,9 @@ export default function EvaluatePage() {
                                 onClick={handleRunEvaluation}
                                 disabled={evaluationStatus === 'running'}
                                 size="lg"
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all flex-shrink-0"
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 md:px-8 py-4 md:py-6 text-sm md:text-base font-semibold shadow-lg hover:shadow-xl transition-all w-full lg:w-auto flex-shrink-0"
                             >
-                                <Play className="w-5 h-5 mr-2" />
+                                <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
                                 {evaluationStatus === 'running' ? 'Analyzing...' : 'Start Audit'}
                             </Button>
                         </div>
@@ -318,10 +341,11 @@ export default function EvaluatePage() {
                 </div>
 
                 {/* Workflow Input: Full Width */}
+                {/* Workflow Input: Full Width */}
                 <div className="mb-8">
-                    <div className="p-8 bg-white dark:bg-zinc-900 rounded-2xl border-2 border-gray-100 dark:border-zinc-800 shadow-xl shadow-blue-500/5">
+                    <div className="p-8 bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/20 backdrop-blur-sm">
                         <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-xl font-bold text-foreground">Workflow Specification</h3>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50">Workflow Specification</h3>
                             <div className="flex items-center gap-4">
                                 {evaluationStatus === 'done' && (
                                     <Button
@@ -349,9 +373,9 @@ export default function EvaluatePage() {
 
                         {/* File Upload Zone */}
                         {isAutoGenerateOn && (
-                            <div className="mb-6 p-6 border-2 border-dashed border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center transition-all">
+                            <div className="mb-6 p-6 border-2 border-dashed border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl text-center transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20">
                                 <div className="flex flex-col items-center gap-2">
-                                    <div className="p-3 bg-white dark:bg-zinc-800 rounded-full shadow-sm">
+                                    <div className="p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm">
                                         <FileIcon className="w-6 h-6 text-blue-500" />
                                     </div>
                                     <div className="font-medium text-blue-900 dark:text-blue-200">
@@ -370,7 +394,7 @@ export default function EvaluatePage() {
                                                 onChange={handleFileUpload}
                                             />
                                             <label htmlFor="doc-upload">
-                                                <Button size="sm" variant="secondary" className="cursor-pointer" asChild>
+                                                <Button id="eval-upload-btn" size="sm" variant="secondary" className="cursor-pointer" asChild>
                                                     <span>Select File</span>
                                                 </Button>
                                             </label>
@@ -382,16 +406,16 @@ export default function EvaluatePage() {
 
                         <div className="space-y-6 h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                             {/* 1. AI System Intent */}
-                            <div className="space-y-4 p-5 border-2 border-gray-50/50 dark:border-zinc-800/50 rounded-xl bg-slate-50/30 dark:bg-zinc-950/50">
+                            <div className="space-y-4 p-5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/30 dark:bg-slate-900/30">
                                 <h4 className="font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2 uppercase tracking-tight text-xs">
-                                    <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-[10px] font-black">1</span>
+                                    <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-[10px] font-black">1</span>
                                     AI System Intent
                                 </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label className="text-foreground font-semibold">Purpose</Label>
+                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold">Purpose</Label>
                                         <input
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            className="flex h-10 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                                             placeholder="e.g. Customer support chatbot"
                                             value={workflowData.intent.purpose}
                                             onChange={(e) => setWorkflowData(prev => ({ ...prev, intent: { ...prev.intent, purpose: e.target.value } }))}
@@ -410,15 +434,15 @@ export default function EvaluatePage() {
                             </div>
 
                             {/* 2. Data Interaction */}
-                            <div className="space-y-4 p-4 border rounded-md bg-gray-50 dark:bg-zinc-950">
-                                <h4 className="font-medium text-blue-600 flex items-center gap-2">
-                                    <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs">2</span>
+                            <div className="space-y-4 p-4 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/30 dark:bg-slate-900/30">
+                                <h4 className="font-medium text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                                    <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-xs">2</span>
                                     Data Interaction
                                 </h4>
                                 <div className="space-y-2">
-                                    <Label>Data Types & Sensitivity</Label>
+                                    <Label className="text-slate-700 dark:text-slate-300">Data Types & Sensitivity</Label>
                                     <textarea
-                                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="flex min-h-[80px] w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-sm ring-offset-background placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                                         placeholder="What data does it touch? (e.g. PII, Financial data, Health records)"
                                         value={workflowData.data.types}
                                         onChange={(e) => setWorkflowData(prev => ({ ...prev, data: { ...prev.data, types: e.target.value } }))}
@@ -427,15 +451,15 @@ export default function EvaluatePage() {
                             </div>
 
                             {/* 3. Decision & Output */}
-                            <div className="space-y-4 p-4 border rounded-md bg-gray-50 dark:bg-zinc-950">
-                                <h4 className="font-medium text-blue-600 flex items-center gap-2">
-                                    <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs">3</span>
+                            <div className="space-y-4 p-4 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/30 dark:bg-slate-900/30">
+                                <h4 className="font-medium text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                                    <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-xs">3</span>
                                     Decision & Output Behavior
                                 </h4>
                                 <div className="space-y-2">
-                                    <Label>Output Type & Impact</Label>
+                                    <Label className="text-slate-700 dark:text-slate-300">Output Type & Impact</Label>
                                     <textarea
-                                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="flex min-h-[80px] w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-sm ring-offset-background placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                                         placeholder="What does it output? (e.g. Financial advice, Loan approval decision)"
                                         value={workflowData.decision.output}
                                         onChange={(e) => setWorkflowData(prev => ({ ...prev, decision: { ...prev.decision, output: e.target.value } }))}
@@ -444,15 +468,15 @@ export default function EvaluatePage() {
                             </div>
 
                             {/* 4. Safeguards */}
-                            <div className="space-y-4 p-4 border rounded-md bg-gray-50 dark:bg-zinc-950">
-                                <h4 className="font-medium text-blue-600 flex items-center gap-2">
-                                    <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs">4</span>
+                            <div className="space-y-4 p-4 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/30 dark:bg-slate-900/30">
+                                <h4 className="font-medium text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                                    <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-xs">4</span>
                                     Existing Safeguards
                                 </h4>
                                 <div className="space-y-2">
-                                    <Label>Controls</Label>
+                                    <Label className="text-slate-700 dark:text-slate-300">Controls</Label>
                                     <input
-                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="flex h-10 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                                         placeholder="e.g. Content filtering, Human-in-the-loop"
                                         value={workflowData.safeguards.controls}
                                         onChange={(e) => setWorkflowData(prev => ({ ...prev, safeguards: { ...prev.safeguards, controls: e.target.value } }))}
@@ -494,7 +518,7 @@ export default function EvaluatePage() {
                 {/* Reasoning Trace (when running) */}
                 {evaluationStatus === 'running' && (
                     <div className="mb-8">
-                        <div className="p-4 bg-zinc-900 rounded-lg border border-zinc-800 font-mono text-[10px] space-y-2 text-cyan-500 overflow-hidden shadow-2xl">
+                        <div className="p-4 bg-slate-950 rounded-lg border border-slate-800 font-mono text-[10px] space-y-2 text-cyan-400 overflow-hidden shadow-2xl">
                             <div className="flex items-center gap-2 border-b border-zinc-800 pb-2 mb-2">
                                 <Terminal className="w-3 h-3" />
                                 <span className="uppercase tracking-widest font-bold">Reasoning_Trace_v2</span>
@@ -513,22 +537,21 @@ export default function EvaluatePage() {
                 {/* Bottom Row: Full Width Results */}
                 {evaluationStatus === 'done' && complianceReport && (
                     <div ref={resultsRef} className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-full">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-6">
+                            <h2 className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
                                 Compliance Evaluation Results
                             </h2>
-                            <div className="flex gap-2">
-                                <Button variant="outline" size="sm" onClick={handleNewAudit} className="border-gray-200 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-zinc-800">
-                                    Start New Audit
+                            <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+                                <Button variant="outline" size="sm" onClick={handleNewAudit} className="flex-1 lg:flex-none border-slate-200 hover:bg-slate-100 dark:border-slate-800 dark:hover:bg-slate-800 dark:text-slate-300">
+                                    New Audit
                                 </Button>
-                                <Button variant="outline" size="sm" onClick={handleExportPDF} className="border-gray-200 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-zinc-800">
-                                    <FileIcon className="mr-2 h-4 w-4" /> Download Certificate
+                                <Button variant="outline" size="sm" onClick={handleExportPDF} className="flex-1 lg:flex-none border-slate-200 hover:bg-slate-100 dark:border-slate-800 dark:hover:bg-slate-800 dark:text-slate-300">
+                                    <FileIcon className="mr-2 h-4 w-4" /> Certificate
                                 </Button>
                                 <Button
                                     size="sm"
-                                    className="bg-red-600 hover:bg-red-700 text-white shadow-lg font-semibold"
+                                    className="flex-1 lg:flex-none bg-red-600 hover:bg-red-700 text-white shadow-lg font-semibold"
                                     onClick={() => {
-                                        // Save context for Red Team Page
                                         const context = {
                                             report: complianceReport,
                                             timestamp: Date.now()
@@ -538,13 +561,12 @@ export default function EvaluatePage() {
                                     }}
                                 >
                                     <Flame className="w-4 h-4 mr-2" />
-                                    Run Red Team Attack
+                                    Red Team
                                 </Button>
                                 <Button
                                     size="sm"
-                                    className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg font-semibold"
+                                    className="flex-1 lg:flex-none bg-purple-600 hover:bg-purple-700 text-white shadow-lg font-semibold"
                                     onClick={() => {
-                                        // Save context for Remediation Page
                                         const context = {
                                             violations: complianceReport.policy_matrix
                                                 .map((p: any) => ({
@@ -562,7 +584,7 @@ export default function EvaluatePage() {
                                     }}
                                 >
                                     <Wrench className="w-4 h-4 mr-2" />
-                                    Auto-Remediate
+                                    Remediate
                                 </Button>
                             </div>
                         </div>
@@ -581,7 +603,7 @@ export default function EvaluatePage() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-[9999] bg-white/30 dark:bg-zinc-950/40 backdrop-blur-sm flex flex-col items-center justify-center p-4"
+                            className="fixed inset-0 z-[9999] bg-white/70 dark:bg-slate-950/70 backdrop-blur-md flex flex-col items-center justify-center p-4"
                         >
                             {(() => {
                                 const activeStep = timelineSteps.find(s => s.status === 'processing') || timelineSteps.find(s => s.status === 'pending') || timelineSteps[timelineSteps.length - 1];
@@ -607,15 +629,15 @@ export default function EvaluatePage() {
                                             transition={{ duration: 0.4, ease: "easeInOut" }}
                                             className="flex flex-col items-center text-center space-y-6"
                                         >
-                                            <div className="p-8 bg-white dark:bg-zinc-900 rounded-full shadow-2xl border border-gray-100 dark:border-zinc-800 relative">
-                                                <div className="absolute inset-0 rounded-full border-4 border-blue-500/20 border-t-blue-500 animate-spin" />
+                                            <div className="p-8 bg-white dark:bg-slate-900 rounded-full shadow-2xl border border-slate-100 dark:border-slate-800 relative z-10">
+                                                <div className="absolute inset-0 rounded-full border-4 border-blue-500/10 border-t-blue-500 animate-spin" />
                                                 {getIcon(activeStep?.id || '')}
                                             </div>
-                                            <div className="space-y-2">
-                                                <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                                            <div className="space-y-3 z-10">
+                                                <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                                                     {activeStep?.label}
                                                 </h2>
-                                                <p className="text-lg text-gray-500 dark:text-gray-400 max-w-md">
+                                                <p className="text-lg text-slate-500 dark:text-slate-400 max-w-md">
                                                     {activeStep?.description}
                                                 </p>
                                             </div>

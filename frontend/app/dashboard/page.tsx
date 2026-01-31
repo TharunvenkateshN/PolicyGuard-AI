@@ -28,6 +28,7 @@ interface DashboardStats {
     risk_score: number;
     recent_evaluations: any[];
     recent_traces: any[];
+    pg_passed?: number;
 }
 
 interface Policy {
@@ -239,57 +240,60 @@ export default function OverviewPage() {
 
     // --- THEME & LAYOUT COLORS ---
     const theme = {
-        bg: "bg-gray-50/50 dark:bg-zinc-900/50",
-        card: "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800",
-        cardHeader: "border-b border-gray-100 dark:border-zinc-800 bg-gray-50/30 dark:bg-zinc-900/30",
+        bg: "bg-slate-50/50 dark:bg-slate-950/50",
+        card: "bg-white dark:bg-slate-900/60 border-slate-200 dark:border-slate-800/60",
+        cardHeader: "border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20",
         text: {
-            primary: "text-gray-900 dark:text-gray-100",
-            secondary: "text-gray-500 dark:text-gray-400",
-            muted: "text-gray-400 dark:text-gray-600"
+            primary: "text-slate-900 dark:text-slate-50",
+            secondary: "text-slate-500 dark:text-slate-400",
+            muted: "text-slate-400 dark:text-slate-500"
         }
     };
 
     const getHealthColor = (score: number) => {
-        if (score >= 95) return "text-green-500";
-        if (score >= 80) return "text-yellow-500";
-        return "text-red-500";
+        if (score >= 95) return "text-emerald-500 dark:text-emerald-400";
+        if (score >= 80) return "text-amber-500 dark:text-amber-400";
+        return "text-red-500 dark:text-red-400";
     };
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500 pb-24 max-w-[1600px] mx-auto">
 
             {/* TOP BAR: UNIFIED HEADER & TOGGLE */}
-            <div className={`p-1.5 rounded-2xl border shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 ${theme.card} sticky top-0 z-20 backdrop-blur-xl bg-opacity-80 dark:bg-opacity-80`}>
+            <div className={`p-2 rounded-2xl border shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 ${theme.card} sticky top-0 z-20 backdrop-blur-xl bg-opacity-90 dark:bg-opacity-80 transition-all`}>
 
                 <div className="flex items-center gap-4 px-4 py-2">
-                    <div className={`p-2.5 rounded-xl shadow-sm ${viewMode === 'ciso' ? 'bg-blue-600' : 'bg-indigo-600'} text-white`}>
+                    <div className={`p-3 rounded-xl shadow-lg ${viewMode === 'ciso' ? 'bg-gradient-to-br from-blue-600 to-indigo-600' : 'bg-gradient-to-br from-indigo-600 to-purple-600'} text-white ring-1 ring-white/10`}>
                         {viewMode === 'ciso' ? <ShieldCheck className="w-6 h-6" /> : <Activity className="w-6 h-6" />}
                     </div>
                     <div>
-                        <h1 className={`text-xl font-bold tracking-tight ${theme.text.primary}`}>
+                        <h1 id="dashboard-title" className={`text-2xl font-bold tracking-tight ${theme.text.primary}`}>
                             {viewMode === 'ciso' ? 'Compliance Command Center' : 'Reliability Console'}
                         </h1>
-                        <p className={`text-xs ${theme.text.secondary} font-medium`}>
+                        <p className={`text-sm ${theme.text.secondary} font-medium flex items-center gap-2`}>
                             {viewMode === 'ciso' ? 'Stream 1: Risk Management & Audit' : 'Stream 2: SRE & Performance Monitoring'}
+                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         </p>
                     </div>
                 </div>
 
-                <div className="bg-gray-100 dark:bg-zinc-800 p-1 rounded-xl flex">
+                <div className="bg-slate-100 dark:bg-slate-950 p-1.5 rounded-xl flex border border-slate-200 dark:border-slate-800">
                     <button
+                        id="ciso-view-toggle"
                         onClick={() => setViewMode('ciso')}
-                        className={`px-5 py-2 rounded-[10px] text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${viewMode === 'ciso'
-                            ? 'bg-white dark:bg-zinc-900 text-blue-600 shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                        className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${viewMode === 'ciso'
+                            ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm ring-1 ring-black/5 dark:ring-white/10'
+                            : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                             }`}
                     >
                         <Scale className="w-4 h-4" /> CISO View
                     </button>
                     <button
+                        id="sre-view-toggle"
                         onClick={() => setViewMode('sre')}
-                        className={`px-5 py-2 rounded-[10px] text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${viewMode === 'sre'
-                            ? 'bg-white dark:bg-zinc-900 text-indigo-600 shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                        className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${viewMode === 'sre'
+                            ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-black/5 dark:ring-white/10'
+                            : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                             }`}
                     >
                         <Terminal className="w-4 h-4" /> SRE View
@@ -302,8 +306,8 @@ export default function OverviewPage() {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 animate-in slide-in-from-bottom-2 duration-300">
 
                     {/* A. KPI CARDS ROW (Top) */}
-                    <div className="md:col-span-3">
-                        <Card className={`${theme.card} relative overflow-hidden border-none shadow-md bg-gradient-to-br from-blue-600 to-indigo-600 text-white h-full`}>
+                    <div className="md:col-span-12 lg:col-span-3">
+                        <Card id="compliance-score-card" className={`${theme.card} relative overflow-hidden border-none shadow-md bg-gradient-to-br from-blue-600 to-indigo-600 text-white h-full`}>
                             <div className="absolute -right-6 -top-6 text-white/10"><ShieldCheck className="w-32 h-32" /></div>
                             <CardContent className="p-6 flex flex-col justify-between h-full relative z-10">
                                 <div>
@@ -317,11 +321,11 @@ export default function OverviewPage() {
                         </Card>
                     </div>
 
-                    <div className="md:col-span-9 grid grid-cols-3 gap-6">
+                    <div id="compliance-stats-grid" className="md:col-span-12 lg:col-span-9 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                         <Card className={`${theme.card} shadow-sm border-l-4 border-l-blue-500`}>
                             <CardContent className="p-5">
                                 <div className={`text-xs font-semibold uppercase tracking-wider ${theme.text.secondary} mb-2`}>Active Policies</div>
-                                <div className={`text-3xl font-bold ${theme.text.primary}`}>{policies.filter(p => p.is_active).length} <span className="text-lg text-gray-400 font-normal">/ {policies.length}</span></div>
+                                <div className={`text-3xl font-bold ${theme.text.primary}`}>{policies.filter(p => p.is_active).length} <span className={`text-lg font-normal ${theme.text.muted}`}>/ {policies.length}</span></div>
                             </CardContent>
                         </Card>
                         <Card className={`${theme.card} shadow-sm border-l-4 border-l-orange-500`}>
@@ -330,7 +334,7 @@ export default function OverviewPage() {
                                 <div className={`text-3xl font-bold ${theme.text.primary}`}>{stats.violations}</div>
                             </CardContent>
                         </Card>
-                        <Card className={`${theme.card} shadow-sm border-l-4 border-l-green-500`}>
+                        <Card className={`${theme.card} shadow-sm border-l-4 border-l-emerald-500`}>
                             <CardContent className="p-5">
                                 <div className={`text-xs font-semibold uppercase tracking-wider ${theme.text.secondary} mb-2`}>Audits Passed</div>
                                 <div className={`text-3xl font-bold ${theme.text.primary}`}>{stats.pg_passed !== undefined ? stats.pg_passed : (stats.traces_analyzed - stats.violations)}</div>
@@ -341,24 +345,24 @@ export default function OverviewPage() {
                     {/* B. MAIN CONTENT (Split 4/8) */}
 
                     {/* Left: Policy Insights */}
-                    <div className="md:col-span-4 flex flex-col gap-6">
+                    <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-6">
                         <Card className={`${theme.card} shadow-sm`}>
-                            <CardHeader className={theme.cardHeader}>
+                            <CardHeader id="coverage-map-card" className={theme.cardHeader}>
                                 <CardTitle className="text-base flex items-center gap-2"><Globe className="w-4 h-4 text-blue-500" /> Coverage Map</CardTitle>
                             </CardHeader>
                             <CardContent className="h-[300px]">
                                 {mounted ? (
                                     <ResponsiveContainer width="100%" height="100%" minWidth={200} minHeight={200}>
                                         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                                            <PolarGrid stroke="currentColor" className="text-gray-200 dark:text-zinc-700" />
-                                            <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10 }} stroke="currentColor" className="text-gray-500 dark:text-zinc-400" />
+                                            <PolarGrid stroke="currentColor" className="text-slate-200 dark:text-slate-700" />
+                                            <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10 }} stroke="currentColor" className="text-slate-500 dark:text-slate-400" />
                                             <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
                                             <Radar name="Coverage" dataKey="A" stroke="#2563eb" strokeWidth={2} fill="#3b82f6" fillOpacity={0.3} />
-                                            <Tooltip contentStyle={{ backgroundColor: '#18181b', color: '#fff', borderRadius: '8px', border: 'none', fontSize: '12px' }} />
+                                            <Tooltip contentStyle={{ backgroundColor: '#0f172a', color: '#f8fafc', borderRadius: '8px', border: '1px solid #1e293b', fontSize: '12px' }} />
                                         </RadarChart>
                                     </ResponsiveContainer>
                                 ) : (
-                                    <div className="h-full w-full flex items-center justify-center text-gray-400 text-xs">Loading Chart...</div>
+                                    <div className={`h-full w-full flex items-center justify-center text-xs ${theme.text.muted}`}>Loading Chart...</div>
                                 )}
                             </CardContent>
                         </Card>
@@ -372,24 +376,24 @@ export default function OverviewPage() {
                                     <div key={i}>
                                         <div className="flex justify-between text-xs mb-1">
                                             <span className={`font-medium ${theme.text.primary} truncate max-w-[150px]`}>{d.name}</span>
-                                            <span className="text-gray-500">{d.blocks} blocked / {d.scans} scans</span>
+                                            <span className={theme.text.secondary}>{d.blocks} blocked / {d.scans} scans</span>
                                         </div>
-                                        <div className="h-2 w-full bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                        <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                             <div
                                                 className={`h-full rounded-full ${Number(d.rate) > 5 ? 'bg-red-500' : 'bg-blue-500'}`}
                                                 style={{ width: `${Math.min(100, (d.blocks / d.scans) * 500)}%` }} // Exaggerated scale for visibility
                                             />
                                         </div>
-                                        <div className="text-[10px] text-right text-gray-400 mt-0.5">{d.rate}% detection rate</div>
+                                        <div className={`text-[10px] text-right mt-0.5 ${theme.text.muted}`}>{d.rate}% detection rate</div>
                                     </div>
                                 ))}
-                                {efficacyData.length === 0 && <div className="text-center text-gray-500 text-xs py-4">No data available.</div>}
+                                {efficacyData.length === 0 && <div className={`text-center text-xs py-4 ${theme.text.muted}`}>No data available.</div>}
                             </CardContent>
                         </Card>
                     </div>
 
                     {/* Right: Feed */}
-                    <div className="md:col-span-8">
+                    <div className="md:col-span-12 lg:col-span-8">
                         <Card className={`${theme.card} h-full shadow-sm flex flex-col`}>
                             <CardHeader className={`${theme.cardHeader} flex flex-row items-center justify-between py-4`}>
                                 <div className="flex items-center gap-2">
@@ -402,11 +406,11 @@ export default function OverviewPage() {
                                 </div>
                             </CardHeader>
                             <CardContent className="p-0 flex-1 overflow-hidden relative min-h-[500px]">
-                                <div className="absolute inset-0 overflow-y-auto divide-y divide-gray-100 dark:divide-zinc-800">
+                                <div className="absolute inset-0 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
                                     {logs.map((item, idx) => (
-                                        <div key={idx} className="p-4 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors flex items-start gap-4 group">
+                                        <div key={idx} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-start gap-4 group">
                                             <div className={`mt-1 h-8 w-8 rounded-full flex items-center justify-center shrink-0 border ${item.level !== 'ERROR'
-                                                ? 'bg-green-50/50 border-green-200 text-green-600 dark:bg-green-900/20 dark:border-green-900/30'
+                                                ? 'bg-emerald-50/50 border-emerald-200 text-emerald-600 dark:bg-emerald-900/20 dark:border-emerald-900/30'
                                                 : 'bg-red-50/50 border-red-200 text-red-600 dark:bg-red-900/20 dark:border-red-900/30'
                                                 }`}>
                                                 {item.level !== 'ERROR' ? <CheckCircle2 className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
@@ -414,7 +418,7 @@ export default function OverviewPage() {
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between mb-0.5">
                                                     <div className="flex items-center gap-2">
-                                                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold tracking-tighter ${item.service === 'Proxy' ? 'bg-indigo-100 text-indigo-600' : 'bg-purple-100 text-purple-600'
+                                                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tracking-tighter ${item.service === 'Proxy' ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
                                                             }`}>
                                                             {item.service}
                                                         </span>
@@ -422,9 +426,9 @@ export default function OverviewPage() {
                                                             {item.message}
                                                         </p>
                                                     </div>
-                                                    <span className="text-[10px] text-gray-400 font-mono">{item.timestamp.includes('T') ? new Date(item.timestamp).toLocaleTimeString() : item.timestamp}</span>
+                                                    <span className={`text-[10px] font-mono ${theme.text.muted}`}>{item.timestamp.includes('T') ? new Date(item.timestamp).toLocaleTimeString() : item.timestamp}</span>
                                                 </div>
-                                                <p className="text-xs text-gray-500 line-clamp-1">
+                                                <p className={`text-xs line-clamp-1 ${theme.text.secondary}`}>
                                                     {item.level === 'INFO' ? 'Request validated and passed.' :
                                                         item.level === 'ERROR' ? 'Security Policy Violation: request blocked.' :
                                                             'Audit warning: potential compliance issue.'}
@@ -433,7 +437,7 @@ export default function OverviewPage() {
                                         </div>
                                     ))}
                                     {logs.length === 0 && (
-                                        <div className="flex flex-col items-center justify-center h-full text-gray-400 p-8">
+                                        <div className={`flex flex-col items-center justify-center h-full text-xs p-8 ${theme.text.muted}`}>
                                             <ShieldCheck className="w-8 h-8 mb-2 opacity-20" />
                                             <p>No audits recorded yet.</p>
                                         </div>
@@ -463,7 +467,7 @@ export default function OverviewPage() {
                                         <div className={`text-xs font-semibold uppercase tracking-wider ${theme.text.secondary} mb-1`}>{m.label}</div>
                                         <div className={`text-2xl font-bold ${m.color}`}>{m.val}</div>
                                     </div>
-                                    <div className={`p-2 rounded-lg bg-gray-50 dark:bg-zinc-800 ${theme.text.muted}`}>{m.icon}</div>
+                                    <div className={`p-2 rounded-lg bg-slate-100 dark:bg-slate-800 ${theme.text.muted}`}>{m.icon}</div>
                                 </div>
                             </CardContent>
                         </Card>
@@ -488,17 +492,17 @@ export default function OverviewPage() {
                                             <defs>
                                                 <linearGradient id="colorReq" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.1} /><stop offset="95%" stopColor="#6366f1" stopOpacity={0} /></linearGradient>
                                             </defs>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-gray-100 dark:text-zinc-800" />
-                                            <XAxis dataKey="time" tick={{ fontSize: 12 }} stroke="currentColor" className="text-gray-400" />
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-slate-800" />
+                                            <XAxis dataKey="time" tick={{ fontSize: 12 }} stroke="currentColor" className="text-slate-400" />
                                             <YAxis yAxisId="left" orientation="left" stroke="#6366f1" fontSize={11} tickLine={false} axisLine={false} />
                                             <YAxis yAxisId="right" orientation="right" stroke="#f59e0b" fontSize={11} tickLine={false} axisLine={false} />
-                                            <Tooltip contentStyle={{ backgroundColor: '#18181b', color: '#fff', borderRadius: '8px', border: 'none', fontSize: '12px' }} />
+                                            <Tooltip contentStyle={{ backgroundColor: '#0f172a', color: '#f8fafc', borderRadius: '8px', border: '1px solid #1e293b', fontSize: '12px' }} />
                                             <Area yAxisId="left" type="monotone" dataKey="requests" fill="url(#colorReq)" stroke="#6366f1" strokeWidth={2} />
                                             <Line yAxisId="right" type="monotone" dataKey="latency" stroke="#f59e0b" strokeWidth={2} dot={false} />
                                         </ComposedChart>
                                     </ResponsiveContainer>
                                 ) : (
-                                    <div className="h-full w-full flex items-center justify-center text-gray-400 text-xs">Loading Live Telemetry...</div>
+                                    <div className={`h-full w-full flex items-center justify-center text-xs ${theme.text.muted}`}>Loading Live Telemetry...</div>
                                 )}
                             </CardContent>
                         </Card>
@@ -540,7 +544,7 @@ export default function OverviewPage() {
                                 </div>
 
                                 {trafficFlow.length === 1 && (
-                                    <div className="text-center text-xs text-gray-400 mt-4 p-3 bg-gray-50 dark:bg-zinc-800/50 rounded-lg">
+                                    <div className={`text-center text-xs mt-4 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg ${theme.text.muted}`}>
                                         Run evaluations to see your AI system's architecture
                                     </div>
                                 )}
@@ -548,17 +552,17 @@ export default function OverviewPage() {
                         </Card>
 
                         {/* Live Terminal */}
-                        <Card className="flex flex-col h-[250px] bg-[#0c0c0c] border border-gray-800 shadow-xl overflow-hidden rounded-xl">
-                            <div className="bg-[#1f1f1f] border-b border-white/5 p-2 px-3 flex items-center justify-between">
-                                <div className="text-[10px] font-mono text-gray-400 flex items-center gap-2">
-                                    <Terminal className="w-3 h-3 text-green-500" /> bash --live
+                        <Card className="flex flex-col h-[250px] bg-[#0c0c0c] dark:bg-[#020617] border border-gray-800 dark:border-slate-800 shadow-xl overflow-hidden rounded-xl">
+                            <div className="bg-[#1f1f1f] dark:bg-[#0f172a] border-b border-white/5 p-2 px-3 flex items-center justify-between">
+                                <div className="text-[10px] font-mono text-gray-400 dark:text-slate-400 flex items-center gap-2">
+                                    <Terminal className="w-3 h-3 text-emerald-500" /> bash --live
                                 </div>
-                                <div className="flex gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500/20"></div><div className="w-2 h-2 rounded-full bg-yellow-500/20"></div><div className="w-2 h-2 rounded-full bg-green-500/20"></div></div>
+                                <div className="flex gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500/20"></div><div className="w-2 h-2 rounded-full bg-yellow-500/20"></div><div className="w-2 h-2 rounded-full bg-emerald-500/20"></div></div>
                             </div>
-                            <div className="flex-1 p-3 font-mono text-[10px] text-gray-300 overflow-y-auto space-y-1.5 custom-scrollbar" ref={logContainerRef}>
+                            <div className="flex-1 p-3 font-mono text-[10px] text-gray-300 dark:text-slate-300 overflow-y-auto space-y-1.5 custom-scrollbar" ref={logContainerRef}>
                                 {logs.map((log, i) => (
                                     <div key={i} className="flex gap-2">
-                                        <span className="text-gray-600 w-10 shrink-0">{log.timestamp.split('T')[1]?.split('.')[0]}</span>
+                                        <span className="text-gray-600 dark:text-slate-600 w-10 shrink-0">{log.timestamp.split('T')[1]?.split('.')[0]}</span>
                                         <span className={log.level === 'ERROR' ? 'text-red-400' : log.level === 'WARN' ? 'text-yellow-400' : 'text-green-400'}>{log.level}</span>
                                         <span className="break-all opacity-80">{log.message}</span>
                                     </div>

@@ -18,7 +18,7 @@ const navItems = [
     { name: 'Remediate', href: '/dashboard/remediate', icon: Wrench },
     { name: 'Red Team', href: '/dashboard/redteam', icon: Flame },
     { name: 'Monitor', href: '/dashboard/monitor', icon: BarChart3 },
-    { name: 'SLA Designer', href: '/dashboard/sla', icon: Zap },
+    { name: 'SLA Monitoring', href: '/dashboard/sla', icon: Zap },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 

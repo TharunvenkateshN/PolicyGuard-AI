@@ -154,18 +154,18 @@ export default function RedTeamPage() {
 
     if (isLocked) {
         return (
-            <div className="max-w-6xl mx-auto min-h-[600px] flex flex-col items-center justify-center space-y-8 p-8 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-gray-50 dark:bg-zinc-950/50 mt-8 relative overflow-hidden shadow-sm dark:shadow-none">
+            <div className="max-w-6xl mx-auto min-h-[600px] flex flex-col items-center justify-center space-y-8 p-8 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950/50 mt-8 relative overflow-hidden shadow-sm dark:shadow-none">
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-0 bg-[length:100%_2px,3px_100%] opacity-10 dark:opacity-20 pointer-events-none" />
 
                 <div className="relative z-10">
                     <div className="absolute inset-0 bg-red-500/10 dark:bg-red-500/20 blur-xl rounded-full animate-pulse" />
-                    <ShieldAlert className="w-24 h-24 text-zinc-400 dark:text-zinc-700 relative z-10" />
-                    <Lock className="w-8 h-8 text-red-500 absolute bottom-0 right-0 z-20 bg-white dark:bg-zinc-950 rounded-full p-2 border border-zinc-200 dark:border-zinc-800 box-content shadow-lg" />
+                    <ShieldAlert className="w-24 h-24 text-slate-400 dark:text-slate-700 relative z-10" />
+                    <Lock className="w-8 h-8 text-red-500 absolute bottom-0 right-0 z-20 bg-white dark:bg-slate-950 rounded-full p-2 border border-slate-200 dark:border-slate-800 box-content shadow-lg" />
                 </div>
 
                 <div className="text-center max-w-lg space-y-4 relative z-10">
-                    <h2 className="text-3xl font-bold text-zinc-900 dark:text-zinc-200 tracking-tight">Mission Locked</h2>
-                    <p className="text-zinc-600 dark:text-zinc-500 leading-relaxed">
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-200 tracking-tight">Mission Locked</h2>
+                    <p className="text-slate-600 dark:text-slate-500 leading-relaxed">
                         Adversarial simulations require a finalized Compliance Audit to generate a valid attack surface.
                         No target profile designated.
                     </p>
@@ -173,7 +173,7 @@ export default function RedTeamPage() {
 
                 <Button
                     onClick={() => router.push('/dashboard/evaluate')}
-                    className="relative z-10 bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 font-bold px-8 py-6 rounded-full shadow-xl transition-transform hover:scale-105"
+                    className="relative z-10 bg-slate-900 dark:bg-white text-white dark:text-black hover:bg-slate-800 dark:hover:bg-slate-200 font-bold px-8 py-6 rounded-full shadow-xl transition-transform hover:scale-105"
                 >
                     <TargetIcon className="w-5 h-5 mr-2" />
                     Initialize Compliance Audit
@@ -184,19 +184,19 @@ export default function RedTeamPage() {
 
     return (
         <div className="container mx-auto p-6 max-w-7xl animate-in fade-in duration-500">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold flex items-center gap-3">
+                    <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
                         <Flame className="w-8 h-8 text-red-600" />
-                        Red Team Adversarial Lab
+                        Red Team Lab
                     </h1>
-                    <p className="text-zinc-500 mt-1">Stress-test your AI with automated attack vectors</p>
+                    <p className="text-zinc-500 mt-1 text-sm md:text-base">Stress-test your AI with automated attack vectors</p>
                 </div>
                 {redTeamStatus === 'done' && (
                     <Button
                         onClick={() => setIsThreatModalOpen(true)}
                         variant="outline"
-                        className="border-red-500/50 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                        className="w-full md:w-auto border-red-500/50 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
                     >
                         <Activity className="w-4 h-4 mr-2" /> View Threat Profile
                     </Button>
@@ -218,9 +218,9 @@ export default function RedTeamPage() {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-zinc-950 border border-red-500/30 rounded-xl shadow-2xl max-w-2xl w-full overflow-hidden"
+                            className="bg-zinc-950 border border-red-500/30 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden"
                         >
-                            <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
+                            <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50 shrink-0">
                                 <h3 className="font-bold text-xl text-red-400 flex items-center gap-2">
                                     <AlertTriangle className="w-5 h-5" />
                                     Threat Profile Analysis
@@ -230,12 +230,12 @@ export default function RedTeamPage() {
                                 </button>
                             </div>
 
-                            <div className="p-8 space-y-8">
+                            <div className="p-8 space-y-8 overflow-y-auto flex-1 custom-scrollbar">
                                 {/* Score */}
                                 <div className="flex flex-col items-center">
                                     <div className="relative w-40 h-40 flex items-center justify-center">
                                         <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
-                                            <circle className="text-zinc-800" strokeWidth="8" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" />
+                                            <circle className="text-slate-800" strokeWidth="8" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" />
                                             <circle
                                                 className={`${redTeamReport.overall_resilience_score < 50 ? 'text-red-500' : 'text-yellow-500'}`}
                                                 strokeWidth="8"
@@ -253,19 +253,19 @@ export default function RedTeamPage() {
                                             <div className={`text-4xl font-bold ${redTeamReport.overall_resilience_score < 50 ? 'text-red-500' : 'text-yellow-500'}`}>
                                                 {redTeamReport.overall_resilience_score}
                                             </div>
-                                            <div className="text-xs text-zinc-500 uppercase tracking-widest mt-1">Resilience</div>
+                                            <div className="text-xs text-slate-500 uppercase tracking-widest mt-1">Resilience</div>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Details */}
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
-                                        <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2">Vectors Detected</div>
+                                    <div className="p-4 bg-slate-900/50 rounded-lg border border-slate-800">
+                                        <div className="text-slate-500 text-xs uppercase tracking-wider mb-2">Vectors Detected</div>
                                         <div className="text-2xl font-mono text-white">{redTeamReport.attack_vectors?.length || 0}</div>
                                     </div>
-                                    <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
-                                        <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2">Target Status</div>
+                                    <div className="p-4 bg-slate-900/50 rounded-lg border border-slate-800">
+                                        <div className="text-slate-500 text-xs uppercase tracking-wider mb-2">Target Status</div>
                                         <div className="text-2xl font-mono text-red-400">
                                             {(redTeamReport.overall_resilience_score < 40) ? 'COMPROMISED' :
                                                 (redTeamReport.overall_resilience_score < 70) ? 'AT_RISK' : 'SECURE'}
@@ -282,45 +282,7 @@ export default function RedTeamPage() {
                                     </div>
                                 )}
 
-                                <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                                    <h4 className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                                        <TargetIcon className="w-4 h-4 text-red-500" />
-                                        Advanced Attack Vectors
-                                    </h4>
-                                    {redTeamReport.attack_vectors?.map((vector, i) => (
-                                        <div key={i} className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 space-y-3">
-                                            <div className="flex justify-between items-start">
-                                                <div>
-                                                    <div className="text-white font-bold">{vector.name}</div>
-                                                    <div className="text-zinc-500 text-xs">{vector.category}</div>
-                                                </div>
-                                                <Badge className={`${vector.severity_score > 70 ? 'bg-red-500/20 text-red-500 border-red-500/30' : 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30'} border`}>
-                                                    {vector.severity_score} CVSS
-                                                </Badge>
-                                            </div>
-                                            <div className="text-sm text-zinc-400 bg-black/30 p-2 rounded border border-zinc-800/50 font-mono italic">
-                                                "{vector.method}"
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-2 text-[10px] uppercase tracking-wider">
-                                                <div className="text-zinc-500">Likelihood: <span className="text-zinc-300">{vector.likelihood}</span></div>
-                                                <div className="text-zinc-500">Impact: <span className="text-zinc-300">{vector.impact}</span></div>
-                                            </div>
-                                            <div className="bg-green-500/5 border border-green-500/10 rounded p-2 text-xs">
-                                                <div className="text-green-500 font-bold mb-1 flex items-center gap-1">
-                                                    <CheckCircle className="w-3 h-3" /> Recommended Mitigation
-                                                </div>
-                                                <div className="text-zinc-400">{vector.mitigation_suggestion}</div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
 
-                                <div className="bg-zinc-900/30 p-4 rounded-lg border border-zinc-800">
-                                    <h4 className="text-sm font-semibold text-zinc-300 mb-2">Target Profiling Context</h4>
-                                    <p className="text-sm text-zinc-400 leading-relaxed font-mono">
-                                        {redTeamReport.system_profile_analyzed}
-                                    </p>
-                                </div>
                             </div>
                         </motion.div>
                     </motion.div>
@@ -331,20 +293,20 @@ export default function RedTeamPage() {
 
                 {/* Console - Full Width */}
                 <div className="lg:col-span-4">
-                    <div className="p-6 bg-zinc-950 text-green-400 rounded-xl border border-zinc-800 font-mono shadow-xl relative overflow-hidden group min-h-[600px] flex flex-col">
+                    <div className="p-6 bg-black text-green-400 rounded-xl border border-slate-800 font-mono shadow-xl relative overflow-hidden group min-h-[600px] flex flex-col">
                         {/* Decor effects */}
                         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-green-500/50 to-transparent opacity-50" />
                         <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-green-500/20 to-transparent opacity-30" />
 
                         {/* Console Header */}
-                        <div className="flex justify-between items-center mb-6 border-b border-zinc-900 pb-4 relative z-10 shrink-0">
+                        <div className="flex justify-between items-center mb-6 border-b border-slate-900 pb-4 relative z-10 shrink-0">
                             <div className="flex items-center gap-3">
                                 <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
-                                <span className="font-bold tracking-widest text-lg text-zinc-300">RED_TEAM_CONSOLE<span className="text-zinc-600">_V2.0</span></span>
+                                <span className="font-bold tracking-widest text-lg text-slate-300">RED_TEAM_CONSOLE<span className="text-slate-600">_V2.0</span></span>
                             </div>
 
                             {redTeamStatus === 'idle' && (
-                                <Button onClick={handleRedTeamAttack} className="bg-red-600 hover:bg-red-700 text-white font-bold border-0 shadow-[0_0_20px_rgba(220,38,38,0.5)] transition-all hover:scale-105">
+                                <Button id="initiate-attack-btn" onClick={handleRedTeamAttack} className="bg-red-600 hover:bg-red-700 text-white font-bold border-0 shadow-[0_0_20px_rgba(220,38,38,0.5)] transition-all hover:scale-105">
                                     <Lock className="w-4 h-4 mr-2" /> INITIATE_ATTACK
                                 </Button>
                             )}
@@ -369,9 +331,70 @@ export default function RedTeamPage() {
                             ))}
                             <div ref={consoleEndRef} />
                         </div>
+
+                        {/* Detailed Analysis Section - Inside Console */}
+                        {redTeamReport && (
+                            <div className="border-t border-slate-800 bg-slate-900/30 p-6 space-y-6">
+                                {/* Target Context */}
+                                <div className="space-y-2">
+                                    <h4 className="flex items-center gap-2 text-slate-200 font-bold text-sm">
+                                        <TargetIcon className="w-4 h-4 text-indigo-500" />
+                                        Target Profiling Context
+                                    </h4>
+                                    <p className="text-sm text-slate-300 leading-relaxed font-mono bg-black/40 p-4 rounded border border-slate-700/50">
+                                        {redTeamReport.system_profile_analyzed}
+                                    </p>
+                                </div>
+
+                                {/* Detailed Vectors */}
+                                <div className="space-y-2">
+                                    <h4 className="flex items-center gap-2 text-slate-200 font-bold text-sm">
+                                        <ShieldAlert className="w-4 h-4 text-red-500" />
+                                        Advanced Attack Vectors
+                                    </h4>
+                                    <div className="grid grid-cols-1 gap-3">
+                                        {redTeamReport.attack_vectors?.map((vector, i) => (
+                                            <div key={i} className="bg-black/40 border border-slate-800 hover:border-red-500/30 transition-colors rounded-lg p-3 group">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <div>
+                                                        <div className="text-base font-bold text-slate-200 group-hover:text-red-400 transition-colors">{vector.name}</div>
+                                                        <div className="text-xs text-slate-400">{vector.category}</div>
+                                                    </div>
+                                                    <Badge className={`${vector.severity_score > 70 ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'} border text-xs h-6 px-2`}>
+                                                        {vector.severity_score} CVSS
+                                                    </Badge>
+                                                </div>
+
+                                                <div className="text-sm text-slate-300 bg-slate-900/80 p-3 rounded border border-slate-700/50 font-mono italic mb-4">
+                                                    "{vector.method}"
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-4 text-xs mb-4">
+                                                    <div>
+                                                        <span className="text-slate-500 uppercase tracking-wider mr-2 font-semibold">Likelihood:</span>
+                                                        <span className="font-bold text-slate-200">{vector.likelihood}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-slate-500 uppercase tracking-wider mr-2 font-semibold">Impact:</span>
+                                                        <span className="font-bold text-slate-200">{vector.impact}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="pt-3 border-t border-slate-800">
+                                                    <div className="text-green-400 text-xs font-bold mb-2 flex items-center gap-2">
+                                                        <CheckCircle className="w-4 h-4" /> Mitigation Strategy
+                                                    </div>
+                                                    <p className="text-sm text-slate-300 leading-relaxed">{vector.mitigation_suggestion}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

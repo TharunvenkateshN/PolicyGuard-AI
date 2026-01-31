@@ -193,9 +193,9 @@ export function RemediationPanel({ originalText, violations, policySummary, repo
     }
 
     return (
-        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-12 space-y-6">
+        <motion.div id="remediation-engine" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-12 space-y-6">
             <div className="flex items-center space-x-3 mb-4">
-                <div className="p-2 bg-indigo-100 rounded-lg dark:bg-indigo-900/30">
+                <div className="p-2 bg-indigo-100 rounded-lg dark:bg-indigo-900/40">
                     <Wrench className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
@@ -204,7 +204,7 @@ export function RemediationPanel({ originalText, violations, policySummary, repo
                 </div>
             </div>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs id="remediation-tabs" value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-4 max-w-3xl mb-6">
                     <TabsTrigger value="detail" className="flex items-center gap-2">
                         <Lightbulb className="w-4 h-4" />
@@ -249,12 +249,12 @@ export function RemediationPanel({ originalText, violations, policySummary, repo
                                             </div>
                                             <div className="space-y-4">
                                                 {explanation.risks_explained?.map((item: any, idx: number) => (
-                                                    <div key={idx} className="border p-4 rounded-lg bg-card hover:bg-muted/5 transition-colors">
+                                                    <div key={idx} className="border border-slate-200 dark:border-slate-800 p-4 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                                         <div className="flex items-center gap-2 mb-2">
                                                             <AlertTriangle className="w-4 h-4 text-red-500" />
-                                                            <h4 className="font-semibold text-sm">{item.violation}</h4>
+                                                            <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200">{item.violation}</h4>
                                                         </div>
-                                                        <p className="text-sm text-muted-foreground mb-2">{item.why_it_matters}</p>
+                                                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{item.why_it_matters}</p>
                                                         <div className="flex items-start gap-2 mt-2 text-sm text-green-600 dark:text-green-400">
                                                             <CheckCircle2 className="w-4 h-4 mt-0.5" />
                                                             <span><strong>Fix:</strong> {item.fix_strategy}</span>
@@ -262,14 +262,14 @@ export function RemediationPanel({ originalText, violations, policySummary, repo
                                                     </div>
                                                 ))}
                                             </div>
-                                            <div className="bg-muted/50 p-6 rounded-lg border border-border/50">
-                                                <h4 className="font-semibold text-base mb-4 flex items-center gap-2">
+                                            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-lg border border-slate-200 dark:border-slate-800">
+                                                <h4 className="font-semibold text-base mb-4 flex items-center gap-2 text-slate-900 dark:text-slate-100">
                                                     <Lightbulb className="w-4 h-4 text-indigo-500" />
                                                     Improvement Tips
                                                 </h4>
                                                 <div className="grid gap-3 sm:grid-cols-2">
                                                     {explanation.improvement_tips?.map((tip: string, i: number) => (
-                                                        <div key={i} className="bg-card p-3 rounded border text-sm text-muted-foreground shadow-sm hover:shadow-md transition-all">
+                                                        <div key={i} className="bg-white dark:bg-slate-950 p-3 rounded border border-slate-200 dark:border-slate-800 text-sm text-slate-600 dark:text-slate-400 shadow-sm hover:shadow-md transition-all">
                                                             • {tip}
                                                         </div>
                                                     ))}
@@ -284,7 +284,7 @@ export function RemediationPanel({ originalText, violations, policySummary, repo
 
                     {activeTab === "graph" && (
                         <motion.div key="graph" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}>
-                            <Card className="border-purple-500/30 shadow-lg bg-black/50 backdrop-blur-md">
+                            <Card className="border-purple-500/30 shadow-lg bg-slate-950/50 backdrop-blur-md">
                                 <CardHeader>
                                     <CardTitle> Interactive System Topology</CardTitle>
                                     <CardDescription>Visualizing policy constraints and risk vectors.</CardDescription>
@@ -308,7 +308,7 @@ export function RemediationPanel({ originalText, violations, policySummary, repo
 
                     {activeTab === "doc" && (
                         <motion.div key="doc" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
-                            <Card className="border-indigo-100 dark:border-indigo-900/50 shadow-sm overflow-hidden">
+                            <Card className="border-indigo-100 dark:border-indigo-900/50 shadow-sm overflow-hidden bg-white dark:bg-slate-900">
                                 <CardHeader className="bg-muted/30 pb-4 flex flex-row items-center justify-between">
                                     <CardTitle className="text-lg flex items-center gap-2">
                                         <FileText className="w-5 h-5 text-indigo-500" />
@@ -354,7 +354,7 @@ export function RemediationPanel({ originalText, violations, policySummary, repo
                                             <p className="text-sm text-muted-foreground animate-pulse">Rewriting document as {docType}...</p>
                                         </div>
                                     ) : (
-                                        <div className="bg-muted/10 min-h-[300px] text-sm overflow-auto max-h-[500px]">
+                                        <div className="bg-slate-50 dark:bg-slate-950 min-h-[300px] text-sm overflow-auto max-h-[500px]">
                                             {docType === "JSON" ? (
                                                 <SyntaxHighlighter
                                                     language="json"
@@ -365,7 +365,7 @@ export function RemediationPanel({ originalText, violations, policySummary, repo
                                                     {remediatedDoc || "{}"}
                                                 </SyntaxHighlighter>
                                             ) : (
-                                                <div className="p-6 whitespace-pre-wrap font-mono leading-relaxed">
+                                                <div className="p-6 whitespace-pre-wrap font-mono leading-relaxed text-slate-800 dark:text-slate-300">
                                                     {remediatedDoc}
                                                 </div>
                                             )}
@@ -378,7 +378,7 @@ export function RemediationPanel({ originalText, violations, policySummary, repo
 
                     {activeTab === "code" && (
                         <motion.div key="code" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
-                            <Card className="border-indigo-100 dark:border-indigo-900/50 shadow-sm bg-black text-green-400">
+                            <Card className="border-indigo-100 dark:border-indigo-900/50 shadow-sm bg-slate-950 text-green-400">
                                 <CardHeader className="border-b border-white/10 pb-3 flex flex-row items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Terminal className="w-5 h-5 text-green-500" />
@@ -412,11 +412,11 @@ export function RemediationPanel({ originalText, violations, policySummary, repo
                                             >
                                                 <Copy className="h-4 w-4" />
                                             </Button>
-                                            <div className="h-[400px] w-full bg-black overflow-auto">
+                                            <div className="h-[400px] w-full bg-slate-950 overflow-auto">
                                                 <SyntaxHighlighter
                                                     language={selectedLanguage.toLowerCase()}
                                                     style={vscDarkPlus}
-                                                    customStyle={{ margin: 0, padding: '1rem', height: '100%', fontSize: '0.9rem', backgroundColor: '#09090b' }}
+                                                    customStyle={{ margin: 0, padding: '1rem', height: '100%', fontSize: '0.9rem', backgroundColor: '#020617' }}
                                                     showLineNumbers={true}
                                                     wrapLines={true}
                                                 >

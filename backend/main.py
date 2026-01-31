@@ -14,6 +14,22 @@ app = FastAPI(
     version="0.1.0",
 )
 
+# CORS - Must be added BEFORE routers for proper preflight handling
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Global Exception Handler for generic 500 errors
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
@@ -29,22 +45,6 @@ from api.proxy import router as proxy_router
 
 app.include_router(api_router, prefix="/api/v1")
 app.include_router(proxy_router, prefix="/api/proxy")
-
-# CORS - Restricted for Security
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 @app.get("/")
 async def root():

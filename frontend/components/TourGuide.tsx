@@ -10,21 +10,21 @@ const TOUR_STEPS = [
     {
         id: 1,
         route: '/dashboard',
-        selector: 'h1',
-        badge: "Overview • 1/16",
-        title: "Mission Control",
-        desc: "Welcome to the Command Center. This dashboard gives you a high-level view of your AI's compliance posture. All critical metrics are aggregated here.",
+        selector: '#dashboard-title',
+        badge: "Mission Control • 1/14",
+        title: "Agent Governance Hub",
+        desc: "Welcome, Officer. This is PolicyGuard AI—your unified control plane for autonomous agent governance. We ensure your AI fleet remains safe, ethical, and compliant.",
         icon: LayoutDashboard,
-        color: "text-cyan-400",
-        bg: "bg-cyan-500/10"
+        color: "text-blue-400",
+        bg: "bg-blue-500/10"
     },
     {
         id: 2,
         route: '/dashboard',
         selector: '#compliance-score-card',
-        badge: "Overview • 2/16",
-        title: "Compliance Score",
-        desc: "Look at the 'Compliance Score' card. This is a real-time aggregate of your active policies vs. detected violations. A score below 80 triggers automatic alerts.",
+        badge: "Mission Control • 2/14",
+        title: "Compliance Sentinel",
+        desc: "This is your most critical metric. The Compliance Score tracks aggregate risk across your entire organization. A drop here triggers automated intervention protocols.",
         icon: Activity,
         color: "text-green-400",
         bg: "bg-green-500/10"
@@ -32,156 +32,140 @@ const TOUR_STEPS = [
     {
         id: 3,
         route: '/dashboard',
-        selector: '#recent-evaluations-list',
-        badge: "Overview • 3/16",
-        title: "Recent Audits",
-        desc: "The 'Recent Evaluations' panel shows the latest gatekeeper checks. Green means 'PASS', red means 'BLOCK'. You can audit every single agent interaction here.",
-        icon: ShieldAlert,
-        color: "text-red-400",
-        bg: "bg-red-500/10",
-        actionBtn: "Go to Policies"
+        selector: '#ciso-view-toggle',
+        badge: "Mission Control • 3/14",
+        title: "Dual Operations Mode",
+        desc: "Switch between CISO View for high-level regulatory risk and SRE View for live infrastructure and reliability telemetry. One platform, two mission-critical perspectives.",
+        icon: LayoutDashboard,
+        color: "text-indigo-400",
+        bg: "bg-indigo-500/10"
     },
     {
         id: 4,
-        route: '/dashboard/policies',
-        selector: '#policy-upload-panel',
-        badge: "Policies • 4/16",
-        title: "Policy Library",
-        desc: "This is where you define the rules. You can upload PDF documents or use templates. The AI parses these into executable guardrails.",
-        icon: FileText,
-        color: "text-blue-400",
-        bg: "bg-blue-500/10"
+        route: '/dashboard',
+        selector: '#coverage-map-card',
+        badge: "Mission Control • 4/14",
+        title: "Defense-in-Depth",
+        desc: "The Coverage Map visualizes your active guardrail density across domains like Data Privacy, Ethical AI, and Prompt Security. No blind spots allowed.",
+        icon: Globe,
+        color: "text-cyan-400",
+        bg: "bg-cyan-500/10",
+        actionBtn: "Define Policies"
     },
     {
         id: 5,
         route: '/dashboard/policies',
-        selector: '#active-policies-list h3',
-        badge: "Policies • 5/16",
-        title: "Active Guardrails",
-        desc: "These are your active rules. They are currently enforcing checks on every API call. You can toggle them on/off instantly.",
-        icon: CheckCircle,
-        color: "text-cyan-400",
-        bg: "bg-cyan-500/10",
-        actionBtn: "Next: Attack Phase"
+        selector: '#policy-upload-panel',
+        badge: "Governance • 5/14",
+        title: "Policy Quantization",
+        desc: "I will now simulate a policy upload. Loading 'Global AI Safety Standard (ISO-42001)'... Gemini 3 is parsing the PDF into vector embeddings.",
+        icon: FileText,
+        color: "text-blue-400",
+        bg: "bg-blue-500/10",
+        action: '#use-sample-policy-btn'
     },
     {
         id: 6,
-        route: '/dashboard/evaluate',
-        selector: '#compliance-tab',
-        badge: "Red Team • 6/16",
-        title: "Adversarial Console",
-        desc: "This engine simulates a malicious hacker attacking your agent. It uses 'Prompt Injection' and 'Jailbreak' techniques to find holes.",
-        icon: ShieldAlert,
-        color: "text-red-500",
-        bg: "bg-red-500/10"
+        route: '/dashboard/policies',
+        selector: '#active-policies-list',
+        badge: "Governance • 6/14",
+        title: "Active Guardrails",
+        desc: "Done. The document is now a set of 12 executable guardrails. These inspect every token layer-by-layer. Powered by Gemini 3 Flash for sub-10ms latency.",
+        icon: CheckCircle,
+        color: "text-green-400",
+        bg: "bg-green-500/10",
+        actionBtn: "Start Audit"
     },
     {
         id: 7,
         route: '/dashboard/evaluate',
-        selector: '#red-team-tab',
-        badge: "Red Team • 7/16",
-        title: "Targeting Assets",
-        desc: "Switch to the 'Red Team' tab to see our targeting console. From here, you can launch specific adversarial simulations against your models.",
+        selector: '#run-evaluation-btn',
+        badge: "Forensics • 7/14",
+        title: "High-Context Audit",
+        desc: "Let's run a Forensic Audit on a 'Medical Claims Agent'. I'm starting the simulation now... Gemini is debating itself to find edge cases.",
         icon: Zap,
-        color: "text-orange-400",
-        bg: "bg-orange-500/10"
+        color: "text-purple-400",
+        bg: "bg-purple-500/10",
+        action: '#run-evaluation-btn'
     },
     {
         id: 8,
         route: '/dashboard/evaluate',
-        selector: '#initiate-attack-btn',
-        badge: "Red Team • 8/16",
-        title: "Running an Attack",
-        desc: "Click 'INITIATE_ATTACK'. Watch as it probes for PII leaks and Toxic output. The results will appear in the scrollable console below.",
-        icon: TargetIcon,
-        color: "text-red-400",
-        bg: "bg-red-500/10"
+        selector: '#readiness-scorecard',
+        badge: "Forensics • 8/14",
+        title: "Cryptographic Proof",
+        desc: "The verdict is in. We have a cryptographically verifiable proof of safety. This scorecard is the 'Green Light' (or Red Light) for production deployment.",
+        icon: CheckCircle,
+        color: "text-green-500",
+        bg: "bg-green-500/10",
+        actionBtn: "Attack Phase"
     },
     {
         id: 9,
-        route: '/dashboard/evaluate',
-        selector: '#remediation-panel',
-        badge: "Remediation • 9/16",
-        title: "Auto-Fix Engine",
-        desc: "PolicyGuard doesn't just find bugs; it fixes them. It generates Python/Pydantic code to patch the specific holes found in your system.",
-        icon: CheckCircle,
-        color: "text-green-400",
-        bg: "bg-green-500/10",
-        actionBtn: "Next: Live Monitor"
+        route: '/dashboard/redteam',
+        selector: '#initiate-attack-btn',
+        badge: "Adversarial • 9/14",
+        title: "Red Team Lab",
+        desc: "Initiating Adversarial Attack Protocol... My Red Team agents (powered by Gemini 3 Pro) are attempting 50+ jailbreak vectors.",
+        icon: TargetIcon,
+        color: "text-red-500",
+        bg: "bg-red-500/10",
+        actionBtn: "Auto-Remediate",
+        action: '#initiate-attack-btn'
     },
     {
         id: 10,
-        route: '/dashboard/monitor',
-        selector: '#topology-tab',
-        badge: "Monitor • 10/16",
-        title: "Live Data Topology",
-        desc: "Welcome to the Visualizer. This 3D Graph shows your AI's brain in real-time. Blue squares are Policies, Purple circles are Data Assets.",
-        icon: Globe,
-        color: "text-blue-400",
-        bg: "bg-blue-500/10"
-    },
-    {
-        id: 11,
-        route: '/dashboard/monitor',
-        selector: '#compliance-graph-container',
-        badge: "Monitor • 11/16",
-        title: "Visualizing Risks",
-        desc: "Red Diamonds represent Risks (e.g., PII Leak). Notice how they are visually isolated by the layout. This helps you spot threats instantly.",
-        icon: TargetIcon,
-        color: "text-red-400",
-        bg: "bg-red-500/10"
-    },
-    {
-        id: 12,
-        route: '/dashboard/monitor',
-        selector: '#audit-log-table',
-        badge: "Monitor • 12/16",
-        title: "Live Event Logs",
-        desc: "The 'Audit Log Stream' records every single gatekeeper event. You can see timestamps, latency, and blocking reasons in real-time.",
-        icon: Activity,
+        route: '/dashboard/remediate',
+        selector: '#remediation-engine',
+        badge: "Resilience • 10/14",
+        title: "Auto-Fix Engine",
+        desc: "Vulnerabilities found? No problem. Generating Python patches now... This code is ready to be merged into your repo.",
+        icon: CheckCircle,
         color: "text-green-400",
         bg: "bg-green-500/10"
     },
     {
+        id: 11,
+        route: '/dashboard/remediate',
+        selector: '#remediation-tabs',
+        badge: "Resilience • 11/14",
+        title: "Audit-Ready Artifacts",
+        desc: "Download production-ready Python guardrails and rewritten PRDs. We close the loop from detection to implementation in a single click.",
+        icon: FileText,
+        color: "text-blue-400",
+        bg: "bg-blue-500/10",
+        actionBtn: "Live Monitoring"
+    },
+    {
+        id: 12,
+        route: '/dashboard/monitor',
+        selector: '#audit-log-stream',
+        badge: "Visibility • 12/14",
+        title: "Operational Observability",
+        desc: "Total transparency. Monitor every interaction across your agent fleet. Every block is tracked with sub-10ms latency for zero-impact security.",
+        icon: Activity,
+        color: "text-indigo-400",
+        bg: "bg-indigo-500/10",
+        actionBtn: "Predict Risks"
+    },
+    {
         id: 13,
         route: '/dashboard/sla',
-        selector: '#sla-header',
-        badge: "Predictive • 13/16",
-        title: "SLA Designer AI",
-        desc: "This is the 'Predictive' engine. It uses Gemini to forecast latency spikes, token costs, and uptime risks based on your configuration.",
-        icon: Activity,
+        selector: '#gemini-risk-card',
+        badge: "Intelligence • 13/14",
+        title: "Predictive Guard",
+        desc: "Finally, our predictive layer. We use real-time traffic simulations to forecast latency spikes and compliance breaches before they happen. Secure the future, today.",
+        icon: Zap,
         color: "text-purple-400",
         bg: "bg-purple-500/10"
     },
     {
         id: 14,
-        route: '/dashboard/sla',
-        selector: '#sla-metrics-card',
-        badge: "Predictive • 14/16",
-        title: "Service Simulation",
-        desc: "Adjust these sliders to simulate different traffic conditions. Gemini will instantly analyze how these changes impact your SLAs.",
-        icon: Zap,
-        color: "text-indigo-400",
-        bg: "bg-indigo-500/10"
-    },
-    {
-        id: 15,
-        route: '/dashboard/sla',
-        selector: '#sla-simulation-graph',
-        badge: "Predictive • 15/16",
-        title: "Real-time Forecasting",
-        desc: "Watch the simulated latency and error rates here. This helps you visualize 'The Unknown' before it happens in production.",
-        icon: Activity,
-        color: "text-blue-400",
-        bg: "bg-blue-500/10"
-    },
-    {
-        id: 16,
         route: '/dashboard',
-        selector: 'h1',
-        badge: "Complete",
-        title: "You are Certified!",
-        desc: "You've toured the full lifecycle: Policy -> Attack -> Fix -> Monitor -> Predict. Your AI Agent is now robust, secure, and measured.",
+        selector: '#dashboard-title',
+        badge: "Certified • 14/14",
+        title: "Mission Accomplished",
+        desc: "You've completed the full Governance Lifecycle. Your AI fleet is now robost, resilient, and ready for global scale. Build with confidence.",
         icon: CheckCircle,
         color: "text-green-400",
         bg: "bg-green-500/10",
@@ -204,15 +188,22 @@ export function TourGuide() {
         }
     }, []);
 
-    // Handle Page Changes and Scrolling
+    // Handle Page Changes, Scrolling, and AUTOMATION
     useEffect(() => {
         if (stepIndex >= 0 && stepIndex < TOUR_STEPS.length) {
             const step = TOUR_STEPS[stepIndex];
 
             // 1. Navigation Check
-            if (pathname !== step.route) {
+            const isMarketingPage = ['/', '/features', '/governance', '/pricing', '/team'].includes(pathname);
+            if (pathname !== step.route && !isMarketingPage) {
                 router.push(step.route);
                 setHighlightElement(null); // Clear highlight during transit
+                return;
+            }
+
+            // If on marketing page, don't try to highlight dash elements
+            if (isMarketingPage && pathname !== step.route) {
+                setHighlightElement(null);
                 return;
             }
 
@@ -224,8 +215,21 @@ export function TourGuide() {
                         el.click();
                     }
 
+                    // AUTO-SCROLL TO RESULT
                     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     setHighlightElement(el);
+
+                    // 3. AUTOMATION ACTIONS (The "Self-Driving" Logic)
+                    if (step.action) {
+                        setTimeout(() => {
+                            const actionTarget = document.querySelector(step.action!) as HTMLElement;
+                            if (actionTarget) {
+                                console.log(`Tour Guide: Executing auto-action on ${step.action}`);
+                                actionTarget.click();
+                            }
+                        }, 1000); // Wait 1s after highlight to click
+                    }
+
                 } else {
                     highlightTimerRef.current = setTimeout(locateAndHighlight, 500);
                 }
@@ -261,7 +265,8 @@ export function TourGuide() {
         setStepIndex(-1);
     };
 
-    if (stepIndex === -1) return null;
+    const isMarketingPage = ['/', '/features', '/governance', '/pricing', '/team'].includes(pathname);
+    if (stepIndex === -1 || isMarketingPage) return null;
 
     const currentStep = TOUR_STEPS[stepIndex];
     const Icon = currentStep.icon;

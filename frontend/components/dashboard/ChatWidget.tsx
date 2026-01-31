@@ -92,10 +92,10 @@ export function ChatWidget() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="mb-4 w-[400px] h-[600px] max-h-[80vh] bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-zinc-800 flex flex-col overflow-hidden"
+                        className="mb-4 w-[400px] h-[600px] max-h-[80vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden"
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-zinc-800 bg-blue-600">
+                        <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800 bg-blue-600">
                             <div className="flex items-center text-white">
                                 <Bot className="h-6 w-6 mr-2" />
                                 <div>
@@ -120,7 +120,7 @@ export function ChatWidget() {
                         </div>
 
                         {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-zinc-950/50">
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-950/50">
                             {messages.map((msg, idx) => (
                                 <div
                                     key={idx}
@@ -134,7 +134,7 @@ export function ChatWidget() {
                                             "flex max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm",
                                             msg.role === "user"
                                                 ? "bg-blue-600 text-white rounded-br-none"
-                                                : "bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100 rounded-bl-none border border-gray-100 dark:border-zinc-700"
+                                                : "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-bl-none border border-slate-100 dark:border-slate-700"
                                         )}
                                     >
                                         {msg.role === "model" && (
@@ -146,8 +146,8 @@ export function ChatWidget() {
                                             </div>
                                             {/* Citations */}
                                             {msg.citations && msg.citations.length > 0 && (
-                                                <div className="mt-2 pt-2 border-t border-gray-100 dark:border-zinc-700/50">
-                                                    <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-1 flex items-center">
+                                                <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/50">
+                                                    <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1 flex items-center">
                                                         <Info className="h-3 w-3 mr-1" /> Sources
                                                     </p>
                                                     <div className="flex flex-wrap gap-2">
@@ -166,9 +166,9 @@ export function ChatWidget() {
                             ))}
                             {loading && (
                                 <div className="flex justify-start w-full">
-                                    <div className="bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-2 shadow-sm">
+                                    <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-2 shadow-sm">
                                         <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                                        <span className="text-sm text-gray-500">Processing...</span>
+                                        <span className="text-sm text-slate-500">Processing...</span>
                                     </div>
                                 </div>
                             )}
@@ -176,14 +176,14 @@ export function ChatWidget() {
                         </div>
 
                         {/* Input */}
-                        <div className="p-4 bg-white dark:bg-zinc-900 border-t border-gray-100 dark:border-zinc-800">
+                        <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
                             <form onSubmit={handleSend} className="relative flex items-center">
                                 <input
                                     type="text"
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     placeholder="Ask policy questions..."
-                                    className="w-full bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 rounded-full pl-4 pr-12 py-3 shadow-inner focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm transition-all"
+                                    className="w-full bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-full pl-4 pr-12 py-3 shadow-inner focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm transition-all"
                                     disabled={loading}
                                 />
                                 <button
@@ -193,7 +193,7 @@ export function ChatWidget() {
                                         "absolute right-2 p-2 rounded-full transition-all duration-200",
                                         input.trim() && !loading
                                             ? "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:scale-105"
-                                            : "bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-zinc-800"
+                                            : "bg-slate-200 text-slate-400 cursor-not-allowed dark:bg-slate-800"
                                     )}
                                 >
                                     <Send className="h-4 w-4" />
@@ -211,7 +211,7 @@ export function ChatWidget() {
                 className={cn(
                     "h-14 w-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300",
                     isOpen
-                        ? "bg-gray-200 text-gray-600 rotate-90 dark:bg-zinc-800 dark:text-gray-300"
+                        ? "bg-slate-200 text-slate-600 rotate-90 dark:bg-slate-800 dark:text-slate-300"
                         : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-500/25 animate-bounce-subtle"
                 )}
             >

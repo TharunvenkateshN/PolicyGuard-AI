@@ -9,6 +9,16 @@
       "status": "Active",
       "version": "1.0.0",
       "last_updated": ""
+    },
+    {
+      "id": "770fef75-a76e-45dd-a6ba-5a8f3ea7d230",
+      "name": "prd_patient_clustering_bot.txt",
+      "content": "# PRD: Patient Clustering Analysis Bot\r\n\r\n## 1. Objective\r\nA machine learning system to group patients by \"Lifestyle Risk Factors\" to predict future hospital admissions.\r\n\r\n## 2. Data Sources\r\n*   The bot will ingest \"Anonymized Research Extract B\" from the Data Warehouse.\r\n\r\n## 3. Input Features (Explicitly needed for the ML Model)\r\n*   **Location**: Full 5-Digit Zip Code (We need meaningful density clustering, 3-digits is too broad).\r\n*   **Demographics**: Birth Date (We need exact age for actuarial precision).\r\n*   **Gender**: M/F.\r\n*   **Secondary Data**: We will enrich this data with publicly available \"Voter Registration Logs\" which also contain Zip, Birth Date, and Gender, to map \"Lifestyle Risk\" to specific neighborhoods.\r\n\r\n## 4. Output\r\n*   A \"Risk Score\" associated with the specific profile.\r\n*   The bot DOES NOT access Names or SSNs.\r\n",
+      "summary": "# PRD: Patient Clustering Analysis Bot\r \r ## 1. Objective\r A machine learning system to group patients by \"Lifestyle Risk Factors\" to predict future h...",
+      "is_active": true,
+      "status": "Active",
+      "version": "1.0.0",
+      "last_updated": ""
     }
   ],
   "evaluations": []

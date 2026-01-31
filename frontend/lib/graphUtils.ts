@@ -36,26 +36,37 @@ export const transformReportToGraph = (report: ComplianceReport) => {
         links.push({ source: specName, target: cat, type: "contains" });
     });
 
-    // 3. Policies & Risks
+    // 3. Policies
     report.policy_matrix.forEach((policy) => {
         // Policy Node
         const policyId = policy.policy_area;
-        const isCompliant = policy.status === "Compliant";
 
         // Show all policies, size based on importance
         addNode(policyId, policy.policy_area, "policy", 15, policy.reason);
+        // Link policy to central spec
         links.push({ source: specName, target: policyId, type: "governs" });
+    });
 
-        // If risk/non-compliant, associate Risks
-        if (!isCompliant) {
-            // Find evidence that matches this policy
-            const relevantEvidence = report.evidence.filter(e => e.policy_section.includes(policy.policy_area) || policy.reason.includes(e.issue_description.substring(0, 10)));
+    // 4. Risks (Evidence) - Processed separately to ensure they always appear
+    report.evidence.forEach((ev, idx) => {
+        const riskId = `Risk-${idx}`;
+        const severityLabel = ev.severity ? `${ev.severity} Risk` : "Risk";
 
-            relevantEvidence.forEach((ev, idx) => {
-                const riskId = `Risk-${policyId}-${idx}`;
-                addNode(riskId, ev.severity + " Risk", "risk", 12, ev.issue_description);
-                links.push({ source: policyId, target: riskId, type: "violates" });
-            });
+        // Add Risk Node
+        addNode(riskId, severityLabel, "risk", 12, ev.issue_description);
+
+        // Try to find a matching policy to link to
+        // We use a looser matching strategy here
+        const matchingPolicy = report.policy_matrix.find(p =>
+            ev.policy_section.toLowerCase().includes(p.policy_area.toLowerCase()) ||
+            p.policy_area.toLowerCase().includes(ev.policy_section.toLowerCase())
+        );
+
+        if (matchingPolicy) {
+            links.push({ source: matchingPolicy.policy_area, target: riskId, type: "violates" });
+        } else {
+            // Fallback: Link to central spec if no specific policy parent found
+            links.push({ source: specName, target: riskId, type: "violates" });
         }
     });
 

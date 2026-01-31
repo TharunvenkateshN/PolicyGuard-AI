@@ -31,7 +31,7 @@ const ComplianceGraph: React.FC<ComplianceGraphProps> = ({ report }) => {
                 fgRef.current.d3Force('charge').strength(-500);
 
                 // Warm up engine
-                fgRef.current.numDimensions(3);
+                // fgRef.current.numDimensions(3); // Not needed/available in React wrapper
             }
         }, 100);
         return () => clearTimeout(timer);
@@ -48,7 +48,7 @@ const ComplianceGraph: React.FC<ComplianceGraphProps> = ({ report }) => {
             {/* Legend / Overlay - HUD Style */}
             <div className="absolute top-6 left-6 z-10 bg-slate-950/60 p-4 rounded-2xl text-white text-xs border border-cyan-500/20 backdrop-blur-xl shadow-2xl pointer-events-none select-none">
                 <h3 className="font-bold text-xl mb-3 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 font-mono tracking-tighter uppercase italic">
-                    Neural Topology (3D)
+                    System Topology (3D)
                 </h3>
                 <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-3">

@@ -1,310 +1,366 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+    Shield,
+    ShieldCheck,
+    ArrowRight,
+    Activity,
+    Brain,
+    LayoutDashboard,
+    Terminal,
+    Lock,
+    ExternalLink,
+    Play,
+    Flame,
+    Wrench,
+    Zap,
+    Github,
+    Linkedin,
+    Check,
+    Building,
+    Hexagon,
+    Atom,
+    Target,
+    Users,
+    CreditCard,
+    Globe,
+    CheckCircle2,
+    Database,
+    Crosshair,
+    FileCheck,
+    Code,
+    ShieldAlert,
+    Link2
+} from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Shield, CheckCircle2, ArrowRight, Play, Globe, Terminal, Cpu, Check, AlertTriangle, Code, LayoutDashboard, Lock, Zap, MessageSquare, Activity } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import dynamic from 'next/dynamic';
-import { MobileNav } from '@/components/layout/MobileNav';
-
-const ForceGraph3D = dynamic(() => import('react-force-graph-3d'), { ssr: false });
 
 export default function LandingPage() {
-    const { loginAsGuest } = useAuth() as any;
+    const router = useRouter();
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
-        let ticking = false;
-        const handleScroll = () => {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    setScrolled(window.scrollY > 50);
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        };
+        const handleScroll = () => setScrolled(window.scrollY > 50);
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Mock Data for Graph
-    const gData = React.useMemo(() => ({
-        nodes: [
-            { id: 'Agent Core', group: 1 },
-            { id: 'Billing API', group: 2 },
-            { id: 'User DB', group: 2 },
-            { id: 'Email Svc', group: 2 },
-            { id: 'LLM Gateway', group: 3 },
-            { id: 'Policy: HIPAA', group: 4 },
-            { id: 'Policy: RBAC', group: 4 },
-        ],
-        links: [
-            { source: 'Agent Core', target: 'Billing API' },
-            { source: 'Agent Core', target: 'User DB' },
-            { source: 'Agent Core', target: 'LLM Gateway' },
-            { source: 'Billing API', target: 'Email Svc' },
-            { source: 'Policy: HIPAA', target: 'User DB' },
-            { source: 'Policy: RBAC', target: 'Agent Core' },
-        ]
-    }), []);
-
     return (
-        <div className="min-h-screen bg-[#0B0F19] text-slate-200 selection:bg-cyan-500/30 font-sans relative">
-            {/* Cyber Grid Overlay */}
-            <div className="absolute inset-0 bg-grid-cyber pointer-events-none opacity-20 z-0"></div>
-
-            <MobileNav />
-
-            {/* Desktop Navbar */}
-            <nav className={`hidden lg:flex fixed top-0 w-full z-40 transition-all duration-300 ${scrolled ? 'bg-[#0B0F19]/90 backdrop-blur-md border-b border-cyan-900/30' : 'bg-transparent'}`}>
-                <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between w-full">
-                    <div className="flex items-center gap-2 font-bold text-xl tracking-tight text-white">
-                        <Shield className="w-6 h-6 text-cyan-400" />
-                        <span>PolicyGuard AI</span>
+        <div className="bg-[#020202] text-white min-h-screen font-sans selection:bg-blue-500/30">
+            {/* Nav */}
+            <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-4 bg-black/60 backdrop-blur-xl border-b border-white/5' : 'py-8 bg-transparent'}`}>
+                <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between">
+                    <div className="flex flex-col items-start gap-1">
+                        <div className="flex items-center gap-3 group cursor-pointer">
+                            <div className="w-10 h-10 bg-blue-600 flex items-center justify-center rounded-none border border-blue-400/50 shadow-[0_0_20px_rgba(37,99,235,0.4)] group-hover:scale-110 transition-transform">
+                                <Shield className="w-6 h-6 text-white" />
+                            </div>
+                            <span className="text-xl font-black uppercase italic tracking-tighter">Policy<span className="text-blue-500">Guard</span> AI</span>
+                        </div>
+                        <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[7px] font-black uppercase tracking-[0.2em] text-blue-400 backdrop-blur-md">
+                            <span className="w-1 h-1 rounded-full bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]"></span>
+                            AI Governance Framework
+                        </div>
                     </div>
 
-                    <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-400">
-                        <Link href="/" className="hover:text-cyan-400 transition-colors">Home</Link>
-                        <Link href="/how-it-works" className="hover:text-cyan-400 transition-colors">How It Works</Link>
-                        <Link href="/pricing" className="hover:text-cyan-400 transition-colors">Pricing</Link>
-                        <Link href="/team" className="hover:text-cyan-400 transition-colors">Team</Link>
+                    <div className="hidden md:flex items-center gap-12">
+                        {[
+                            { name: 'Features', href: '/features' },
+                            { name: 'Governance', href: '/governance' },
+                            { name: 'Pricing', href: '/pricing' },
+                            { name: 'Team', href: '/team' }
+                        ].map((item) => (
+                            <Link key={item.name} href={item.href} className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-white transition-colors relative group">
+                                {item.name}
+                                <span className="absolute -bottom-1 left-0 w-0 h-px bg-blue-500 transition-all group-hover:w-full"></span>
+                            </Link>
+                        ))}
                     </div>
 
                     <div className="flex items-center gap-6">
-                        <Link href="/login" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
-                            Login
-                        </Link>
-                        <Link href="/signup">
-                            <Button className="bg-cyan-600 hover:bg-cyan-500 text-white rounded px-6 border border-cyan-400/20 shadow-[0_0_20px_rgba(8,145,178,0.3)] transition-all hover:scale-105 font-semibold tracking-wide">
-                                Get Started
-                            </Button>
-                        </Link>
+                        <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 hover:text-white transition-colors">Log In</Link>
+                        <Button onClick={() => router.push('/login')} className="bg-white text-black hover:bg-zinc-200 rounded-none px-6 font-black uppercase italic tracking-widest text-[10px] h-11 border border-white/20">
+                            Initialize Shell
+                        </Button>
                     </div>
                 </div>
             </nav>
 
             {/* Hero Section */}
-            <section className="relative pt-40 pb-20 lg:pt-52 lg:pb-32 overflow-hidden z-10">
-                {/* Background Glow */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-cyan-600/10 rounded-full blur-[100px] -z-10"></div>
-
-                <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
-                    >
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-950/30 text-cyan-400 text-xs font-bold uppercase tracking-widest border border-cyan-500/20 mb-8 hover:bg-cyan-900/40 transition-colors cursor-pointer backdrop-blur-sm">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-                            </span>
-                            PolicyGuard: AI Governance Framework
-                        </div>
-
-                        <h1 className="text-4xl lg:text-7xl font-extrabold tracking-tight leading-[1.2] mb-8 text-white px-4">
-                            Govern AI Agents <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                                Before and After Deployment
-                            </span>
-                        </h1>
-
-                        <div className="max-w-3xl mx-auto mb-12 space-y-4">
-                            <p className="text-lg lg:text-xl text-slate-400 leading-relaxed">
-                                A policy-driven control layer that helps teams detect, assess, and mitigate AI risks across the agent lifecycle.
+            <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+                <div
+                    className="max-w-[1400px] mx-auto px-6 grid lg:grid-cols-2 gap-20 items-center relative z-10"
+                >
+                    <div className="space-y-10">
+                        <motion.div
+                            initial={{ opacity: 0, x: -50 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.8 }}
+                        >
+                            <h1 className="text-6xl md:text-8xl font-outfit font-black tracking-tighter leading-[0.9] uppercase italic">
+                                THE <span className="text-blue-600">CONTROL LAYER</span><br />
+                                <span className="text-zinc-400">FOR AI AGENTS.</span>
+                            </h1>
+                            <p className="text-lg md:text-xl text-zinc-400 max-w-xl mt-8 leading-relaxed font-medium">
+                                A policy-driven governance framework for continuous, live-stream observability of autonomous agent workflows.
+                                Secure your AI fleet with proactive, real-time intervention.
                             </p>
-                            <p className="text-md lg:text-lg text-slate-500 leading-relaxed italic opacity-80">
-                                Red-team agents before launch, then monitor policy drift and operational risk in production.
-                            </p>
-                        </div>
+                        </motion.div>
 
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <Link href="/signup">
-                                <Button size="lg" className="w-full sm:w-auto h-14 px-10 text-lg rounded bg-cyan-600 hover:bg-cyan-500 shadow-[0_0_30px_rgba(8,145,178,0.4)] transition-all hover:scale-105 text-white font-bold">
-                                    Start Risk Assessment <ArrowRight className="ml-2 w-5 h-5" />
-                                </Button>
-                            </Link>
-                            <Button
-                                size="lg"
-                                variant="outline"
-                                className="w-full sm:w-auto h-14 px-10 text-lg rounded border-cyan-500/30 text-cyan-100 hover:bg-cyan-950/30 bg-cyan-950/10 backdrop-blur-sm"
-                                onClick={() => loginAsGuest()}
-                            >
-                                <Play className="mr-2 w-5 h-5 fill-cyan-400 text-cyan-400" /> Live Demo
+                        <div className="flex flex-wrap gap-4 pt-10">
+                            <Button size="lg" onClick={() => router.push('/login')} className="h-16 px-10 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase italic tracking-widest border-none rounded-none shadow-[0_0_50px_rgba(37,99,235,0.3)]">
+                                Enter Dashboard <ArrowRight className="ml-2 w-5 h-5" />
+                            </Button>
+                            <Button size="lg" variant="outline" onClick={() => router.push('/login')} className="h-16 px-10 border-white/20 text-white font-black uppercase italic tracking-widest hover:bg-white/5 bg-transparent rounded-none outline-none">
+                                <span className="flex items-center gap-2">
+                                    <Play className="w-4 h-4 fill-white" /> View Demo <ExternalLink className="w-3 h-3 ml-2 opacity-50" />
+                                </span>
                             </Button>
                         </div>
-                    </motion.div>
-                </div>
-            </section>
-
-            {/* Lifecycle Stages Section */}
-            <section className="py-24 bg-[#080C14] border-y border-white/5">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl lg:text-5xl font-bold mb-4">Lifecycle-Aware AI Governance</h2>
-                        <p className="text-gray-400">From early development signals to live production behavior.</p>
-                        <p className="text-gray-600 text-xs mt-2">Designed to integrate at key decision points across build and run phases.</p>
                     </div>
 
-                    <div className="grid lg:grid-cols-2 gap-12">
-                        {/* Pre-Deployment */}
-                        <div className="relative group">
-                            <div className="absolute inset-0 bg-blue-900/10 rounded-3xl blur-xl -z-10 group-hover:bg-blue-800/20 transition-all"></div>
-                            <div className="bg-[#0f141f] border border-blue-500/20 rounded-3xl p-8 h-full">
-                                <div className="flex items-center gap-3 mb-8">
-                                    <div className="p-3 bg-blue-500/20 rounded-xl text-blue-400">
-                                        <Code className="w-6 h-6" />
+                    <div className="relative pointer-events-none flex items-center justify-center">
+                        <div className="grid grid-cols-2 grid-rows-4 gap-4 w-full max-w-[550px]">
+                            {/* Card 1: Activity Metric */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3 }}
+                                className="row-span-1 bg-[#0A0A0A]/80 backdrop-blur-3xl border border-white/10 p-6 rounded-[2rem] flex flex-col justify-center"
+                            >
+                                <div className="text-4xl font-black text-white italic tracking-tighter">500+</div>
+                                <div className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500 mt-2">Threat Vectors Scanned</div>
+                            </motion.div>
+
+                            {/* Card 2: Highlight Asset (Iridescent Feel) */}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.5, duration: 0.8 }}
+                                className="row-span-4 col-start-2 bg-[#050505] border border-white/5 p-10 rounded-[3rem] flex flex-col justify-between relative overflow-hidden shadow-2xl"
+                            >
+                                <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-blue-600/10 via-purple-600/5 to-transparent"></div>
+                                {/* Iridescent Line Pattern */}
+                                <div className="absolute -top-1/2 -right-1/4 w-[200%] h-[200%] opacity-20 pointer-events-none rotate-12">
+                                    <div className="w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500 via-transparent to-transparent blur-3xl"></div>
+                                </div>
+
+                                <div className="relative z-10">
+                                    <div className="text-7xl font-black text-white italic tracking-tighter leading-none">100%</div>
+                                    <div className="text-xs font-black uppercase tracking-[0.3em] text-blue-500 mt-4">Audit Transparency</div>
+                                </div>
+                                <div className="relative flex justify-center py-10">
+                                    <div className="absolute inset-0 bg-blue-500/20 blur-[60px] rounded-full animate-pulse"></div>
+                                    <div className="w-40 h-40 bg-white/5 border border-white/10 rounded-[2.5rem] flex items-center justify-center rotate-12 group-hover:rotate-0 transition-transform duration-700">
+                                        <Shield className="w-20 h-20 text-blue-500" />
                                     </div>
-                                    <h3 className="text-2xl font-bold text-blue-100">Pre-Deployment</h3>
-                                    <span className="px-2 py-1 rounded bg-blue-500/10 text-xs font-mono text-blue-400 border border-blue-500/20">BUILD PHASE</span>
                                 </div>
+                                <div className="relative z-10 text-[9px] font-bold uppercase tracking-widest text-zinc-600">
+                                    PG-SECURITY // OPS-72
+                                </div>
+                            </motion.div>
 
-                                <div className="space-y-6">
-                                    {[
-                                        { title: "Adversarial Red Teaming (Policy-Focused)", desc: "Run structured adversarial scenarios aligned with common AI misuse and policy failure patterns.", icon: Terminal },
-                                        { title: "Guardrail Recommendations & Templates", desc: "Generate policy-aligned guardrail snippets and integration guidance for common AI workflows.", icon: Zap },
-                                        { title: "AI Policy Assistant", desc: "Chat with your governance docs. Ask 'Is this HIPAA compliant?' to get citations.", icon: MessageSquare },
-                                    ].map((feat, i) => (
-                                        <div key={i} className="flex gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
-                                            <feat.icon className="w-6 h-6 text-gray-400 mt-1" />
-                                            <div>
-                                                <h4 className="font-bold text-white">{feat.title}</h4>
-                                                <p className="text-sm text-gray-400 mt-1">{feat.desc}</p>
-                                            </div>
-                                        </div>
-                                    ))}
+                            {/* Card 3: Policies Metric */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.7 }}
+                                className="row-span-2 bg-[#0A0A0A]/40 backdrop-blur-3xl border border-white/10 p-8 rounded-[2.5rem] flex flex-col justify-center overflow-hidden group"
+                            >
+                                <div className="text-5xl font-black text-white italic tracking-tighter leading-none">30+</div>
+                                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mt-3">Governance Policies</div>
+                                <div className="mt-8 relative h-16">
+                                    <Atom className="w-16 h-16 text-zinc-800 absolute -bottom-4 -left-4 animate-spin-slow group-hover:text-blue-500/20 transition-colors" />
                                 </div>
-                            </div>
-                        </div>
+                            </motion.div>
 
-                        {/* Post-Deployment */}
-                        <div className="relative group">
-                            <div className="absolute inset-0 bg-purple-900/10 rounded-3xl blur-xl -z-10 group-hover:bg-purple-800/20 transition-all"></div>
-                            <div className="bg-[#0f141f] border border-purple-500/20 rounded-3xl p-8 h-full">
-                                <div className="flex items-center gap-3 mb-8">
-                                    <div className="p-3 bg-purple-500/20 rounded-xl text-purple-400">
-                                        <Globe className="w-6 h-6" />
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-purple-100">Post-Deployment</h3>
-                                    <span className="px-2 py-1 rounded bg-purple-500/10 text-xs font-mono text-purple-400 border border-purple-500/20">RUN PHASE</span>
+                            {/* Card 4: High Contrast Text */}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.9 }}
+                                className="row-span-1 bg-white p-6 rounded-[2rem] flex items-center justify-center text-center shadow-[0_0_50px_rgba(255,255,255,0.15)]"
+                            >
+                                <div className="text-black font-black uppercase tracking-tighter leading-none text-[11px] italic">
+                                    SEMANTIC <br />
+                                    <span className="text-blue-600 block my-1">RISK</span>
+                                    CONTROLLER
                                 </div>
-
-                                <div className="space-y-6">
-                                    {[
-                                        { title: "Latency & Cost Risk Signals", desc: "Surface latency trends and cost risk indicators tied to agent behavior and policy thresholds.", icon: Activity },
-                                        { title: "Unauthorized Agent Activity Signals", desc: "Detect anomalous or unregistered agent behavior within monitored environments.", icon: AlertTriangle },
-                                        { title: "3D Visual Monitoring", desc: "Interactive map of observed interaction patterns and policy hits.", icon: LayoutDashboard },
-                                    ].map((feat, i) => (
-                                        <div key={i} className="flex gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
-                                            <feat.icon className="w-6 h-6 text-gray-400 mt-1" />
-                                            <div>
-                                                <h4 className="font-bold text-white">{feat.title}</h4>
-                                                <p className="text-sm text-gray-400 mt-1">{feat.desc}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
+                            </motion.div>
                         </div>
                     </div>
                 </div>
+
+                {/* Vertical Decorative Strips */}
+                <div className="absolute right-0 top-0 bottom-0 w-24 border-l border-white/5 hidden xl:flex flex-col items-center justify-end py-20 gap-10">
+                    <p className="rotate-90 text-[10px] font-black uppercase tracking-[0.5em] text-zinc-600 whitespace-nowrap mb-20 origin-center">
+                        Secure AI Protocol v4.0.2
+                    </p>
+                    <div className="w-px h-40 bg-gradient-to-b from-transparent via-zinc-800 to-transparent"></div>
+                </div>
             </section>
 
-            {/* Visual Compliance Mapping (Graph) */}
-            <section className="py-32 bg-[#080C14] border-y border-white/5 relative overflow-hidden">
-                <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
-                    <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold uppercase tracking-widest border border-blue-500/20 mb-6">
-                            Graph Viz
-                        </div>
-                        <h2 className="text-4xl lg:text-5xl font-bold mb-6">Visual Compliance Mapping</h2>
-                        <p className="text-lg text-gray-400 mb-8 leading-relaxed">
-                            We map observed agent interactions—such as API calls and data flows—to relevant policy controls in an interactive graph view.
-                        </p>
-                        <ul className="space-y-4 mb-8">
-                            {[
-                                "Near-real-time Interaction Mapping",
-                                "Policy Violation Highlighting",
-                                "Observed Dependency Visualization"
-                            ].map((item, i) => (
-                                <li key={i} className="flex items-center gap-3 text-gray-300">
-                                    <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center">
-                                        <Check className="w-3 h-3" />
-                                    </div>
-                                    {item}
-                                </li>
-                            ))}
-                        </ul>
-                        <Button className="bg-blue-600 hover:bg-blue-500 text-white rounded-full px-8">
-                            Explore Graph View
-                        </Button>
+
+            {/* Section 3: The Architecture Pillars */}
+            <section className="py-32 bg-[#020202]">
+                <div className="max-w-[1400px] mx-auto px-6">
+                    <div className="grid lg:grid-cols-3 gap-8">
+                        {/* Pillar 1 */}
+                        <motion.div
+                            whileHover={{ y: -10 }}
+                            className="p-12 bg-zinc-900/20 border border-white/5 rounded-[3rem] group"
+                        >
+                            <div className="w-16 h-16 bg-blue-600/10 border border-blue-500/20 rounded-2xl flex items-center justify-center mb-10 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                <ShieldAlert className="w-8 h-8 text-blue-500 group-hover:text-white" />
+                            </div>
+                            <h3 className="text-3xl font-black uppercase italic text-white mb-6">Hallucination <br />Deflector</h3>
+                            <p className="text-zinc-500 leading-relaxed font-medium">
+                                Real-time semantic comparison between agent output and verified knowledge base to intercept false claims before they reach the user.
+                            </p>
+                        </motion.div>
+
+                        {/* Pillar 2 */}
+                        <motion.div
+                            whileHover={{ y: -10 }}
+                            className="p-12 bg-zinc-900/20 border border-white/5 rounded-[3rem] group"
+                        >
+                            <div className="w-16 h-16 bg-emerald-600/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center mb-10 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                                <Lock className="w-8 h-8 text-emerald-500 group-hover:text-white" />
+                            </div>
+                            <h3 className="text-3xl font-black uppercase italic text-white mb-6">Autonomous <br />SLA Guard</h3>
+                            <p className="text-zinc-500 leading-relaxed font-medium">
+                                Hard latency and reliability constraints enforced at the proxy layer. If the agent exceeds parameters, the system executes failover protocols.
+                            </p>
+                        </motion.div>
+
+                        {/* Pillar 3 */}
+                        <motion.div
+                            whileHover={{ y: -10 }}
+                            className="p-12 bg-zinc-900/20 border border-white/5 rounded-[3rem] group"
+                        >
+                            <div className="w-16 h-16 bg-purple-600/10 border border-purple-500/20 rounded-2xl flex items-center justify-center mb-10 group-hover:bg-purple-600 group-hover:text-white transition-all">
+                                <Target className="w-8 h-8 text-purple-500 group-hover:text-white" />
+                            </div>
+                            <h3 className="text-3xl font-black uppercase italic text-white mb-6">PII Redaction <br />Engines</h3>
+                            <p className="text-zinc-500 leading-relaxed font-medium">
+                                Multi-layered scanning for secrets, crypto-keys, and sensitive personal data within agent trace logs and live response streams.
+                            </p>
+                        </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Section 4: Global Standards Grid */}
+            <section className="py-32 bg-[#050505] relative">
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none"></div>
+                <div className="max-w-[1400px] mx-auto px-6">
+                    <div className="text-center mb-20">
+                        <h2 className="text-4xl md:text-5xl font-outfit font-black uppercase italic mb-6">Built for <span className="text-blue-500">Compliance.</span></h2>
+                        <p className="text-zinc-500 text-lg font-medium max-w-2xl mx-auto">PolicyGuard mapped to the world's most rigorous security frameworks.</p>
                     </div>
 
-                    {/* Graph Container */}
-                    <div className="relative h-[500px] w-full bg-black/50 rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
-                        <div className="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur px-3 py-1 rounded text-xs font-mono text-blue-400 border border-blue-500/30">
-                            LIVE_MONITORING: ACTIVE
-                        </div>
-                        <ForceGraph3D
-                            graphData={gData}
-                            backgroundColor="#000000"
-                            nodeColor={node => {
-                                // @ts-ignore
-                                return node.group === 1 ? '#ef4444' : node.group === 4 ? '#3b82f6' : '#ffffff'
-                            }}
-                            linkColor={() => '#ffffff33'}
-                            nodeLabel="id"
-                        />
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        {[
+                            { name: "SOC2 Type II", level: "L3" },
+                            { name: "GDPR", level: "L3" },
+                            { name: "HIPAA", level: "L2" },
+                            { name: "ISO 27001", level: "L3" },
+                            { name: "NIST AI RMF", level: "L1" },
+                            { name: "PCI DSS", level: "L2" }
+                        ].map((std) => (
+                            <div key={std.name} className="p-8 bg-zinc-900/40 border border-white/5 rounded-3xl group hover:border-blue-500/30 transition-all text-center">
+                                <div className="text-[10px] font-black tracking-widest text-blue-500 mb-4 uppercase">Protocol_{std.level}</div>
+                                <div className="text-sm font-black uppercase italic text-zinc-300 group-hover:text-white transition-colors">{std.name}</div>
+                            </div>
+                        ))}
                     </div>
+                </div>
+            </section>
+
+            {/* Section 5: The Invisible Shield (Value Statement) */}
+            <section className="py-40 bg-black relative">
+                <div className="max-w-[1400px] mx-auto px-6">
+                    <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-[4rem] p-20 border border-white/10 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-10 opacity-20">
+                            <ShieldCheck className="w-64 h-64 text-white" />
+                        </div>
+                        <div className="max-w-2xl relative z-10">
+                            <h2 className="text-5xl md:text-7xl font-outfit font-black uppercase italic tracking-tighter mb-10 leading-none">
+                                THE <span className="text-white">INVISIBLE SHIELD</span> <br />
+                                <span className="text-blue-500">BETWEEN AI & APPS.</span>
+                            </h2>
+                            <p className="text-zinc-400 text-xl font-medium leading-relaxed mb-12">
+                                PolicyGuard operates at the network periphery, intercepting and inspecting every token in milliseconds.
+                                We enable enterprises to deploy agents with the confidence that their core values and security protocols are hard-coded into the infrastructure.
+                            </p>
+                            <div className="flex gap-10">
+                                <div>
+                                    <div className="text-4xl font-black text-white italic">8ms</div>
+                                    <div className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mt-2">Avg Overhead</div>
+                                </div>
+                                <div className="w-px h-12 bg-zinc-800"></div>
+                                <div>
+                                    <div className="text-4xl font-black text-white italic">99.9%</div>
+                                    <div className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mt-2">Uptime Verifier</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA Final */}
+            <section className="py-20 bg-black text-center border-t border-white/5">
+                <div className="max-w-4xl mx-auto px-6">
+                    <h2 className="text-4xl md:text-5xl font-outfit font-black uppercase italic mb-10 tracking-tighter">Ready to secure your fleet?</h2>
+                    <Button size="lg" onClick={() => router.push('/login')} className="h-16 px-12 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase italic tracking-widest rounded-none">
+                        Establish Protocol
+                    </Button>
                 </div>
             </section>
 
             {/* Footer */}
-            <footer className="py-16 border-t border-white/5 bg-[#080C14]">
-                <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12 mb-12">
+            <footer className="py-20 border-t border-white/5 bg-[#020202] relative z-20">
+                <div className="max-w-[1400px] mx-auto px-6 grid md:grid-cols-4 gap-12">
                     <div className="col-span-2">
-                        <div className="flex items-center gap-2 font-bold text-xl tracking-tight mb-6">
-                            <Shield className="w-6 h-6 text-blue-500" />
-                            <span>PolicyGuard AI</span>
+                        <div className="flex items-center gap-3 mb-8">
+                            <Shield className="w-8 h-8 text-blue-500" />
+                            <span className="text-xl font-black uppercase italic tracking-tighter">PolicyGuard AI</span>
                         </div>
-                        <p className="text-gray-500 max-w-sm mb-8 text-sm leading-relaxed">
-                            A policy-driven governance layer for agentic systems. Helping teams detect, assess, and mitigate risks across the AI lifecycle.
+                        <p className="text-zinc-500 text-sm max-w-sm leading-relaxed">
+                            A specialized observability and governance core for securing
+                            autonomous agent fleets and complex AI workflows.
                         </p>
-                        <div className="flex gap-4">
-                            {[1, 2, 3, 4].map((_, i) => (
-                                <div key={i} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-colors cursor-pointer">
-                                    <Globe className="w-4 h-4" />
-                                </div>
-                            ))}
-                        </div>
                     </div>
-
                     <div>
-                        <h4 className="font-bold text-white mb-6">Product</h4>
-                        <ul className="space-y-4 text-sm text-gray-500">
-                            <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Enterprise</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Changelog</a></li>
+                        <h4 className="text-white font-black uppercase tracking-widest text-xs mb-8 italic">Platform</h4>
+                        <ul className="space-y-4 text-zinc-500 text-xs font-bold uppercase transition-colors">
+                            <Link href="/features" className="hover:text-white cursor-pointer transition-colors block">Risk Core</Link>
+                            <Link href="/governance" className="hover:text-white cursor-pointer transition-colors block">Proxy Hub</Link>
+                            <Link href="/pricing" className="hover:text-white cursor-pointer transition-colors block">Pricing</Link>
+                            <Link href="/team" className="hover:text-white cursor-pointer transition-colors block">Team</Link>
                         </ul>
                     </div>
-
                     <div>
-                        <h4 className="font-bold text-white mb-6">Legal</h4>
-                        <ul className="space-y-4 text-sm text-gray-500">
-                            <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Cookie Policy</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
+                        <h4 className="text-white font-black uppercase tracking-widest text-xs mb-8 italic">Company</h4>
+                        <ul className="space-y-4 text-zinc-500 text-xs font-bold uppercase transition-colors">
+                            <li className="hover:text-white cursor-pointer transition-colors">Research</li>
+                            <li className="hover:text-white cursor-pointer transition-colors">Security</li>
+                            <li className="hover:text-white cursor-pointer transition-colors">Legal</li>
+                            <li className="hover:text-white cursor-pointer transition-colors">Contact</li>
                         </ul>
                     </div>
                 </div>
-                <div className="max-w-7xl mx-auto px-6 border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-600">
-                    <p>&copy; 2026 PolicyGuard AI. All rights reserved.</p>
-                    <p>Designed for the Future of AI.</p>
+                <div className="max-w-[1400px] mx-auto px-6 mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between gap-6 text-[10px] font-bold uppercase tracking-widest text-zinc-700">
+                    <p>© 2026 PolicyGuard AI Framework. All rights reserved.</p>
+                    <div className="flex gap-10">
+                        <span className="hover:text-zinc-400 cursor-pointer">Privacy Protocol</span>
+                        <span className="hover:text-zinc-400 cursor-pointer">SLA Agreement</span>
+                    </div>
                 </div>
             </footer>
         </div>

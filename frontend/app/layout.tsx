@@ -1,12 +1,22 @@
 import type { Metadata } from 'next'
-// import { Inter } from 'next/font/google'
+import { Inter, Outfit } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/hooks/useAuth'
 import { UserProvider } from '@/context/UserContext'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ToastProvider } from '@/components/ui/toast-context'
+import { TourGuide } from '@/components/TourGuide'
+import { ChatWidget } from '@/components/dashboard/ChatWidget'
 
-// const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({
+    subsets: ['latin'],
+    variable: '--font-inter'
+})
+
+const outfit = Outfit({
+    subsets: ['latin'],
+    variable: '--font-outfit'
+})
 
 export const metadata: Metadata = {
     title: 'PolicyGuard AI',
@@ -20,7 +30,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className="font-sans antialiased" suppressHydrationWarning>
+            <body className={`${inter.variable} ${outfit.variable} font-sans antialiased`} suppressHydrationWarning>
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="dark"
@@ -30,7 +40,9 @@ export default function RootLayout({
                     <AuthProvider>
                         <UserProvider>
                             <ToastProvider>
+                                <TourGuide />
                                 {children}
+                                <ChatWidget />
                             </ToastProvider>
                         </UserProvider>
                     </AuthProvider>

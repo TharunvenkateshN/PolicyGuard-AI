@@ -5,8 +5,6 @@ import { DashboardMobileNav } from '@/components/layout/DashboardMobileNav';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { TourGuide } from '@/components/TourGuide';
-import { ChatWidget } from '@/components/dashboard/ChatWidget';
 
 export default function DashboardLayout({
     children,
@@ -35,8 +33,6 @@ export default function DashboardLayout({
             {/* Cyber Grid Overlay */}
             <div className="absolute inset-0 bg-grid-cyber pointer-events-none opacity-[0.1] z-0"></div>
 
-            <TourGuide />
-
             {/* Mobile Header - Top of flex-col */}
             <DashboardMobileNav />
 
@@ -50,8 +46,6 @@ export default function DashboardLayout({
                     </div>
                 </main>
             </div>
-
-            <ChatWidget />
         </div>
     );
 }

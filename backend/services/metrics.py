@@ -33,6 +33,7 @@ class MetricsStore:
         self.requests: deque = deque(maxlen=max_history)
         self.audit_logs: deque = deque(maxlen=50) # Keep last 50 audit events
         self.start_time = datetime.now()
+        self.total_downtime_seconds = 0.0  # Track total downtime for uptime calculations
         self.db = None
         # Lazy load db connection
         try:
@@ -129,6 +130,8 @@ class MetricsStore:
         requests_per_hour = len(last_1hour)
         
         # PolicyGuard Specific Metrics
+        pii_blocks = len([r for r in all_requests if r.pii_detected])
+        policy_violations = len([r for r in all_requests if r.policy_violation])
         pg_blocks = len([r for r in all_requests if r.pii_detected or r.policy_violation])
         pg_passed = total_requests - pg_blocks
 
@@ -141,6 +144,8 @@ class MetricsStore:
             "failed_requests": failed_requests,
             "pg_blocks": pg_blocks,
             "pg_passed": pg_passed,
+            "pii_blocks": pii_blocks,
+            "policy_violations": policy_violations,
             "success_rate": round((successful_requests / total_requests * 100) if total_requests > 0 else 100.0, 2),
             "avg_response_time_ms": round(avg_response_time, 2),
             "p95_response_time_ms": round(p95_response_time, 2),

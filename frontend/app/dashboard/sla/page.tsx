@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -176,10 +177,10 @@ export default function SLAMonitorPage() {
 
     const getSLAStatusIcon = (status: string) => {
         switch (status) {
-            case 'healthy': return <CheckCircle2 className="w-6 h-6 text-green-500" />;
-            case 'at_risk': return <AlertTriangle className="w-6 h-6 text-yellow-500" />;
-            case 'violated': return <XCircle className="w-6 h-6 text-red-500" />;
-            default: return <Activity className="w-6 h-6 text-gray-500" />;
+            case 'healthy': return <CheckCircle2 className="w-8 h-8 text-green-500" />;
+            case 'at_risk': return <AlertTriangle className="w-8 h-8 text-yellow-500" />;
+            case 'violated': return <XCircle className="w-8 h-8 text-red-500" />;
+            default: return <Activity className="w-8 h-8 text-gray-500" />;
         }
     };
 
@@ -222,23 +223,25 @@ export default function SLAMonitorPage() {
             </div>
 
             {/* SLA Status Banner */}
-            <Card className="border-2 shadow-sm dark:shadow-none" style={{ borderColor: metrics.sla_status === 'healthy' ? '#22c55e' : metrics.sla_status === 'at_risk' ? '#eab308' : '#ef4444' }}>
+            <Card className="border-2 shadow-sm dark:shadow-none bg-white dark:bg-zinc-900" style={{ borderColor: metrics.sla_status === 'healthy' ? '#22c55e' : metrics.sla_status === 'at_risk' ? '#eab308' : '#ef4444' }}>
                 <CardContent className="pt-6">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                            {getSLAStatusIcon(metrics.sla_status)}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
+                        <div className="flex flex-col sm:flex-row items-center gap-4">
+                            <div className="p-3 bg-gray-50 dark:bg-zinc-800 rounded-full">
+                                {getSLAStatusIcon(metrics.sla_status)}
+                            </div>
                             <div>
-                                <h3 className="text-2xl font-bold text-foreground">
+                                <h3 className="text-2xl md:text-3xl font-bold text-foreground">
                                     {metrics.uptime_percentage.toFixed(3)}% Uptime
                                 </h3>
-                                <p className="text-sm text-muted-foreground">
-                                    SLA Target: 99.9% | Status: <span className={getSLAStatusColor(metrics.sla_status)}>{metrics.sla_status.toUpperCase()}</span>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    SLA Target: 99.9% | Status: <span className={cn("font-bold", getSLAStatusColor(metrics.sla_status))}>{metrics.sla_status.toUpperCase()}</span>
                                 </p>
                             </div>
                         </div>
-                        <div className="text-right">
-                            <div className="text-sm text-muted-foreground">Last Updated</div>
-                            <div className="text-sm font-mono text-foreground font-semibold">{new Date(metrics.timestamp).toLocaleTimeString()}</div>
+                        <div className="flex flex-col items-center sm:items-end">
+                            <div className="text-xs text-muted-foreground uppercase tracking-widest mb-1 font-bold">Last Updated</div>
+                            <div className="text-sm font-mono text-foreground font-semibold bg-gray-50 dark:bg-zinc-800 px-3 py-1 rounded-md">{new Date(metrics.timestamp).toLocaleTimeString()}</div>
                         </div>
                     </div>
                 </CardContent>
@@ -246,9 +249,9 @@ export default function SLAMonitorPage() {
 
             {/* AI Analysis Section */}
             {aiAnalysis ? (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
                     {/* 1. Risk Score Card */}
-                    <Card className="border-2 border-purple-200 dark:border-purple-500/20 bg-purple-50/50 dark:bg-purple-500/5 shadow-md dark:shadow-none">
+                    <Card id="gemini-risk-card" className="border-2 border-purple-200 dark:border-purple-500/20 bg-purple-50/50 dark:bg-purple-500/5 shadow-md dark:shadow-none">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-purple-600 dark:text-purple-400">
                                 <Brain className="w-5 h-5" />
@@ -457,7 +460,7 @@ export default function SLAMonitorPage() {
                     </CardHeader>
                     <CardContent>
                         {mounted ? (
-                            <ResponsiveContainer width="100%" height={300}>
+                            <ResponsiveContainer width="100%" height={300} minWidth={100}>
                                 <LineChart data={history}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-muted/30" vertical={false} />
                                     <XAxis
@@ -503,7 +506,7 @@ export default function SLAMonitorPage() {
                     </CardHeader>
                     <CardContent>
                         {mounted ? (
-                            <ResponsiveContainer width="100%" height={300}>
+                            <ResponsiveContainer width="100%" height={300} minWidth={100}>
                                 <AreaChart data={history}>
                                     <defs>
                                         <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
@@ -548,7 +551,7 @@ export default function SLAMonitorPage() {
                     </CardHeader>
                     <CardContent>
                         {mounted ? (
-                            <ResponsiveContainer width="100%" height={300}>
+                            <ResponsiveContainer width="100%" height={300} minWidth={100}>
                                 <BarChart data={history}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-muted/30" vertical={false} />
                                     <XAxis
@@ -589,7 +592,7 @@ export default function SLAMonitorPage() {
                     </CardHeader>
                     <CardContent>
                         {mounted ? (
-                            <ResponsiveContainer width="100%" height={300}>
+                            <ResponsiveContainer width="100%" height={300} minWidth={100}>
                                 <AreaChart data={history}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-muted/30" vertical={false} />
                                     <XAxis

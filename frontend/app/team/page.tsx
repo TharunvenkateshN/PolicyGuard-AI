@@ -1,13 +1,29 @@
 "use client";
 
 import React from 'react';
-import { Github, Linkedin, Shield, Hexagon, ArrowLeft } from 'lucide-react';
+import {
+    Shield,
+    Users,
+    Linkedin,
+    Github,
+    ArrowLeft
+} from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
 export default function TeamPage() {
     const router = useRouter();
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 50);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const team = [
         {
@@ -16,131 +32,133 @@ export default function TeamPage() {
             details: [
                 "Product vision & problem definition",
                 "Gemini 3 reasoning workflows",
-                "Policy evaluation & remediation logic",
-                "System architecture & governance design"
+                "Policy evaluation & remediation",
+                "System architecture & governance"
             ],
-            image: "/team/tharun.jpg",
-            linkedin: "https://www.linkedin.com/in/tharun-n-v-859794320/?isSelfProfile=true",
+            image: "/team/tharun.png",
+            linkedin: "https://www.linkedin.com/in/tharun-n-v-859794320/",
             github: "https://github.com/TharunvenkateshN"
         },
         {
             name: "Vishal M",
             role: "Co-Founder · Engineering & Platform",
             details: [
-                "Application development & integrations",
+                "Application development & UI",
                 "Frontend dashboards & visualization",
-                "OWASP Top 10 & PII scan engines",
-                "API gateway & runtime enforcement",
-                "Demo, deployment & system wiring"
+                "OWASP & PII scan engines",
+                "API gateway & deployment"
             ],
-            image: "/team/vishal.jpg",
+            image: "/team/vishal.png",
             linkedin: "https://www.linkedin.com/in/vishal2601dev/",
             github: "https://github.com/shalcoder"
         }
     ];
 
     return (
-        <div className="min-h-screen bg-[#020617] text-slate-200 pt-10 pb-20 px-6 font-sans relative overflow-hidden">
-            {/* Cyber Grid Overlay */}
-            <div className="absolute inset-0 bg-grid-cyber pointer-events-none opacity-20 z-0"></div>
-
-            {/* Decorative Glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-cyan-600/10 rounded-full blur-[120px] -z-10"></div>
-
-            {/* Back Button */}
-            <div className="max-w-7xl mx-auto mb-8 relative z-10">
-                <Button
-                    variant="ghost"
-                    onClick={() => router.back()}
-                    className="hover:bg-white/10 hover:text-white text-gray-400 gap-2"
-                >
-                    <ArrowLeft className="w-4 h-4" /> Back
-                </Button>
-            </div>
-
-            <div className="max-w-7xl mx-auto text-center mb-16 relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                >
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-950/30 text-cyan-400 text-xs font-bold uppercase tracking-widest border border-cyan-500/20 mb-8 backdrop-blur-sm">
-                        <Hexagon className="w-3 h-3 fill-cyan-400/20" />
-                        Executive Leadership
+        <div className="bg-[#020202] text-white min-h-screen font-sans selection:bg-blue-500/30 overflow-hidden">
+            {/* Nav */}
+            <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-4 bg-black/60 backdrop-blur-xl border-b border-white/5' : 'py-8 bg-transparent'}`}>
+                <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between">
+                    <div className="flex flex-col items-start gap-1">
+                        <div onClick={() => router.push('/')} className="flex items-center gap-3 group cursor-pointer">
+                            <div className="w-10 h-10 bg-blue-600 flex items-center justify-center rounded-none border border-blue-400/50 shadow-[0_0_20px_rgba(37,99,235,0.4)] group-hover:scale-110 transition-transform">
+                                <Shield className="w-6 h-6 text-white" />
+                            </div>
+                            <span className="text-xl font-black uppercase italic tracking-tighter">Policy<span className="text-blue-500">Guard</span> AI</span>
+                        </div>
+                        <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[7px] font-black uppercase tracking-[0.2em] text-blue-400 backdrop-blur-md">
+                            <span className="w-1 h-1 rounded-full bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]"></span>
+                            AI Governance Framework
+                        </div>
                     </div>
 
-                    <h1 className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight text-white">
-                        The Minds behind <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">the Shield.</span>
-                    </h1>
+                    <div className="hidden md:flex items-center gap-12">
+                        {[
+                            { name: 'Features', href: '/features' },
+                            { name: 'Governance', href: '/governance' },
+                            { name: 'Pricing', href: '/pricing' },
+                            { name: 'Team', href: '/team' }
+                        ].map((item) => (
+                            <Link key={item.name} href={item.href} className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-white transition-colors relative group">
+                                {item.name}
+                                <span className="absolute -bottom-1 left-0 w-0 h-px bg-blue-500 transition-all group-hover:w-full"></span>
+                            </Link>
+                        ))}
+                    </div>
 
-                    <p className="text-xl text-slate-400 max-w-2xl mx-auto mb-20 leading-relaxed uppercase tracking-wider font-mono text-sm opacity-60">
-                        Verifying Policy Compliance through AI Reasoning.
-                    </p>
-                </motion.div>
+                    <div className="flex items-center gap-6">
+                        <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 hover:text-white transition-colors">Log In</Link>
+                        <Button onClick={() => router.push('/login')} className="bg-white text-black hover:bg-zinc-200 rounded-none px-6 font-black uppercase italic tracking-widest text-[10px] h-11 border border-white/20">
+                            Initialize Shell
+                        </Button>
+                    </div>
+                </div>
+            </nav>
 
-                <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto px-4">
-                    {team.map((member, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: i * 0.2, duration: 0.5 }}
-                            className="group relative p-1 rounded-[2.2rem] bg-gradient-to-br from-cyan-500/20 via-transparent to-blue-500/20 overflow-hidden shadow-2xl"
-                        >
-                            <div className="bg-slate-900/80 backdrop-blur-3xl rounded-[2.1rem] p-8 h-full border border-slate-800/50 group-hover:border-cyan-500/30 transition-all duration-500 relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <section id="team" className="pt-40 pb-32 bg-black relative overflow-hidden">
+                <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-600/5 blur-[120px] rounded-full pointer-events-none"></div>
+                <div className="max-w-[1400px] mx-auto px-6">
+                    <div className="flex flex-col items-center text-center mb-24 gap-10">
+                        <div className="max-w-3xl">
+                            <Users className="w-12 h-12 text-blue-500 mb-8 mx-auto" />
+                            <h2 className="text-6xl md:text-8xl font-outfit font-black tracking-tighter uppercase italic mb-8 leading-tight">
+                                THE MINDS BEHIND <br /><span className="text-blue-500">THE SHIELD.</span>
+                            </h2>
+                            <p className="text-zinc-500 text-xl font-medium leading-relaxed max-w-2xl mx-auto">
+                                Verifying compliance through advanced AI reasoning and platform engineering.
+                            </p>
+                        </div>
+                    </div>
 
-                                <div className="relative z-10">
-                                    <div className="w-44 h-44 mx-auto rounded-[2rem] overflow-hidden mb-8 border-2 border-slate-700 group-hover:border-cyan-500 transition-all duration-300 transform group-hover:scale-105 shadow-2xl relative">
-                                        <img
-                                            src={member.image}
-                                            alt={member.name}
-                                            className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
-                                        {/* Scanline Effect */}
-                                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/20 to-transparent h-4 w-full animate-scanline pointer-events-none" />
-                                    </div>
-
-                                    <h3 className="text-3xl font-bold mb-2 text-white group-hover:text-cyan-400 transition-colors tracking-tight">{member.name}</h3>
-                                    <div className="text-cyan-500 font-mono text-xs uppercase tracking-[0.2em] mb-8 bg-cyan-500/10 inline-block px-4 py-1.5 rounded-full border border-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-                                        {member.role}
-                                    </div>
-
-                                    <div className="space-y-3 mb-10 text-left max-w-[280px] mx-auto">
-                                        {member.details.map((detail, idx) => (
-                                            <div key={idx} className="flex items-start gap-2 text-slate-400 group-hover:text-slate-200 transition-colors">
-                                                <div className="mt-1.5 h-1 w-1 rounded-full bg-cyan-500 shrink-0 shadow-[0_0_5px_rgba(6,182,212,1)]" />
-                                                <span className="text-sm font-medium leading-tight">{detail}</span>
+                    <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+                        {team.map((member, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                className="group relative p-1 rounded-[3rem] bg-gradient-to-br from-blue-500/20 via-transparent to-purple-500/20 overflow-hidden"
+                            >
+                                <div className="bg-zinc-900/80 backdrop-blur-3xl rounded-[2.9rem] p-10 h-full border border-white/5 transition-all duration-500 relative">
+                                    <div className="relative z-10 flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">
+                                        <div className="w-40 h-40 shrink-0 rounded-[2rem] overflow-hidden border-2 border-zinc-800 shadow-2xl relative group-hover:border-blue-500/50 transition-colors duration-500">
+                                            <img src={member.image} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" />
+                                            {/* Scanner Animation */}
+                                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                                                <div className="absolute inset-0 bg-blue-500/10"></div>
+                                                <motion.div
+                                                    initial={{ top: "-10%" }}
+                                                    animate={{ top: "110%" }}
+                                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                                    className="absolute left-0 right-0 h-1 bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.8)] z-20"
+                                                />
+                                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                                             </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="flex items-center justify-center gap-5">
-                                        <a
-                                            href={member.linkedin}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="p-3.5 rounded-2xl bg-slate-800/50 text-slate-400 hover:bg-cyan-600 hover:text-white transition-all shadow-lg hover:shadow-cyan-500/30 active:scale-90 border border-slate-700/50 hover:border-cyan-400"
-                                        >
-                                            <Linkedin className="w-5 h-5" />
-                                        </a>
-                                        <a
-                                            href={member.github}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="p-3.5 rounded-2xl bg-slate-800/50 text-slate-400 hover:bg-slate-700 hover:text-white transition-all shadow-lg active:scale-90 border border-slate-700/50 hover:border-slate-500"
-                                        >
-                                            <Github className="w-5 h-5" />
-                                        </a>
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-3xl font-black uppercase italic text-white mb-2">{member.name}</h3>
+                                            <div className="text-blue-500 font-black uppercase tracking-[0.2em] text-[10px] mb-6">
+                                                {member.role}
+                                            </div>
+                                            <ul className="space-y-2 mb-8">
+                                                {member.details.map((detail, idx) => (
+                                                    <li key={idx} className="text-zinc-500 text-xs font-medium flex items-center gap-2">
+                                                        <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
+                                                        {detail}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                            <div className="flex gap-4 justify-center md:justify-start">
+                                                <a href={member.linkedin} target="_blank" className="p-3 bg-white/5 hover:bg-blue-600 transition-all rounded-xl"><Linkedin className="w-5 h-5 text-white" /></a>
+                                                <a href={member.github} target="_blank" className="p-3 bg-white/5 hover:bg-zinc-800 transition-all rounded-xl"><Github className="w-5 h-5 text-white" /></a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    ))}
+                            </motion.div>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            </section>
         </div>
     );
 }

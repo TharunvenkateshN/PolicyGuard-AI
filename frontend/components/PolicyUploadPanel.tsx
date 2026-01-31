@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, CheckCircle2 } from 'lucide-react';
@@ -12,6 +12,12 @@ interface PolicyUploadPanelProps {
 
 export function PolicyUploadPanel({ onUpload, onPolicyCreated }: PolicyUploadPanelProps) {
     const [isDragging, setIsDragging] = useState(false);
+    const [isDebug, setIsDebug] = useState(false);
+
+    useEffect(() => {
+        // Simple check for dev/demo environment
+        setIsDebug(process.env.NODE_ENV === 'development' || typeof window !== 'undefined');
+    }, []);
     const [files, setFiles] = useState<File[]>([]);
 
     const handleDragOver = (e: React.DragEvent) => {
@@ -57,6 +63,55 @@ export function PolicyUploadPanel({ onUpload, onPolicyCreated }: PolicyUploadPan
         } catch (error: any) {
             console.error(error);
             alert(error.message || "Failed to upload policy");
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleSamplePolicy = async () => {
+        setUploading(true);
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+            // Simulate upload latency for "AI Analysis" effect
+            await new Promise(r => setTimeout(r, 1000));
+
+            const sampleContent = `
+# Global AI Safety Standard (ISO-42001)
+
+## 1. Governance
+The AI agent must not request PII (Personally Identifiable Information) from users under any circumstances.
+Any detection of PII must be immediately redacted.
+
+## 2. Financial Controls
+The AI agent must not execute financial transactions above $1000 without explicit 2FA authorization.
+All transactions must be logged in the immutable ledger.
+
+## 3. Neutrality
+The AI must remain neutral in political discourse. It shall not express opinions on sensitive public interest topics.
+
+## 4. Operational Safety
+The System must implement a 'Circuit Breaker' to halt execution if error rates exceed 5% in a 1-minute window.
+            `;
+
+            const file = new File([sampleContent], "ISO_42001_Global_Safety.txt", { type: "text/plain" });
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const res = await fetch(`${apiUrl}/api/v1/policies/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setUploadedPolicies(prev => [...prev, { name: data.name, summary: data.summary }]);
+                if (onPolicyCreated) onPolicyCreated(data);
+            } else {
+                throw new Error("Failed to upload sample policy");
+            }
+        } catch (e: any) {
+            console.error("Failed to seed policy", e);
+            alert(e.message || "Failed to seed sample policy");
         } finally {
             setUploading(false);
         }
@@ -118,6 +173,17 @@ export function PolicyUploadPanel({ onUpload, onPolicyCreated }: PolicyUploadPan
                                     <span>{uploading ? "Analyzing..." : "Browse Files"}</span>
                                 </Button>
                             </label>
+
+                            <Button
+                                id="use-sample-policy-btn"
+                                variant="ghost"
+                                size="sm"
+                                className="ml-2 text-xs text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                                onClick={handleSamplePolicy}
+                                disabled={uploading}
+                            >
+                                Use Sample Policy
+                            </Button>
                         </div>
                     </div>
                 </div>

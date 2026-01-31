@@ -356,11 +356,11 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
             </div>
 
             {/* Visual Architecture Diagram (Now Acts as Controller) */}
-            <div className="relative bg-gradient-to-r from-gray-50 to-white dark:from-zinc-900 dark:to-black rounded-xl border border-dashed border-gray-300 dark:border-zinc-700 p-8 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden">
+            <div className="relative bg-gradient-to-r from-gray-50 to-white dark:from-zinc-900 dark:to-black rounded-xl border border-dashed border-gray-300 dark:border-zinc-700 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden">
                 <div className="absolute inset-0 opacity-5 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
 
                 {/* User's AI */}
-                <div className="flex flex-col items-center z-10">
+                <div className="flex flex-col items-center z-10 shrink-0">
                     <div className="w-16 h-16 bg-white dark:bg-zinc-800 rounded-2xl shadow-xl border border-gray-200 dark:border-zinc-700 flex items-center justify-center mb-3">
                         <Terminal className="w-8 h-8 text-slate-800 dark:text-slate-100" />
                     </div>
@@ -368,19 +368,24 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                 </div>
 
                 {/* Connection Line */}
-                <div className="flex-1 h-[2px] bg-gray-300 dark:bg-zinc-700 relative hidden md:block">
+                <div className="hidden md:flex flex-1 h-[2px] bg-gray-300 dark:bg-zinc-700 relative mx-4">
                     <div className="absolute inset-0 bg-indigo-500 w-1/2 animate-[shimmer_2s_infinite]"></div>
+                </div>
+
+                {/* Mobile Connection Arrow */}
+                <div className="md:hidden flex flex-col items-center gap-2 text-gray-300">
+                    <ArrowRight className="w-6 h-6 rotate-90" />
                 </div>
 
                 {/* PolicyGuard Hub */}
                 <div className="flex flex-col items-center z-10 w-full max-w-md">
-                    <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border-2 border-indigo-500 p-5 w-full transition-transform hover:scale-[1.01]">
+                    <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border-2 border-indigo-500 p-4 md:p-5 w-full transition-transform hover:scale-[1.01]">
                         <div className="flex items-center justify-center gap-2 mb-4">
                             <Shield className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                            <span className="font-black text-foreground uppercase tracking-tight">PolicyGuard Gatekeeper</span>
+                            <span className="font-black text-xs md:text-sm text-foreground uppercase tracking-tight">PolicyGuard Gatekeeper</span>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {/* Stream 1 Selector */}
                             <div
                                 onClick={() => setActiveStream('stream1')}
@@ -393,7 +398,7 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                 <div className="flex items-center gap-2 mb-2 group-hover:translate-x-1 transition-transform">
                                     <Shield className={`w-4 h-4 ${activeStream === 'stream1' ? 'text-indigo-700 dark:text-indigo-400' : 'text-indigo-600 dark:text-indigo-400'}`} />
                                     <span className={`font-black text-[10px] tracking-widest ${activeStream === 'stream1' ? 'text-indigo-800 dark:text-indigo-200' : 'text-indigo-700 dark:text-indigo-300'}`}>
-                                        STREAM 1: SAFETY
+                                        STREAM 1
                                     </span>
                                 </div>
                                 <div className="mt-2 flex items-center justify-between">
@@ -406,7 +411,6 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                             <AlertTriangle className="w-3 h-3" /> SETUP
                                         </span>
                                     )}
-                                    {activeStream === 'stream1' && <Eye className="w-3.5 h-3.5 text-indigo-600" />}
                                 </div>
                             </div>
 
@@ -422,7 +426,7 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                 <div className="flex items-center gap-2 mb-2 group-hover:translate-x-1 transition-transform">
                                     <Activity className={`w-4 h-4 ${activeStream === 'stream2' ? 'text-purple-700 dark:text-purple-400' : 'text-purple-600 dark:text-purple-400'}`} />
                                     <span className={`font-black text-[10px] tracking-widest ${activeStream === 'stream2' ? 'text-purple-800 dark:text-purple-200' : 'text-purple-700 dark:text-purple-300'}`}>
-                                        STREAM 2: STABILITY
+                                        STREAM 2
                                     </span>
                                 </div>
                                 <div className="mt-2 flex items-center justify-between">
@@ -431,18 +435,27 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                     ) : (
                                         <span className="text-[10px] text-yellow-700 dark:text-yellow-400 font-bold flex items-center gap-1 bg-yellow-100 dark:bg-yellow-500/10 px-1.5 py-0.5 rounded"><AlertTriangle className="w-3 h-3" /> PENDING</span>
                                     )}
-                                    {activeStream === 'stream2' && <Eye className="w-3.5 h-3.5 text-purple-600" />}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Consumers & Metrics */}
-                <div className="flex flex-col gap-8 md:block hidden relative z-10 w-32">
+                {/* Mobile View Consoles Links */}
+                <div className="flex md:hidden w-full justify-around gap-4 mt-2">
+                    <Button variant="ghost" className="text-xs text-indigo-500 h-auto p-2" onClick={() => router.push('/dashboard/monitor')}>
+                        <ArrowRight className="w-3 h-3 mr-1" /> Safety Console
+                    </Button>
+                    <Button variant="ghost" className="text-xs text-purple-500 h-auto p-2" onClick={() => router.push('/dashboard/sla')}>
+                        <ArrowRight className="w-3 h-3 mr-1" /> Stability Dashboard
+                    </Button>
+                </div>
+
+                {/* Consumers & Metrics - Desktop Only */}
+                <div className="hidden md:flex flex-col gap-6 shrink-0">
                     <div
                         onClick={() => router.push('/dashboard/monitor')}
-                        className={`flex items-center gap-3 mb-8 cursor-pointer group transition-all duration-300 ${activeStream === 'stream1' ? 'opacity-100 translate-x-0' : 'opacity-40 translate-x-2'}`}
+                        className={`flex items-center gap-3 cursor-pointer group transition-all duration-300 ${activeStream === 'stream1' ? 'opacity-100 translate-x-0' : 'opacity-40 translate-x-2'}`}
                         title="Go to Safety Console"
                     >
                         <ArrowRight className="w-4 h-4 text-indigo-400 group-hover:translate-x-1 transition-transform" />
@@ -479,15 +492,15 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                         {!isGatekeeperConnected ? (
                             <div className="space-y-6">
                                 {/* Wizard Steps Indicator */}
-                                <div className="flex items-center justify-center mb-8">
+                                <div className="flex items-center justify-center mb-8 gap-1 md:gap-4">
                                     {[1, 2, 3].map((step) => (
                                         <React.Fragment key={step}>
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${gatekeeperStep >= step ? 'bg-indigo-600 text-white shadow-lg' : 'bg-gray-200 dark:bg-zinc-800 text-gray-400'
+                                            <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-xs md:text-base transition-all duration-300 ${gatekeeperStep >= step ? 'bg-indigo-600 text-white shadow-lg' : 'bg-gray-200 dark:bg-zinc-800 text-gray-400'
                                                 }`}>
                                                 {step}
                                             </div>
                                             {step < 3 && (
-                                                <div className={`w-16 h-1 transition-all duration-300 ${gatekeeperStep > step ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-zinc-800'
+                                                <div className={`w-8 md:w-16 h-1 transition-all duration-300 ${gatekeeperStep > step ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-zinc-800'
                                                     }`} />
                                             )}
                                         </React.Fragment>
@@ -666,7 +679,7 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                         ) : (
                             /* GATEKEEPER ACTIVE DASHBOARD */
                             <div className="space-y-6 animate-in zoom-in-95 duration-500">
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <Card className="p-4 border-indigo-100 dark:border-indigo-900/30 flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600">
                                             <Server className="w-6 h-6" />
@@ -1024,7 +1037,7 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                                 <Activity className={`w-5 h-5 ${serviceRisk.score > 70 ? 'text-red-500' : serviceRisk.score > 30 ? 'text-yellow-500' : 'text-purple-600'}`} />
                                                 Active Monitoring: <span className="text-indigo-600 font-mono">{serviceName}</span>
                                             </CardTitle>
-                                            <CardDescription className="flex items-center gap-2 mt-1">
+                                            <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
                                                 <div className={`w-2 h-2 rounded-full animate-pulse ${serviceRisk.score > 70 ? 'bg-red-500' : serviceRisk.score > 30 ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
                                                 Real-time stability stream connected via <strong>{selectedLang === 'node' ? 'Node.js Express' : selectedLang}</strong>
                                                 <Button
@@ -1035,7 +1048,7 @@ curl ${proxyUrl}/v1beta/models/gemini-pro:generateContent \\
                                                 >
                                                     <Settings2 className="w-3 h-3 mr-1" /> Reconfigure
                                                 </Button>
-                                            </CardDescription>
+                                            </div>
                                         </div>
                                         <Button
                                             size="sm"

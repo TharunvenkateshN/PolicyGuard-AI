@@ -128,12 +128,12 @@ export default function RemediatePage() {
                         <div className="grid md:grid-cols-2 gap-6">
                             <div className="p-6 bg-blue-50/50 dark:bg-blue-950/20 rounded-xl border border-blue-200 dark:border-blue-800 shadow-sm transition-all hover:shadow-md">
                                 <div className="flex items-start gap-4">
-                                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                    <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
                                         <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-foreground mb-2 text-lg">Document Fixes</h3>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
+                                        <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-2 text-lg">Document Fixes</h3>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                                             Updated workflow documentation with proper compliance language
                                         </p>
                                     </div>
@@ -141,12 +141,12 @@ export default function RemediatePage() {
                             </div>
                             <div className="p-6 bg-green-50/50 dark:bg-green-950/20 rounded-xl border border-green-200 dark:border-green-800 shadow-sm transition-all hover:shadow-md">
                                 <div className="flex items-start gap-4">
-                                    <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                    <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-lg">
                                         <Code className="w-6 h-6 text-green-600 dark:text-green-400 flex-shrink-0" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-foreground mb-2 text-lg">Code Guardrails</h3>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
+                                        <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-2 text-lg">Code Guardrails</h3>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                                             Production-ready Python code for policy enforcement
                                         </p>
                                     </div>
@@ -184,8 +184,8 @@ export default function RemediatePage() {
                             <li className="flex gap-6">
                                 <span className="flex-shrink-0 w-12 h-12 bg-green-600 text-white rounded-2xl shadow-lg shadow-green-500/30 flex items-center justify-center font-black text-xl">3</span>
                                 <div className="pt-1">
-                                    <h4 className="font-bold text-foreground mb-2 text-lg">Generate AI Fixes</h4>
-                                    <p className="text-muted-foreground leading-relaxed">
+                                    <h4 className="font-bold text-slate-900 dark:text-slate-100 mb-2 text-lg">Generate AI Fixes</h4>
+                                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                                         One-click generation of audit-ready documentation and policy guardrails.
                                     </p>
                                 </div>
@@ -203,32 +203,32 @@ export default function RemediatePage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="grid md:grid-cols-3 gap-6">
-                        <div className="bg-slate-50/50 dark:bg-zinc-800/50 p-6 rounded-2xl border border-blue-100 dark:border-blue-900/30">
+                        <div className="bg-slate-50/50 dark:bg-slate-900/50 p-6 rounded-2xl border border-blue-100 dark:border-blue-900/30">
                             <div className="flex flex-wrap items-center gap-3 mb-4">
                                 <Badge className="bg-blue-600 text-white font-black px-2.5 py-1">GDPR</Badge>
-                                <span className="font-bold text-foreground">Missing Consent</span>
+                                <span className="font-bold text-slate-900 dark:text-slate-100">Missing Consent</span>
                             </div>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
+                            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                                 Generates consent validation code and audit documentation.
                             </p>
                         </div>
 
-                        <div className="bg-slate-50/50 dark:bg-zinc-800/50 p-6 rounded-2xl border border-green-100 dark:border-green-900/30">
+                        <div className="bg-slate-50/50 dark:bg-slate-900/50 p-6 rounded-2xl border border-green-100 dark:border-green-900/30">
                             <div className="flex flex-wrap items-center gap-3 mb-4">
                                 <Badge className="bg-green-600 text-white font-black px-2.5 py-1">HIPAA</Badge>
-                                <span className="font-bold text-foreground">Unencrypted PHI</span>
+                                <span className="font-bold text-slate-900 dark:text-slate-100">Unencrypted PHI</span>
                             </div>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
+                            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                                 Provides encryption utilities and safe transmission protocols.
                             </p>
                         </div>
 
-                        <div className="bg-slate-50/50 dark:bg-zinc-800/50 p-6 rounded-2xl border border-purple-100 dark:border-purple-900/30">
+                        <div className="bg-slate-50/50 dark:bg-slate-900/50 p-6 rounded-2xl border border-purple-100 dark:border-purple-900/30">
                             <div className="flex flex-wrap items-center gap-3 mb-4">
                                 <Badge className="bg-purple-600 text-white font-black px-2.5 py-1">SOC2</Badge>
-                                <span className="font-bold text-foreground">Access Control</span>
+                                <span className="font-bold text-slate-900 dark:text-slate-100">Access Control</span>
                             </div>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
+                            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                                 Creates RBAC implementation guides and policy templates.
                             </p>
                         </div>
@@ -242,32 +242,32 @@ export default function RemediatePage() {
                     </CardHeader>
                     <CardContent>
                         <div className="grid md:grid-cols-2 gap-8">
-                            <div className="flex items-start gap-4 p-4 bg-slate-50/50 dark:bg-zinc-800/30 rounded-xl">
+                            <div className="flex items-start gap-4 p-4 bg-slate-50/50 dark:bg-slate-900/30 rounded-xl">
                                 <CheckCircle2 className="w-6 h-6 text-green-600 mt-1 flex-shrink-0" />
                                 <div>
-                                    <p className="font-bold text-foreground mb-1">Violation-Specific Fixes</p>
-                                    <p className="text-sm text-muted-foreground leading-relaxed">High-precision solutions tailored to your exact policy failures.</p>
+                                    <p className="font-bold text-slate-900 dark:text-slate-100 mb-1">Violation-Specific Fixes</p>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">High-precision solutions tailored to your exact policy failures.</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-4 p-4 bg-slate-50/50 dark:bg-zinc-800/30 rounded-xl">
+                            <div className="flex items-start gap-4 p-4 bg-slate-50/50 dark:bg-slate-900/30 rounded-xl">
                                 <CheckCircle2 className="w-6 h-6 text-green-600 mt-1 flex-shrink-0" />
                                 <div>
-                                    <p className="font-bold text-foreground mb-1">Production-Ready Code</p>
-                                    <p className="text-sm text-muted-foreground leading-relaxed">Optimized Python guardrails including comprehensive error handling.</p>
+                                    <p className="font-bold text-slate-900 dark:text-slate-100 mb-1">Production-Ready Code</p>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Optimized Python guardrails including comprehensive error handling.</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-4 p-4 bg-slate-50/50 dark:bg-zinc-800/30 rounded-xl">
+                            <div className="flex items-start gap-4 p-4 bg-slate-50/50 dark:bg-slate-900/30 rounded-xl">
                                 <CheckCircle2 className="w-6 h-6 text-green-600 mt-1 flex-shrink-0" />
                                 <div>
-                                    <p className="font-bold text-foreground mb-1">Audit-Ready Documentation</p>
-                                    <p className="text-sm text-muted-foreground leading-relaxed">Formal documentation ready for submission to compliance officers.</p>
+                                    <p className="font-bold text-slate-900 dark:text-slate-100 mb-1">Audit-Ready Documentation</p>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Formal documentation ready for submission to compliance officers.</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-4 p-4 bg-slate-50/50 dark:bg-zinc-800/30 rounded-xl">
+                            <div className="flex items-start gap-4 p-4 bg-slate-50/50 dark:bg-slate-900/30 rounded-xl">
                                 <CheckCircle2 className="w-6 h-6 text-green-600 mt-1 flex-shrink-0" />
                                 <div>
-                                    <p className="font-bold text-foreground mb-1">Multi-Format Export</p>
-                                    <p className="text-sm text-muted-foreground leading-relaxed">Seamlessly export all fixes as Markdown, PDF, or Python assets.</p>
+                                    <p className="font-bold text-slate-900 dark:text-slate-100 mb-1">Multi-Format Export</p>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Seamlessly export all fixes as Markdown, PDF, or Python assets.</p>
                                 </div>
                             </div>
                         </div>
@@ -277,8 +277,8 @@ export default function RemediatePage() {
                 {/* Sample Remediation Examples */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-gray-900 dark:text-gray-100">Sample Remediation Examples</CardTitle>
-                        <CardDescription className="text-gray-600 dark:text-gray-400">
+                        <CardTitle className="text-slate-900 dark:text-slate-100">Sample Remediation Examples</CardTitle>
+                        <CardDescription className="text-slate-600 dark:text-slate-400">
                             Click any violation to see example fixes
                         </CardDescription>
                     </CardHeader>
@@ -287,39 +287,39 @@ export default function RemediatePage() {
                             <div className="grid gap-3 md:grid-cols-2">
                                 <button
                                     onClick={() => setSelectedDemoViolation('gdpr')}
-                                    className="p-4 text-left bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
+                                    className="p-4 text-left bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
                                 >
                                     <div className="flex items-center gap-2 mb-2">
                                         <Badge className="bg-blue-600 text-white">GDPR</Badge>
-                                        <span className="font-semibold text-gray-900 dark:text-gray-100">Missing Consent</span>
+                                        <span className="font-semibold text-slate-900 dark:text-slate-100">Missing Consent</span>
                                     </div>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    <p className="text-sm text-slate-600 dark:text-slate-400">
                                         User data processing without explicit consent collection
                                     </p>
                                 </button>
 
                                 <button
                                     onClick={() => setSelectedDemoViolation('hipaa')}
-                                    className="p-4 text-left bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-500 transition-colors"
+                                    className="p-4 text-left bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-green-500 dark:hover:border-green-500 transition-colors"
                                 >
                                     <div className="flex items-center gap-2 mb-2">
                                         <Badge className="bg-green-600 text-white">HIPAA</Badge>
-                                        <span className="font-semibold text-gray-900 dark:text-gray-100">Unencrypted PHI</span>
+                                        <span className="font-semibold text-slate-900 dark:text-slate-100">Unencrypted PHI</span>
                                     </div>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    <p className="text-sm text-slate-600 dark:text-slate-400">
                                         Protected Health Information sent without encryption
                                     </p>
                                 </button>
 
                                 <button
                                     onClick={() => setSelectedDemoViolation('soc2')}
-                                    className="p-4 text-left bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-500 transition-colors"
+                                    className="p-4 text-left bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-purple-500 dark:hover:border-purple-500 transition-colors"
                                 >
                                     <div className="flex items-center gap-2 mb-2">
                                         <Badge className="bg-purple-600 text-white">SOC2</Badge>
-                                        <span className="font-semibold text-gray-900 dark:text-gray-100">Weak Access Control</span>
+                                        <span className="font-semibold text-slate-900 dark:text-slate-100">Weak Access Control</span>
                                     </div>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    <p className="text-sm text-slate-600 dark:text-slate-400">
                                         No role-based access control for sensitive operations
                                     </p>
                                 </button>
@@ -358,7 +358,7 @@ export default function RemediatePage() {
                                                 <FileText className="w-4 h-4 text-blue-600" />
                                                 <h5 className="font-semibold text-gray-900 dark:text-gray-100">Document Fix</h5>
                                             </div>
-                                            <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2 font-mono bg-white dark:bg-gray-900 p-3 rounded">
+                                            <div className="text-sm text-slate-700 dark:text-slate-300 space-y-2 font-mono bg-white dark:bg-slate-950 p-3 rounded">
                                                 <p><strong>Section 3.2: User Consent</strong></p>
                                                 <p>Before processing any personal data, the system MUST:</p>
                                                 <p>1. Present clear consent form explaining data usage</p>
@@ -370,9 +370,9 @@ export default function RemediatePage() {
                                         <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded border border-green-200 dark:border-green-800">
                                             <div className="flex items-center gap-2 mb-3">
                                                 <Code className="w-4 h-4 text-green-600" />
-                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100">Code Guardrail</h5>
+                                                <h5 className="font-semibold text-slate-900 dark:text-slate-100">Code Guardrail</h5>
                                             </div>
-                                            <pre className="text-xs text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 p-3 rounded overflow-x-auto">
+                                            <pre className="text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 p-3 rounded overflow-x-auto">
                                                 {`def validate_user_consent(user_id: str) -> bool:
     """Validate user has given consent before processing data"""
     consent = db.get_consent_record(user_id)
@@ -430,7 +430,7 @@ def encrypt_phi(data: dict) -> bytes:
                                                 <FileText className="w-4 h-4 text-blue-600" />
                                                 <h5 className="font-semibold text-gray-900 dark:text-gray-100">Document Fix</h5>
                                             </div>
-                                            <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2 font-mono bg-white dark:bg-gray-900 p-3 rounded">
+                                            <div className="text-sm text-slate-700 dark:text-slate-300 space-y-2 font-mono bg-white dark:bg-slate-950 p-3 rounded">
                                                 <p><strong>Section 5.3: Access Control Policy</strong></p>
                                                 <p>Implement role-based access control (RBAC):</p>
                                                 <p>1. Define roles: admin, analyst, viewer</p>
@@ -442,9 +442,9 @@ def encrypt_phi(data: dict) -> bytes:
                                         <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded border border-green-200 dark:border-green-800">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <Code className="w-4 h-4 text-green-600" />
-                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100">Code Guardrail</h5>
+                                                <h5 className="font-semibold text-slate-900 dark:text-slate-100">Code Guardrail</h5>
                                             </div>
-                                            <pre className="text-xs text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 p-3 rounded overflow-x-auto">
+                                            <pre className="text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 p-3 rounded overflow-x-auto">
                                                 {`def require_role(required_role: str):
                                     """Decorator to enforce role-based access"""
                                     def decorator(func):

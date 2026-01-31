@@ -121,7 +121,7 @@ export default function HowItWorksPage() {
                         How PolicyGuard Works
                     </h1>
                     <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-                        A structured approach to assisting teams with AI risk management and lifecycle governance.
+                        A structured approach to assisting teams with AI risk management and governance.
                     </p>
                 </div>
 
@@ -151,7 +151,7 @@ export default function HowItWorksPage() {
                 {/* CTA */}
                 <div className="mt-20 text-center border-t border-white/10 pt-12">
                     <h2 className="text-2xl font-semibold mb-4">Ready to Govern Your AI?</h2>
-                    <p className="text-gray-400 mb-6">Start improving your AI lifecycle management with PolicyGuard today.</p>
+                    <p className="text-gray-400 mb-6">Start improving your AI governance with PolicyGuard today.</p>
                     <Button
                         onClick={() => router.push('/signup')}
                         className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-base rounded-lg"

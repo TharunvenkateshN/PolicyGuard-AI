@@ -235,7 +235,7 @@ export default function SettingsPage() {
     );
 
     const SettingsRow = ({ children, className, noDivider }: { children: React.ReactNode, className?: string, noDivider?: boolean }) => (
-        <div className={cn("flex items-center justify-between py-5", !noDivider && "border-b border-border/40", className)}>
+        <div className={cn("flex flex-col sm:flex-row items-start sm:items-center justify-between py-5 gap-4", !noDivider && "border-b border-border/40", className)}>
             {children}
         </div>
     );
@@ -243,19 +243,19 @@ export default function SettingsPage() {
     return (
         <div className="max-w-5xl mx-auto pb-20 space-y-8 animate-in fade-in duration-700">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pt-6 px-1">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight text-foreground">Settings</h2>
                     <p className="text-muted-foreground mt-1 text-base">
                         Manage your agent governance and policies.
                     </p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3 w-full md:w-auto">
                     <Button
                         id="sim-btn"
                         variant="outline"
                         onClick={handleSimulation}
-                        className="bg-transparent hover:bg-cyan-500/10 border-cyan-500/30 text-cyan-500 font-semibold"
+                        className="flex-1 md:flex-none bg-transparent hover:bg-cyan-500/10 border-cyan-500/30 text-cyan-500 font-semibold"
                     >
                         <Zap className="h-4 w-4 mr-2 text-cyan-400" />
                         Run Simulation
@@ -264,7 +264,7 @@ export default function SettingsPage() {
                         onClick={handleSave}
                         disabled={isSaving || !isDirty}
                         className={cn(
-                            "min-w-[120px] shadow-sm transition-all duration-200",
+                            "flex-1 md:flex-none min-w-[120px] shadow-sm transition-all duration-200",
                             isDirty
                                 ? "bg-cyan-600 hover:bg-cyan-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)]"
                                 : "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
@@ -321,7 +321,7 @@ export default function SettingsPage() {
                 >
                     {activeSection === 'general' && (
                         <div className="max-w-2xl">
-                            <GroupHeader title="Environment" description="Configure the lifecycle stage and region." />
+                            <GroupHeader title="Environment" description="Configure the deployment phase and region." />
                             <SettingsGroup>
                                 <SettingsRow>
                                     <div className="space-y-0.5">
