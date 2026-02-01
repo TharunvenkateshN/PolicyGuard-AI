@@ -1,6 +1,7 @@
 from services.gemini import GeminiService
 from services.metrics import metrics_store
 import json
+import asyncio
 import google.generativeai as genai
 
 class SLAAnalyzer:

@@ -23,13 +23,13 @@ interface MonitorData {
 
 export default function MonitorPage() {
     // --- Global Data ---
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
     const [data, setData] = useState<MonitorData>({ traces_per_min: 0, blocking_rate: 0, active_policies: 0, traces: [] });
 
     // --- Fetching Logic ---
     useEffect(() => {
         const fetchMonitor = async () => {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
             try {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
@@ -49,7 +49,7 @@ export default function MonitorPage() {
             }
         };
         fetchMonitor();
-        const interval = setInterval(fetchMonitor, 5000); // Poll every 5s for live feed
+        const interval = setInterval(fetchMonitor, 3000); // Poll every 3s for live feed
         return () => clearInterval(interval);
     }, []);
 
@@ -132,7 +132,9 @@ export default function MonitorPage() {
                                 ) : (
                                     data.traces.map((trace) => (
                                         <tr key={trace.id} className="bg-white dark:bg-zinc-950 hover:bg-gray-50 dark:hover:bg-zinc-900/50 transition-colors animate-in fade-in slide-in-from-top-2 duration-300">
-                                            <td className="px-6 py-4 font-mono text-gray-500 text-xs">{trace.timestamp}</td>
+                                            <td className="px-6 py-4 font-mono text-gray-500 text-xs text-nowrap">
+                                                {new Date(trace.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                            </td>
                                             <td className="px-6 py-4 font-mono text-xs">{trace.id.substring(0, 8)}...</td>
                                             <td className="px-6 py-4 truncate max-w-[150px] font-medium" title={trace.agent}>{trace.agent}</td>
                                             <td className="px-6 py-4">{trace.action}</td>

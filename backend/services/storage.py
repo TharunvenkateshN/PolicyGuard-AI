@@ -43,16 +43,16 @@ class PolicyStorage:
                     firebase_admin.initialize_app(cred)
                 
                 self.db = firestore.client()
-                print("✅ Connected to Firebase Firestore (Production Mode)")
+                print("[OK] Connected to Firebase Firestore (Production Mode)")
                 
                 # Load data in background thread to avoid blocking requests
                 import threading
                 loading_thread = threading.Thread(target=self._load_from_firebase_background, daemon=True)
                 loading_thread.start()
-                print("🔄 Loading Firebase data in background...")
+                print("[BUSY] Loading Firebase data in background...")
                 
             except Exception as e:
-                print(f"❌ CRITICAL FIREBASE ERROR: {e}")
+                print(f"[ERR] CRITICAL FIREBASE ERROR: {e}")
                 print("\n" + "!"*60)
                 print("  FIREBASE CONNECTION FAILED")
                 print("  1. Place 'serviceAccountKey.json' in /backend")
@@ -66,9 +66,9 @@ class PolicyStorage:
                 self._load_from_local_json() # Load local data immediately
         else:
             # Use local JSON storage (fast, no network)
-            print("🚀 Using LOCAL JSON storage (Development Mode - Fast)")
+            print("[START] Using LOCAL JSON storage (Development Mode - Fast)")
             self._load_from_local_json()
-            print(f"✅ Loaded {len(self._policies)} policies from {self._local_store_path}")
+            print(f"[OK] Loaded {len(self._policies)} policies from {self._local_store_path}")
 
     # --- Loading Logic ---
     def _load_from_firebase(self):
@@ -85,9 +85,9 @@ class PolicyStorage:
                     self._policies.append(PolicyDocument(**data))
                     count += 1
                 except Exception as e:
-                    print(f"⚠️ Failed to parse policy {doc.id}: {e}")
+                    print(f"[WARN] Failed to parse policy {doc.id}: {e}")
             
-            print(f"✅ Loaded {count} policies from Firebase")
+            print(f"[OK] Loaded {count} policies from Firebase")
             # Load Evaluations (Limit 100 for startup performance)
             eval_ref = self.db.collection('evaluations').order_by('timestamp', direction=firestore.Query.DESCENDING).limit(100)
             self._evaluations = []
@@ -98,7 +98,7 @@ class PolicyStorage:
                     eval_count += 1
                 except: pass
             self._evaluations.reverse() 
-            print(f"✅ Loaded {eval_count} evaluations from Firebase")
+            print(f"[OK] Loaded {eval_count} evaluations from Firebase")
             self._initialized = True
                 
         except Exception as e:
@@ -406,40 +406,71 @@ class PolicyStorage:
             self._load_vectors()
             
         import datetime
+        from services.metrics import metrics_store
+        
         now = datetime.datetime.now()
         active_policies = len([p for p in self._policies if p.is_active])
         
-        sorted_evals = sorted(self._evaluations, key=lambda x: x['timestamp'])
+        # 1. Get Live Metrics from Proxy
+        live_metrics = metrics_store.get_current_metrics()
+        live_logs = metrics_store.get_audit_logs()
         
-        five_mins_ago = now - datetime.timedelta(minutes=5)
-        recent_count = sum(1 for e in self._evaluations if datetime.datetime.fromisoformat(e['timestamp']) > five_mins_ago)
-        traces_per_min = round(recent_count / 5, 1) if recent_count > 0 else 0
-
-        total = len(self._evaluations)
-        blocked = sum(1 for e in self._evaluations if e['report']['risk_assessment']['overall_rating'] == 'High')
-        blocking_rate = round((blocked / total * 100), 1) if total > 0 else 0
-
-        traces = []
-        for idx, entry in enumerate(reversed(sorted_evals[-20:])):
-            report = entry.get('report', {})
-            risk = report.get('risk_assessment', {})
-            spec = report.get('system_spec', {})
-            verdict = report.get('verdict', {})
+        # 2. Prefer Live Stats if traffic exists
+        if live_metrics['total_requests'] > 0:
+            traces_per_min = live_metrics['requests_per_minute']
+            total = live_metrics['total_requests']
+            blocked = live_metrics['pg_blocks']
+            blocking_rate = round((blocked / total * 100), 1) if total > 0 else 0
+        else:
+            # Fallback to evaluation history for demo
+            five_mins_ago = now - datetime.timedelta(minutes=5)
+            recent_count = sum(1 for e in self._evaluations if datetime.datetime.fromisoformat(e['timestamp']) > five_mins_ago)
+            traces_per_min = round(recent_count / 5, 1) if recent_count > 0 else 0
             
-            rating = risk.get('overall_rating', 'Low')
-            status = 'pass'
-            if rating == 'High': status = 'block'
-            elif rating == 'Medium': status = 'warn'
-             
+            total_evals = len(self._evaluations)
+            blocked_evals = sum(1 for e in self._evaluations if e.get('report', {}).get('risk_assessment', {}).get('overall_rating') == 'High')
+            blocking_rate = round((blocked_evals / total_evals * 100), 1) if total_evals > 0 else 0
+
+        # 3. Combine Traces (Live Logs + Evaluation History)
+        traces = []
+        
+        # Add Live Logs (High Priority)
+        for idx, log in enumerate(reversed(live_logs)):
+            status = log['status'].lower()
+            if status == 'info': continue 
+            
             traces.append({
-                "id": f"TR-{1000 + idx}",
-                "timestamp": entry['timestamp'],
-                "agent": report.get('workflow_name') or spec.get('agent_name') or " ".join(spec.get('primary_purpose', 'AI Agent').split()[:2]),
-                "action": "Policy Scan",
-                "status": status,
-                "details": verdict.get('status_label', 'Evaluated')
+                "id": f"LIVE-{idx}",
+                "timestamp": log['timestamp'],
+                "agent": "PolicyGuard-Proxy",
+                "action": log['event'],
+                "status": 'pass' if status == 'pass' else ('block' if status == 'block' else 'warn'),
+                "details": log.get('details') or "Live traffic intercepted"
             })
             
+        # Add Historical Evaluations (Maximum 50 traces total)
+        if len(traces) < 50:
+            sorted_evals = sorted(self._evaluations, key=lambda x: x['timestamp'], reverse=True)
+            for idx, entry in enumerate(sorted_evals[:(50-len(traces))]):
+                report = entry.get('report', {})
+                risk = report.get('risk_assessment', {})
+                spec = report.get('system_spec', {})
+                verdict = report.get('verdict', {})
+                
+                rating = risk.get('overall_rating', 'Low')
+                status = 'pass'
+                if rating == 'High': status = 'block'
+                elif rating == 'Medium': status = 'warn'
+                
+                traces.append({
+                    "id": f"TR-{1000 + idx}",
+                    "timestamp": entry['timestamp'],
+                    "agent": report.get('workflow_name') or spec.get('agent_name') or "AI Agent",
+                    "action": "Safety Evaluation",
+                    "status": status,
+                    "details": verdict.get('status_label', 'Offline Audit')
+                })
+
         return {
             "traces_per_min": traces_per_min,
             "blocking_rate": blocking_rate,

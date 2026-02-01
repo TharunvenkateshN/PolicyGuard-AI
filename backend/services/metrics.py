@@ -50,6 +50,7 @@ class MetricsStore:
         endpoint: str = "/v1/chat/completions"
     ):
         """Record a single request metric"""
+        print(f"[METRICS] Request: {endpoint} (status={status_code}, violation={policy_violation})")
         metric = RequestMetric(
             timestamp=datetime.now(),
             duration_ms=duration_ms,
@@ -76,6 +77,7 @@ class MetricsStore:
 
     def record_audit_log(self, event: str, status: str = "INFO", details: Optional[str] = None):
         """Record a real-time audit event"""
+        print(f"[METRICS] Audit: {event} ({status})")
         log = AuditLog(
             timestamp=datetime.now().isoformat(),
             event=event,
@@ -105,8 +107,8 @@ class MetricsStore:
         now = datetime.now()
         uptime_seconds = (now - self.start_time).total_seconds()
         
-        # Get requests from different time windows
-        last_1min = self._get_requests_in_window(1)
+        # Get requests from different time windows (Widened 1min to 2min for stability)
+        last_2min = self._get_requests_in_window(2)
         last_5min = self._get_requests_in_window(5)
         last_1hour = self._get_requests_in_window(60)
         all_requests = list(self.requests)
@@ -117,16 +119,23 @@ class MetricsStore:
         failed_requests = total_requests - successful_requests
         
         # Response times
-        response_times = [r.duration_ms for r in all_requests if r.duration_ms > 0]
+        response_times = sorted([r.duration_ms for r in all_requests if r.duration_ms > 0])
         avg_response_time = statistics.mean(response_times) if response_times else 0
-        p95_response_time = statistics.quantiles(response_times, n=20)[18] if len(response_times) >= 20 else avg_response_time
-        p99_response_time = statistics.quantiles(response_times, n=100)[98] if len(response_times) >= 100 else avg_response_time
+        
+        # Dynamic Percentile Calculation (Works even with 1 request)
+        def get_percentile(data: List[float], p: float) -> float:
+            if not data: return 0
+            idx = int(len(data) * p)
+            return data[min(idx, len(data) - 1)]
+
+        p95_response_time = get_percentile(response_times, 0.95)
+        p99_response_time = get_percentile(response_times, 0.99)
         
         # Uptime calculation (99.9% target)
         uptime_percentage = ((uptime_seconds - self.total_downtime_seconds) / uptime_seconds * 100) if uptime_seconds > 0 else 100.0
         
         # Throughput
-        requests_per_minute = len(last_1min)
+        requests_per_minute = round(len(last_2min) / 2, 1)
         requests_per_hour = len(last_1hour)
         
         # PolicyGuard Specific Metrics
@@ -134,6 +143,8 @@ class MetricsStore:
         policy_violations = len([r for r in all_requests if r.policy_violation])
         pg_blocks = len([r for r in all_requests if r.pii_detected or r.policy_violation])
         pg_passed = total_requests - pg_blocks
+
+        print(f"[METRICS] Periodic Stats: total={total_requests}, live_rpm={requests_per_minute}, blocks={pg_blocks}")
 
         return {
             "timestamp": now.isoformat(),

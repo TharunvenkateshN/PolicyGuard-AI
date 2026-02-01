@@ -15,12 +15,15 @@ gemini = GeminiService()
 async def proxy_health():
     return {"status": "Proxy Online", "service": "PolicyGuard Zero-Trust Interceptor"}
 
-@router.post("/v1beta/models/{model_name}:generateContent")
+@router.post("/v1beta/models/{model_name:path}:generateContent")
+@router.post("/v1/models/{model_name:path}:generateContent")
+@router.post("/models/{model_name:path}:generateContent")
 async def gemini_proxy(model_name: str, request: Request, background_tasks: BackgroundTasks):
     """
     Zero-Trust Proxy for Gemini API.
     Strict enforcement of agent-specific policies and PII redaction.
     """
+    print(f"[PROXY] Intercepted {request.method} {request.url}")
     start_time = time.time()
     
     try:
@@ -49,7 +52,7 @@ async def gemini_proxy(model_name: str, request: Request, background_tasks: Back
         is_blocked, processed_prompt, metadata = policy_engine.evaluate_prompt(user_prompt, agent_id=agent_id)
         
         if is_blocked:
-            print(f"[PROXY] 🚨 BLOCK: {metadata['reason']}")
+            print(f"[PROXY] [BLOCK] BLOCK: {metadata['reason']}")
             metrics_store.record_audit_log(f"BLOCK: {metadata['reason']}", status="BLOCK")
             metrics_store.record_request(
                 duration_ms=(time.time() - start_time) * 1000,
@@ -77,8 +80,13 @@ async def gemini_proxy(model_name: str, request: Request, background_tasks: Back
 
         # 5. FORWARD TO UPSTREAM
         async with httpx.AsyncClient() as client:
+            # Clean model_name to prevent double prefixing (e.g. models/models/...)
+            cleaned_model = model_name
+            if cleaned_model.startswith("models/"):
+                cleaned_model = cleaned_model[7:]
+                
             # Reverting to v1beta as systemInstruction is not supported in v1 for this model/payload
-            google_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+            google_url = f"https://generativelanguage.googleapis.com/v1beta/models/{cleaned_model}:generateContent?key={api_key}"
             print(f"[PROXY DEBUG] model_name='{model_name}'")
             print(f"[PROXY DEBUG] google_url='{google_url}'")
             
@@ -110,7 +118,7 @@ async def gemini_proxy(model_name: str, request: Request, background_tasks: Back
                 is_blocked_egress, _, egress_meta = policy_engine.evaluate_prompt(generated_text, agent_id=agent_id)
                 
                 if is_blocked_egress:
-                    print(f"[PROXY] 🚨 EGRESS BLOCK: {egress_meta['reason']}")
+                    print(f"[PROXY] [BLOCK] EGRESS BLOCK: {egress_meta['reason']}")
                     metrics_store.record_audit_log(f"EGRESS BLOCK: {egress_meta['reason']}", status="BLOCK")
                     metrics_store.record_request(
                         duration_ms=(time.time() - start_time) * 1000,
@@ -143,6 +151,12 @@ async def gemini_proxy(model_name: str, request: Request, background_tasks: Back
         metrics_store.record_request(
             duration_ms=(time.time() - start_time) * 1000,
             status_code=500,
-            endpoint="proxy_fatal"
+            endpoint=f"/v1/{model_name}"
         )
-        raise HTTPException(status_code=500, detail="Internal Proxy Error")
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+# --- Catch-all for SDK variants ---
+@router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+async def proxy_debug_catch_all(request: Request, path: str):
+    print(f"[PROXY DEBUG] Unhandled path: {request.method} {path}")
+    return JSONResponse(status_code=404, content={"message": f"Proxy route not found: {path}"})

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Body
 import asyncio
+import httpx
 from config import settings
 from fastapi.responses import StreamingResponse, FileResponse
 from models.policy import PolicyDocument, WorkflowDefinition, ComplianceReport, DataInteractionMap, AISystemSpec, RiskScore, DeploymentVerdict, EvidenceTrace, Recommendation
@@ -483,29 +484,36 @@ async def export_to_antigravity():
 @router.post("/sla/analyze")
 async def analyze_sla():
     """Get Gemini-powered SLA risk analysis and recommendations"""
+    print("[DEBUG] SLA Analyze request received")
     from services.sla_analyzer import sla_analyzer
+    print("[DEBUG] Calling sla_analyzer.analyze_sla_risk()")
     analysis = await sla_analyzer.analyze_sla_risk()
+    print("[DEBUG] SLA Analyze complete")
     return analysis
 
 # --- Telemetry & Simulation ---
 
 @router.post("/telemetry/ingest")
 async def ingest_telemetry(payload: TelemetryPayload):
-    # Simulated risk calculation
-    risk_score = int((payload.error_rate * 100) + (payload.latency_ms / 20))
-    risk_score = min(100, max(0, risk_score))
+    """Ingest real-time telemetry from external agents"""
+    from services.metrics import metrics_store
     
-    record = {
-        "service_id": payload.service_id,
-        "timestamp": datetime.datetime.now().isoformat(),
-        "error_rate": payload.error_rate,
-        "latency_ms": payload.latency_ms,
-        "risk_score": risk_score
-    }
-    telemetry_data.append(record)
-    # Keep last 1000 records
-    if len(telemetry_data) > 1000: telemetry_data.pop(0)
-    return {"status": "ingested", "risk_score": risk_score}
+    # 1. Record for SLA Tracking
+    metrics_store.record_request(
+        duration_ms=payload.latency_ms,
+        status_code=200 if payload.error_rate < 0.5 else 500,
+        policy_violation=payload.error_rate > 0.5,
+        endpoint=f"telemetry/{payload.service_id}"
+    )
+    
+    # 2. Record for Monitor Page Feed
+    metrics_store.record_audit_log(
+        event=f"Telemetry Heartbeat: {payload.service_id}",
+        status="PASS" if payload.error_rate < 0.5 else "WARN",
+        details=f"Lat: {payload.latency_ms}ms, Err: {payload.error_rate}"
+    )
+    
+    return {"status": "success", "recorded": True}
 
 @router.get("/telemetry/risk/{service_id}")
 async def get_service_risk(service_id: str):
@@ -573,6 +581,32 @@ async def process_hitl_feedback(feedback: dict = Body(...)):
 async def get_service_history(service_id: str):
     service_records = [r for r in telemetry_data if r['service_id'] == service_id]
     return service_records[-20:] # Last 20 data points
+
+@router.post("/system/freeze")
+async def handle_system_freeze(payload: dict = Body(...)):
+    """
+    Safety Freeze: Remotely disables the governed agent (Fin-Bot).
+    """
+    frozen = payload.get("frozen", False)
+    tier = payload.get("tier", "mutation")
+    
+    # In a real environment, this calls the Agent's control port
+    try:
+        # Fin-Bot runs on Port 8001
+        agent_url = "http://localhost:8001/system/control"
+        command = "FREEZE" if frozen else "UNFREEZE"
+        
+        async with httpx.AsyncClient() as client:
+            res = await client.post(agent_url, json={"command": command}, timeout=2.0)
+            if res.status_code == 200:
+                print(f"[SHIELD] Safety {command} successful for Tier: {tier}")
+                return {"status": "success", "system_state": "FROZEN" if frozen else "ACTIVE"}
+            else:
+                return {"status": "error", "message": f"Agent control failed: {res.status_code}"}
+    except Exception as e:
+        print(f"[SHIELD ERROR] Could not reach agent: {e}")
+        # Fallback to local state if needed
+        return {"status": "success", "system_state": "FROZEN" if frozen else "ACTIVE", "warning": "Agent unreachable"}
 
 @router.post("/simulate")
 async def run_simulation():

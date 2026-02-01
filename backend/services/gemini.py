@@ -373,15 +373,31 @@ class GeminiService:
         
         OUTPUT FORMAT (Strict JSON):
         {{
-            "sla_score": 0-100,
-            "status": "Healthy" | "Degraded" | "Breached",
-            "analysis_summary": "One sentence summary.",
-            "impact_analysis": "Detailed paragraph explaining the impact of current metrics.",
-            "recommendations": ["Actionable recommendation 1", "Actionable recommendation 2"],
-            "projected_timeline": [
-                {{"time": "Now", "event": "Current State Analysis", "severity": "Info"}},
-                {{"time": "T+1h", "event": "Predicted impact if unchanged", "severity": "Medium"}},
-                {{"time": "T+24h", "event": "Long term forecast", "severity": "High"}}
+            "risk_score": 0-100,
+            "risk_level": "low" | "medium" | "high" | "critical",
+            "trend_analysis": {{
+                "summary": "One sentence summary.",
+                "direction": "stable" | "improving" | "deteriorating",
+                "confidence": 0.0-1.0
+            }},
+            "forecast": {{
+                "next_hour_uptime": 0.0-100.0,
+                "next_hour_avg_latency": 0,
+                "breach_probability": 0.0-1.0
+            }},
+            "recommendations": [
+                {{
+                    "action": "...",
+                    "reason": "...",
+                    "priority": "low" | "medium" | "high",
+                    "expected_impact": "..."
+                }}
+            ],
+            "risk_factors": [
+                {{
+                    "factor": "...",
+                    "impact_percentage": 0-100
+                }}
             ]
         }}
         """

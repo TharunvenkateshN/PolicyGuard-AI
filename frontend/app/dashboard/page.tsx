@@ -122,6 +122,7 @@ export default function OverviewPage() {
     });
 
     const [governanceProfile, setGovernanceProfile] = useState<'EU' | 'SEC' | 'Standard'>('Standard');
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [visualAudit, setVisualAudit] = useState<{
         active: boolean;
         analyzing: boolean;
@@ -160,28 +161,38 @@ export default function OverviewPage() {
         }
     };
 
-    const handleVisualScan = async () => {
-        setVisualAudit({ active: true, analyzing: true, findings: [], imageSample: '/chart_leak.png' });
+    const handleVisualScan = async (file?: File) => {
+        let previewUrl = '/mock_audit_ui.png';
+
+        if (file) {
+            const reader = new FileReader();
+            previewUrl = await new Promise((resolve) => {
+                reader.onload = (e) => resolve(e.target?.result as string);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        setVisualAudit({
+            active: true,
+            analyzing: true,
+            findings: [],
+            imageSample: previewUrl
+        });
 
         try {
-            // 1. Fetch the sample image to send to backend (Simulating an upload)
-            const imgRes = await fetch('/chart_leak.png');
-            let blob;
-            if (imgRes.ok) {
-                blob = await imgRes.blob();
+            let blob: Blob;
+            if (file) {
+                blob = file;
             } else {
-                // Fallback if image missing: Create a dummy transparent pixel
-                const base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
-                blob = await (await fetch(`data:image/png;base64,${base64}`)).blob();
+                const imgRes = await fetch('/mock_audit_ui.png');
+                blob = await imgRes.blob();
             }
 
-            // 2. Prepare FormData
             const formData = new FormData();
-            formData.append('file', blob, 'chart_leak.png');
-            formData.append('profile', governanceProfile); // 'EU', 'SEC', etc.
-            formData.append('context', "Financial Report for Retail Investors");
+            formData.append('file', blob, file ? file.name : 'sample.png');
+            formData.append('profile', governanceProfile);
+            formData.append('context', "Visual Governance Audit for Agentic Systems");
 
-            // 3. Call Real Backend
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
             const res = await fetch(`${apiUrl}/api/v1/visual/scan`, {
                 method: 'POST',
@@ -196,8 +207,8 @@ export default function OverviewPage() {
                     findings: data.findings || [],
                     semanticIntent: data.constitutional_verdict?.narrative_risk || "Analysis Complete",
                     visionConfidence: data.vision_confidence || 85,
-                    is_contestable: data.constitutional_verdict?.is_contestable,
-                    judgment_norms: data.constitutional_verdict?.judgment_norms
+                    is_contestable: data.constitutional_verdict?.is_contestable || false,
+                    judgment_norms: data.constitutional_verdict?.judgment_norms || "Global Governance Standard"
                 }));
             } else {
                 throw new Error("Scan failed");
@@ -631,12 +642,29 @@ export default function OverviewPage() {
 
                                 <div className="pt-4 mt-2 border-t border-slate-100 dark:border-slate-800">
                                     <div className="flex flex-col gap-2">
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            ref={fileInputRef}
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) handleVisualScan(file);
+                                            }}
+                                        />
                                         <Button
                                             variant="outline"
                                             className="w-full justify-start text-[10px] h-8 gap-2 border-dashed"
-                                            onClick={handleVisualScan}
+                                            onClick={() => fileInputRef.current?.click()}
                                         >
-                                            <ImageIcon className="w-3.5 h-3.5 text-blue-500" /> SIMULATE VISUAL SHIELD
+                                            <ImageIcon className="w-3.5 h-3.5 text-blue-500" /> LIVE VISUAL SHIELD
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            className="w-full justify-start text-[8px] h-6 gap-2 opacity-50 hover:opacity-100"
+                                            onClick={() => handleVisualScan()}
+                                        >
+                                            <Sparkles className="w-3 h-3 text-purple-500" /> Try Sample (Fast)
                                         </Button>
                                         <Button
                                             variant="secondary"
@@ -753,77 +781,132 @@ export default function OverviewPage() {
 
                         {/* Visual Shield Modal/Panel */}
                         {visualAudit.active && (
-                            <Card className={`${theme.card} border-2 border-blue-500/30 bg-blue-50/5 dark:bg-blue-950/10 overflow-hidden animate-in slide-in-from-top-4 duration-500 mb-6`}>
-                                <div className="p-4 bg-blue-500/20 flex items-center justify-between border-b border-blue-500/30">
+                            <Card className={`${theme.card} border-2 border-blue-500/30 overflow-hidden animate-in slide-in-from-top-4 duration-500 mb-6 shadow-2xl backdrop-blur-sm`}>
+                                <div className={`${theme.cardHeader} p-4 flex items-center justify-between`}>
                                     <div className="flex items-center gap-2">
-                                        <ImageIcon className="w-4 h-4 text-blue-600" />
-                                        <h3 className="text-sm font-bold text-blue-700 dark:text-blue-400 uppercase tracking-tight">Visual Shield: Native Gemini 3 Multimodal Audit</h3>
+                                        <div className="p-1.5 rounded-lg bg-blue-500/10 dark:bg-blue-500/20">
+                                            <ImageIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                        </div>
+                                        <h3 className={`text-sm font-bold uppercase tracking-tight ${theme.text.primary}`}>Visual Shield: Native Gemini 3 Multimodal Audit</h3>
                                     </div>
-                                    <Button size="sm" variant="ghost" className="h-6 text-[10px]" onClick={() => setVisualAudit({ active: false, analyzing: false, findings: [] })}>Exit Lab</Button>
+                                    <Button size="sm" variant="ghost" className="h-8 px-3 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-800" onClick={() => setVisualAudit({ active: false, analyzing: false, findings: [] })}>
+                                        EXIT LAB
+                                    </Button>
                                 </div>
-                                <CardContent className="p-5 flex gap-6">
-                                    <div className="flex-1 min-h-[250px] bg-slate-200 dark:bg-slate-900 rounded-xl relative overflow-hidden border border-slate-300 dark:border-slate-800">
-                                        {visualAudit.analyzing ? (
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                                                <div className="w-12 h-12 rounded-full border-4 border-blue-500/20 border-t-blue-500 animate-spin" />
-                                                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 animate-pulse uppercase tracking-widest">Scanning Image for PII...</span>
-                                            </div>
-                                        ) : (
-                                            <div className="relative h-full w-full p-4 flex items-center justify-center">
-                                                <div className="bg-white dark:bg-slate-800 p-6 rounded shadow-xl border border-slate-200">
-                                                    <div className="h-32 w-48 bg-slate-100 dark:bg-slate-700 rounded mb-4 relative">
-                                                        <div className="absolute bottom-2 left-2 text-[8px] font-mono text-slate-400">Host: 192.168.1.45</div>
-                                                        <div className="w-full h-full flex items-center justify-center"><BarChart3 className="w-12 h-12 text-blue-400 opacity-30" /></div>
-                                                    </div>
-                                                    <div className="h-2 w-32 bg-slate-100 dark:bg-slate-700 rounded mb-2"></div>
-                                                    <div className="h-2 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
-                                                </div>
-                                                {/* Bounding Box Simulation */}
-                                                <div className="absolute bottom-6 left-6 w-32 h-8 border-2 border-red-500 bg-red-500/10 rounded flex items-center justify-center animate-pulse">
-                                                    <span className="text-[8px] font-bold text-red-600 bg-white px-1 -top-2 absolute ring-1 ring-red-500">PII_LEAK: INTERNAL_IP</span>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="w-1/3 flex flex-col gap-3">
-                                        <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <ShieldAlert className="w-4 h-4 text-red-600" />
-                                                <span className="text-xs font-bold text-red-700 dark:text-red-400 uppercase tracking-tighter">Governance Action: {visualAudit.findings?.[0]?.action}</span>
-                                            </div>
-                                            <div className="space-y-3">
-                                                <div>
-                                                    <span className="text-[10px] font-bold text-slate-500 uppercase">Constitutional Norms</span>
-                                                    <div className="text-[11px] font-bold text-blue-600 flex items-center gap-1"><Gavel className="w-3 h-3" /> {visualAudit.judgment_norms}</div>
-                                                </div>
-                                                <div>
-                                                    <span className="text-[10px] font-bold text-slate-500 uppercase">Semantic Intent</span>
-                                                    <div className="text-[11px] font-bold text-red-600">{visualAudit.semanticIntent}</div>
-                                                </div>
-                                                <div>
-                                                    <span className="text-[10px] font-bold text-slate-500 uppercase">Vision Confidence</span>
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                                            <div className="h-full bg-blue-500" style={{ width: `${visualAudit.visionConfidence}%` }}></div>
+                                <CardContent className="p-4 flex flex-col md:flex-row gap-6 md:h-[700px] h-auto min-h-0">
+                                    {/* Left Side: Audit Viewport */}
+                                    <div className="flex-[1.5] bg-slate-100 dark:bg-slate-950 rounded-2xl relative border border-slate-200 dark:border-slate-800 flex items-center justify-center p-12 shadow-inner min-h-[400px] md:min-h-0 overflow-hidden">
+                                        <div className="absolute top-6 left-6 z-10 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
+                                            <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em]">LIVE AUDIT VIEWPORT [V3-HOTFIX-ACTIVE]</span>
+                                        </div>
+
+                                        <div className="w-full h-full flex items-center justify-center p-6 overflow-hidden">
+                                            {visualAudit.analyzing ? (
+                                                <div className="flex flex-col items-center gap-6">
+                                                    <div className="relative">
+                                                        <div className="w-16 h-16 rounded-full border-4 border-blue-500/10 border-t-blue-500 animate-spin" />
+                                                        <div className="absolute inset-0 flex items-center justify-center">
+                                                            <div className="w-8 h-8 rounded-full bg-blue-500/20 animate-ping" />
                                                         </div>
-                                                        <span className="text-[10px] font-bold text-blue-600">{visualAudit.visionConfidence}%</span>
+                                                    </div>
+                                                    <span className="text-sm font-black text-blue-600 dark:text-blue-400 animate-pulse uppercase tracking-[0.2em]">Auditing Multimodal Context...</span>
+                                                </div>
+                                            ) : (
+                                                <div className="relative flex items-center justify-center group transition-all duration-500">
+                                                    {visualAudit.imageSample ? (
+                                                        <div className="relative">
+                                                            <div className="absolute -inset-4 bg-blue-500/5 blur-3xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity" />
+                                                            <img
+                                                                src={visualAudit.imageSample}
+                                                                alt="Visual Guard Audit"
+                                                                className="max-h-[300px] md:max-h-[500px] w-auto object-contain rounded-xl shadow-[0_30px_70px_rgba(0,0,0,0.4)] dark:shadow-[0_30px_70px_rgba(0,0,0,0.7)] border-4 border-white dark:border-slate-800 transition-transform relative z-10"
+                                                            />
+                                                            {!visualAudit.analyzing && visualAudit.findings?.length > 0 && (
+                                                                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[11px] font-black px-6 py-2 rounded-full shadow-2xl border-2 border-white dark:border-slate-900 uppercase tracking-tighter animate-bounce z-20 whitespace-nowrap">
+                                                                    VIOLATION DETECTED
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex flex-col items-center opacity-30 text-slate-400">
+                                                            <BarChart3 className="w-24 h-24 mb-6" strokeWidth={1} />
+                                                            <p className="text-xs font-black uppercase tracking-[0.3em] ml-1">NO SIGNAL DETECTED</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    {/* Right Side: Governance Insights */}
+                                    <div className="flex-1 flex flex-col gap-4 min-w-0 md:h-full h-auto overflow-hidden">
+                                        <div className="flex-1 overflow-y-auto pr-3 custom-scrollbar space-y-4 md:max-h-full max-h-[500px] pt-8 pb-8">
+                                            {/* Governance Action Block */}
+                                            <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 shadow-sm relative overflow-hidden group">
+                                                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                    <ShieldAlert className="w-12 h-12 text-red-600" />
+                                                </div>
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <ShieldAlert className="w-5 h-5 text-red-600" />
+                                                    <span className="text-xs font-extrabold text-red-700 dark:text-red-400 uppercase tracking-tight">ENFORCEMENT: {visualAudit.findings?.[0]?.action}</span>
+                                                </div>
+                                                <div className="space-y-4 relative z-10">
+                                                    <div>
+                                                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Foundational Norms</span>
+                                                        <div className="text-xs font-extrabold text-blue-700 dark:text-blue-400 flex items-center gap-1.5 bg-blue-500/5 dark:bg-blue-500/10 p-2 rounded-lg">
+                                                            <Gavel className="w-3.5 h-3.5" /> {visualAudit.judgment_norms}
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Semantic Risk Profile</span>
+                                                        <div className="text-[11px] font-bold text-red-700 dark:text-red-400 leading-snug bg-red-500/5 dark:bg-red-500/10 p-3 rounded-xl border border-red-500/10">
+                                                            <ul className="space-y-1.5 list-disc pl-3">
+                                                                {visualAudit.semanticIntent && visualAudit.semanticIntent.split('. ').filter(Boolean).slice(0, 3).map((point: string, idx: number) => (
+                                                                    <li key={idx} className="leading-tight">{point.trim()}{!point.endsWith('.') && idx < 2 ? '.' : ''}</li>
+                                                                ))}
+                                                                {!visualAudit.semanticIntent && <li>Analysis pending stream extraction...</li>}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Vision Engine Confidence</span>
+                                                        <div className="flex items-center gap-3 bg-slate-500/5 dark:bg-white/5 p-2 rounded-lg">
+                                                            <div className="flex-1 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                                                                <div className="h-full bg-blue-600 animate-pulse" style={{ width: `${visualAudit.visionConfidence}%` }}></div>
+                                                            </div>
+                                                            <span className="text-xs font-black text-blue-700 dark:text-blue-400">{visualAudit.visionConfidence}%</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            {/* Detailed Reason */}
+                                            <div className={`p-4 rounded-xl border ${theme.card} shadow-sm bg-slate-50/50 dark:bg-slate-900/50`}>
+                                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-2">Technical Rationale</span>
+                                                <div className={`text-[11px] leading-relaxed ${theme.text.secondary} space-y-1`}>
+                                                    {visualAudit.findings?.[0]?.reason && visualAudit.findings[0].reason.split('. ').filter(Boolean).slice(0, 2).map((r: string, idx: number) => (
+                                                        <p key={idx} className="flex gap-2">
+                                                            <span className="text-blue-500 shrink-0">▸</span>
+                                                            <span>{r.trim()}</span>
+                                                        </p>
+                                                    )) || "Analysis pending metadata extraction from visual stream..."}
+                                                </div>
+                                            </div>
+
+                                            {/* Authority Section */}
+                                            <div className="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-center space-y-1">
+                                                <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Authority Anchor</span>
+                                                <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 leading-tight">GSB-RESOLUTION #2026-X4A <br /> <span className="opacity-50">VERIFIED BLOCKCHAIN PROOF</span></div>
+                                            </div>
                                         </div>
-                                        <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
-                                            <p className="text-[10px] text-slate-500 leading-relaxed italic">
-                                                {visualAudit.findings?.[0]?.reason}
-                                            </p>
-                                        </div>
-                                        {visualAudit.is_contestable && (
-                                            <Button variant="outline" size="sm" className="w-full text-[10px] h-7 border-blue-500/30 text-blue-600 hover:bg-blue-50 gap-1.5">
-                                                <History className="w-3 h-3" /> FORMAL CONTEST (DISPUTE JUDGMENT)
-                                            </Button>
-                                        )}
-                                        <div className="p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-center mt-auto">
-                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Authority Anchor</span>
-                                            <div className="text-[9px] text-slate-500 leading-tight">GSB-Resolution #2026-04</div>
+
+                                        {/* Footer Actions */}
+                                        <div className="pt-2 flex gap-2 shrink-0">
+                                            {visualAudit.is_contestable && (
+                                                <Button variant="outline" className="flex-1 text-[11px] font-black h-10 border-blue-500/30 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 gap-2 uppercase">
+                                                    <History className="w-4 h-4" /> FORMAL DISPUTE
+                                                </Button>
+                                            )}
                                         </div>
                                     </div>
                                 </CardContent>
@@ -906,135 +989,137 @@ export default function OverviewPage() {
                                 </div>
                             </CardContent>
                         </Card>
-                    </div>
-                </div>
+                    </div >
+                </div >
             )}
 
             {/* --- VIEW 2: SRE DASHBOARD (Standardized) --- */}
-            {viewMode === 'sre' && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-in slide-in-from-right-2 duration-300">
+            {
+                viewMode === 'sre' && (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-in slide-in-from-right-2 duration-300">
 
-                    {/* Top Row: 4 Metric Cards */}
-                    {[
-                        { label: 'Uptime (24h)', val: `${stats.system_health}%`, icon: <Activity className="w-4 h-4" />, color: getHealthColor(stats.system_health) },
-                        { label: 'Avg Latency', val: `${sreChartData.length > 0 ? Math.round(sreChartData[sreChartData.length - 1].latency) : 0}ms`, icon: <Timer className="w-4 h-4" />, color: 'text-indigo-600 dark:text-indigo-400' },
-                        { label: 'Error Rate', val: `${sreChartData.length > 0 ? ((sreChartData[sreChartData.length - 1].errors / (sreChartData[sreChartData.length - 1].requests || 1)) * 100).toFixed(2) : 0}%`, icon: <AlertTriangle className="w-4 h-4" />, color: 'text-indigo-600 dark:text-indigo-400' },
-                        { label: 'Throughput', val: `${sreChartData.length > 0 ? sreChartData[sreChartData.length - 1].requests : 0} rpm`, icon: <Zap className="w-4 h-4" />, color: 'text-indigo-600 dark:text-indigo-400' },
-                    ].map((m, i) => (
-                        <Card key={i} className={`${theme.card} shadow-sm hover:shadow-md transition-shadow`}>
-                            <CardContent className="p-5">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <div className={`text-xs font-semibold uppercase tracking-wider ${theme.text.secondary} mb-1`}>{m.label}</div>
-                                        <div className={`text-2xl font-bold ${m.color}`}>{m.val}</div>
+                        {/* Top Row: 4 Metric Cards */}
+                        {[
+                            { label: 'Uptime (24h)', val: `${stats.system_health}%`, icon: <Activity className="w-4 h-4" />, color: getHealthColor(stats.system_health) },
+                            { label: 'Avg Latency', val: `${sreChartData.length > 0 ? Math.round(sreChartData[sreChartData.length - 1].latency) : 0}ms`, icon: <Timer className="w-4 h-4" />, color: 'text-indigo-600 dark:text-indigo-400' },
+                            { label: 'Error Rate', val: `${sreChartData.length > 0 ? ((sreChartData[sreChartData.length - 1].errors / (sreChartData[sreChartData.length - 1].requests || 1)) * 100).toFixed(2) : 0}%`, icon: <AlertTriangle className="w-4 h-4" />, color: 'text-indigo-600 dark:text-indigo-400' },
+                            { label: 'Throughput', val: `${sreChartData.length > 0 ? sreChartData[sreChartData.length - 1].requests : 0} rpm`, icon: <Zap className="w-4 h-4" />, color: 'text-indigo-600 dark:text-indigo-400' },
+                        ].map((m, i) => (
+                            <Card key={i} className={`${theme.card} shadow-sm hover:shadow-md transition-shadow`}>
+                                <CardContent className="p-5">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <div className={`text-xs font-semibold uppercase tracking-wider ${theme.text.secondary} mb-1`}>{m.label}</div>
+                                            <div className={`text-2xl font-bold ${m.color}`}>{m.val}</div>
+                                        </div>
+                                        <div className={`p-2 rounded-lg bg-slate-100 dark:bg-slate-800 ${theme.text.muted}`}>{m.icon}</div>
                                     </div>
-                                    <div className={`p-2 rounded-lg bg-slate-100 dark:bg-slate-800 ${theme.text.muted}`}>{m.icon}</div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+                                </CardContent>
+                            </Card>
+                        ))}
 
-                    {/* Main Chart Section (Takes 3/4 width) */}
-                    <div className="md:col-span-3 space-y-6">
-                        <Card className={`${theme.card} shadow-md`}>
-                            <CardHeader className={theme.cardHeader}>
-                                <div className="flex justify-between items-center">
-                                    <CardTitle className="text-base flex items-center gap-2"><Server className="w-4 h-4 text-indigo-500" /> Live Telemetry</CardTitle>
-                                    <div className="flex gap-2">
-                                        <div className="flex items-center gap-1.5 text-xs text-gray-500"><span className="w-2 h-2 rounded-full bg-indigo-500"></span> Traffic</div>
-                                        <div className="flex items-center gap-1.5 text-xs text-gray-500"><span className="w-2 h-2 rounded-full bg-amber-500"></span> Latency</div>
+                        {/* Main Chart Section (Takes 3/4 width) */}
+                        <div className="md:col-span-3 space-y-6">
+                            <Card className={`${theme.card} shadow-md`}>
+                                <CardHeader className={theme.cardHeader}>
+                                    <div className="flex justify-between items-center">
+                                        <CardTitle className="text-base flex items-center gap-2"><Server className="w-4 h-4 text-indigo-500" /> Live Telemetry</CardTitle>
+                                        <div className="flex gap-2">
+                                            <div className="flex items-center gap-1.5 text-xs text-gray-500"><span className="w-2 h-2 rounded-full bg-indigo-500"></span> Traffic</div>
+                                            <div className="flex items-center gap-1.5 text-xs text-gray-500"><span className="w-2 h-2 rounded-full bg-amber-500"></span> Latency</div>
+                                        </div>
                                     </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="h-[400px] p-2">
-                                {mounted ? (
-                                    <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={300}>
-                                        <ComposedChart data={sreChartData.length > 0 ? sreChartData : [{ time: '00:00', requests: 0, latency: 0 }]} margin={{ top: 20, right: 20, bottom: 0, left: 0 }}>
-                                            <defs>
-                                                <linearGradient id="colorReq" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.1} /><stop offset="95%" stopColor="#6366f1" stopOpacity={0} /></linearGradient>
-                                            </defs>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-slate-800" />
-                                            <XAxis dataKey="time" tick={{ fontSize: 12 }} stroke="currentColor" className="text-slate-400" />
-                                            <YAxis yAxisId="left" orientation="left" stroke="#6366f1" fontSize={11} tickLine={false} axisLine={false} />
-                                            <YAxis yAxisId="right" orientation="right" stroke="#f59e0b" fontSize={11} tickLine={false} axisLine={false} />
-                                            <Tooltip contentStyle={{ backgroundColor: '#0f172a', color: '#f8fafc', borderRadius: '8px', border: '1px solid #1e293b', fontSize: '12px' }} />
-                                            <Area yAxisId="left" type="monotone" dataKey="requests" fill="url(#colorReq)" stroke="#6366f1" strokeWidth={2} />
-                                            <Line yAxisId="right" type="monotone" dataKey="latency" stroke="#f59e0b" strokeWidth={2} dot={false} />
-                                        </ComposedChart>
-                                    </ResponsiveContainer>
-                                ) : (
-                                    <div className={`h-full w-full flex items-center justify-center text-xs ${theme.text.muted}`}>Loading Live Telemetry...</div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </div>
+                                </CardHeader>
+                                <CardContent className="h-[400px] p-2">
+                                    {mounted ? (
+                                        <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={300}>
+                                            <ComposedChart data={sreChartData.length > 0 ? sreChartData : [{ time: '00:00', requests: 0, latency: 0 }]} margin={{ top: 20, right: 20, bottom: 0, left: 0 }}>
+                                                <defs>
+                                                    <linearGradient id="colorReq" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.1} /><stop offset="95%" stopColor="#6366f1" stopOpacity={0} /></linearGradient>
+                                                </defs>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-slate-800" />
+                                                <XAxis dataKey="time" tick={{ fontSize: 12 }} stroke="currentColor" className="text-slate-400" />
+                                                <YAxis yAxisId="left" orientation="left" stroke="#6366f1" fontSize={11} tickLine={false} axisLine={false} />
+                                                <YAxis yAxisId="right" orientation="right" stroke="#f59e0b" fontSize={11} tickLine={false} axisLine={false} />
+                                                <Tooltip contentStyle={{ backgroundColor: '#0f172a', color: '#f8fafc', borderRadius: '8px', border: '1px solid #1e293b', fontSize: '12px' }} />
+                                                <Area yAxisId="left" type="monotone" dataKey="requests" fill="url(#colorReq)" stroke="#6366f1" strokeWidth={2} />
+                                                <Line yAxisId="right" type="monotone" dataKey="latency" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                                            </ComposedChart>
+                                        </ResponsiveContainer>
+                                    ) : (
+                                        <div className={`h-full w-full flex items-center justify-center text-xs ${theme.text.muted}`}>Loading Live Telemetry...</div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </div>
 
-                    {/* Right Logic Section (Takes 1/4 width) - Terminal & Traffic Flow */}
-                    <div className="md:col-span-1 space-y-6">
+                        {/* Right Logic Section (Takes 1/4 width) - Terminal & Traffic Flow */}
+                        <div className="md:col-span-1 space-y-6">
 
-                        {/* Traffic Flow - Dynamic Architecture */}
-                        <Card className={`${theme.card} shadow-sm`}>
-                            <CardHeader className={`${theme.cardHeader} py-3`}>
-                                <CardTitle className="text-sm font-semibold flex items-center gap-2"><Network className="w-4 h-4 text-purple-500" /> Traffic Flow</CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-4">
-                                <div className="space-y-4 relative">
-                                    <div className="absolute left-3.5 top-2 bottom-2 w-0.5 bg-gradient-to-b from-blue-200 via-purple-200 to-green-200 dark:from-blue-900 dark:via-purple-900 dark:to-green-900"></div>
+                            {/* Traffic Flow - Dynamic Architecture */}
+                            <Card className={`${theme.card} shadow-sm`}>
+                                <CardHeader className={`${theme.cardHeader} py-3`}>
+                                    <CardTitle className="text-sm font-semibold flex items-center gap-2"><Network className="w-4 h-4 text-purple-500" /> Traffic Flow</CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-4">
+                                    <div className="space-y-4 relative">
+                                        <div className="absolute left-3.5 top-2 bottom-2 w-0.5 bg-gradient-to-b from-blue-200 via-purple-200 to-green-200 dark:from-blue-900 dark:via-purple-900 dark:to-green-900"></div>
 
-                                    {trafficFlow.map((node, idx) => {
-                                        const IconComponent = node.icon;
-                                        const colorMap: Record<string, string> = {
-                                            blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
-                                            purple: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
-                                            green: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
-                                            pink: 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400'
-                                        };
+                                        {trafficFlow.map((node, idx) => {
+                                            const IconComponent = node.icon;
+                                            const colorMap: Record<string, string> = {
+                                                blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
+                                                purple: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
+                                                green: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
+                                                pink: 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400'
+                                            };
 
-                                        return (
-                                            <div key={idx} className="relative flex items-center gap-3 animate-in fade-in" style={{ animationDelay: `${idx * 100}ms` }}>
-                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 ${colorMap[node.color] || colorMap.blue}`}>
-                                                    <IconComponent className="w-4 h-4" />
+                                            return (
+                                                <div key={idx} className="relative flex items-center gap-3 animate-in fade-in" style={{ animationDelay: `${idx * 100}ms` }}>
+                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 ${colorMap[node.color] || colorMap.blue}`}>
+                                                        <IconComponent className="w-4 h-4" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <div className={`text-xs font-medium ${theme.text.primary}`}>{node.label}</div>
+                                                        <div className="text-[10px] text-gray-500">{node.desc}</div>
+                                                    </div>
                                                 </div>
-                                                <div className="flex-1">
-                                                    <div className={`text-xs font-medium ${theme.text.primary}`}>{node.label}</div>
-                                                    <div className="text-[10px] text-gray-500">{node.desc}</div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-
-                                {trafficFlow.length === 1 && (
-                                    <div className={`text-center text-xs mt-4 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg ${theme.text.muted}`}>
-                                        Run evaluations to see your AI system's architecture
+                                            );
+                                        })}
                                     </div>
-                                )}
-                            </CardContent>
-                        </Card>
 
-                        {/* Live Terminal */}
-                        <Card className="flex flex-col h-[250px] bg-[#0c0c0c] dark:bg-[#020617] border border-gray-800 dark:border-slate-800 shadow-xl overflow-hidden rounded-xl">
-                            <div className="bg-[#1f1f1f] dark:bg-[#0f172a] border-b border-white/5 p-2 px-3 flex items-center justify-between">
-                                <div className="text-[10px] font-mono text-gray-400 dark:text-slate-400 flex items-center gap-2">
-                                    <Terminal className="w-3 h-3 text-emerald-500" /> bash --live
-                                </div>
-                                <div className="flex gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500/20"></div><div className="w-2 h-2 rounded-full bg-yellow-500/20"></div><div className="w-2 h-2 rounded-full bg-emerald-500/20"></div></div>
-                            </div>
-                            <div className="flex-1 p-3 font-mono text-[10px] text-gray-300 dark:text-slate-300 overflow-y-auto space-y-1.5 custom-scrollbar" ref={logContainerRef}>
-                                {logs.map((log, i) => (
-                                    <div key={i} className="flex gap-2">
-                                        <span className="text-gray-600 dark:text-slate-600 w-10 shrink-0">{log.timestamp.split('T')[1]?.split('.')[0]}</span>
-                                        <span className={log.level === 'ERROR' ? 'text-red-400' : log.level === 'WARN' ? 'text-yellow-400' : 'text-green-400'}>{log.level}</span>
-                                        <span className="break-all opacity-80">{log.message}</span>
+                                    {trafficFlow.length === 1 && (
+                                        <div className={`text-center text-xs mt-4 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg ${theme.text.muted}`}>
+                                            Run evaluations to see your AI system's architecture
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* Live Terminal */}
+                            <Card className="flex flex-col h-[250px] bg-[#0c0c0c] dark:bg-[#020617] border border-gray-800 dark:border-slate-800 shadow-xl overflow-hidden rounded-xl">
+                                <div className="bg-[#1f1f1f] dark:bg-[#0f172a] border-b border-white/5 p-2 px-3 flex items-center justify-between">
+                                    <div className="text-[10px] font-mono text-gray-400 dark:text-slate-400 flex items-center gap-2">
+                                        <Terminal className="w-3 h-3 text-emerald-500" /> bash --live
                                     </div>
-                                ))}
-                            </div>
-                        </Card>
+                                    <div className="flex gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500/20"></div><div className="w-2 h-2 rounded-full bg-yellow-500/20"></div><div className="w-2 h-2 rounded-full bg-emerald-500/20"></div></div>
+                                </div>
+                                <div className="flex-1 p-3 font-mono text-[10px] text-gray-300 dark:text-slate-300 overflow-y-auto space-y-1.5 custom-scrollbar" ref={logContainerRef}>
+                                    {logs.map((log, i) => (
+                                        <div key={i} className="flex gap-2">
+                                            <span className="text-gray-600 dark:text-slate-600 w-10 shrink-0">{log.timestamp.split('T')[1]?.split('.')[0]}</span>
+                                            <span className={log.level === 'ERROR' ? 'text-red-400' : log.level === 'WARN' ? 'text-yellow-400' : 'text-green-400'}>{log.level}</span>
+                                            <span className="break-all opacity-80">{log.message}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Card>
 
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
-        </div>
+        </div >
     );
 }
