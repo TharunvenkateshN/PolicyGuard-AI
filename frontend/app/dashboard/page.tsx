@@ -1,5 +1,6 @@
 "use client"
 
+import { useTheme } from 'next-themes';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
@@ -11,7 +12,7 @@ import {
     Globe, Terminal, Eye,
     Cpu, HardDrive, Database, Network, Layers,
     FileText, Check, XCircle, Stethoscope, Wrench, Sparkles, Image as ImageIcon, Download, Box, ShieldAlert,
-    Gavel, History, Scale as LegalScale
+    Gavel, History, Scale as LegalScale, Sun, Moon
 } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import {
@@ -63,6 +64,7 @@ interface LogEntry {
 
 export default function OverviewPage() {
     const router = useRouter();
+    const { theme: currentTheme, setTheme } = useTheme();
     const [viewMode, setViewMode] = useState<'ciso' | 'sre'>('ciso');
     const [mounted, setMounted] = useState(false);
     const [shieldActive, setShieldActive] = useState({
@@ -447,6 +449,9 @@ export default function OverviewPage() {
         }
     };
 
+    // Tab State
+    const [activeTab, setActiveTab] = useState('Overview');
+
     const getHealthColor = (score: number) => {
         if (score >= 95) return "text-emerald-500 dark:text-emerald-400";
         if (score >= 80) return "text-amber-500 dark:text-amber-400";
@@ -456,118 +461,249 @@ export default function OverviewPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500 pb-24 max-w-[1600px] mx-auto">
 
-            {/* TOP BAR: UNIFIED HEADER & TOGGLE */}
-            <div className={`p-2 rounded-2xl border shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 ${theme.card} sticky top-0 z-20 backdrop-blur-xl bg-opacity-90 dark:bg-opacity-80 transition-all`}>
-
-                <div className="flex items-center gap-4 px-4 py-2">
-                    <div className={`p-3 rounded-xl shadow-lg ${viewMode === 'ciso' ? 'bg-gradient-to-br from-blue-600 to-indigo-600' : 'bg-gradient-to-br from-indigo-600 to-purple-600'} text-white ring-1 ring-white/10`}>
-                        {viewMode === 'ciso' ? <ShieldCheck className="w-6 h-6" /> : <Activity className="w-6 h-6" />}
-                    </div>
+            {/* NEW HEADER DESIGN */}
+            <div className="flex flex-col gap-6 mb-8">
+                {/* Title & Actions */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 id="dashboard-title" className={`text-2xl font-bold tracking-tight ${theme.text.primary}`}>
-                            {viewMode === 'ciso' ? 'Compliance Command Center' : 'Reliability Console'}
-                        </h1>
-                        <p className={`text-sm ${theme.text.secondary} font-medium flex items-center gap-2`}>
-                            {viewMode === 'ciso' ? 'Stream 1: Risk Management & Audit' : 'Stream 2: SRE & Performance Monitoring'}
-                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        </p>
+                        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Dashboard</h1>
+                        <p className="text-sm text-slate-500 mt-1">Real-time governance oversight and system health monitoring.</p>
                     </div>
-                </div>
+                    <div className="flex items-center gap-3">
+                        <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
+                            {['Overview', 'Analytics', 'Reports', 'Notifications'].map((tab) => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${activeTab === tab
+                                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
+                                        : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+                                        }`}
+                                >
+                                    {tab}
+                                </button>
+                            ))}
+                        </div>
 
-                <div className="flex gap-4 items-center">
-                    <div className="bg-slate-100 dark:bg-slate-950 p-1.5 rounded-xl flex border border-slate-200 dark:border-slate-800">
-                        <button
-                            id="ciso-view-toggle"
-                            onClick={() => setViewMode('ciso')}
-                            className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${viewMode === 'ciso'
-                                ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm ring-1 ring-black/5 dark:ring-white/10'
-                                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                                }`}
-                        >
-                            <Scale className="w-4 h-4" /> CISO Mode
-                        </button>
-                        <button
-                            id="sre-view-toggle"
-                            onClick={() => setViewMode('sre')}
-                            className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${viewMode === 'sre'
-                                ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-black/5 dark:ring-white/10'
-                                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                                }`}
-                        >
-                            <Terminal className="w-4 h-4" /> SRE Mode
-                        </button>
-                    </div>
-
-                    <div className="flex gap-2">
-                        <select
-                            value={governanceProfile}
-                            onChange={(e) => setGovernanceProfile(e.target.value as any)}
-                            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1 text-xs font-bold ring-2 ring-blue-500/10 focus:ring-blue-500/30"
-                        >
-                            <option value="Standard">GLOBAL STD</option>
-                            <option value="EU">EU AI ACT</option>
-                            <option value="SEC">SEC COMPLIANCE</option>
-                        </select>
                         <Button
-                            variant={freezeState.mutation || freezeState.enforcement ? "destructive" : "outline"}
-                            size="sm"
-                            onClick={() => handleTieredFreeze('mutation')}
-                            className={`h-9 px-4 gap-2 font-bold animate-pulse ${freezeState.mutation ? 'bg-red-600' : 'border-red-500 text-red-500'}`}
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')}
+                            className="w-9 h-9 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-300"
                         >
-                            <ShieldAlert className="w-4 h-4" /> {freezeState.mutation ? "FREEZE ACTIVE" : "SAFETY FREEZE"}
+                            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                            <span className="sr-only">Toggle theme</span>
+                        </Button>
+
+                        <Button
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            onClick={handleAntigravityExport}
+                        >
+                            <Download className="w-4 h-4 mr-2" /> Download Report
                         </Button>
                     </div>
                 </div>
+
+                {/* 4-Card KPI Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* Card 1: Trust Score */}
+                    <Card className="rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900/50">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-slate-500">Global Trust Score</CardTitle>
+                            <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{stats.risk_score}%</div>
+                            <p className="text-xs text-emerald-500 flex items-center mt-1">
+                                <ArrowRight className="w-3 h-3 rotate-[-45deg] mr-1" /> +2.5% from last week
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Card 2: Total Traffic */}
+                    <Card className="rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900/50">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-slate-500">Total Analyzed</CardTitle>
+                            <Activity className="h-4 w-4 text-blue-500" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{stats.traces_analyzed.toLocaleString()}</div>
+                            <p className="text-xs text-blue-500 flex items-center mt-1">
+                                <ArrowRight className="w-3 h-3 rotate-[-45deg] mr-1" /> +12% traffic volume
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Card 3: Threats Blocked */}
+                    <Card className="rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900/50">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-slate-500">Threats Blocked</CardTitle>
+                            <ShieldAlert className="h-4 w-4 text-red-500" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{stats.violations}</div>
+                            <p className="text-xs text-slate-500 mt-1">
+                                {((stats.violations / (stats.traces_analyzed || 1)) * 100).toFixed(1)}% block rate
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Card 4: System Latency */}
+                    <Card className="rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900/50">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-slate-500">Avg Latency</CardTitle>
+                            <Zap className="h-4 w-4 text-amber-500" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{slaHistory[slaHistory.length - 1]?.avg_response_time_ms || 0}ms</div>
+                            <p className="text-xs text-amber-500 flex items-center mt-1">
+                                <Activity className="w-3 h-3 mr-1" /> 99.9% uptime
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
 
-            {/* --- VIEW 1: CISO DASHBOARD (Balanced Grid) --- */}
-            {viewMode === 'ciso' && (
+            {/* --- CONTENT AREA: TABS --- */}
+
+            {/* 1. ANALYTICS VIEW */}
+            {activeTab === 'Analytics' && (
+                <div className="space-y-6 animate-in fade-in duration-300">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Performance Trends */}
+                        <Card className={`${theme.card} shadow-sm`}>
+                            <CardHeader className={theme.cardHeader}>
+                                <CardTitle className="text-base flex items-center gap-2"><Activity className="w-4 h-4 text-indigo-500" /> Latency & Request Volume</CardTitle>
+                                <CardDescription>System performance over the last 24 hours</CardDescription>
+                            </CardHeader>
+                            <CardContent className="h-[350px] p-4">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <ComposedChart data={sreChartData}>
+                                        <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
+                                        <XAxis dataKey="time" className="text-xs text-slate-500" />
+                                        <YAxis yAxisId="left" className="text-xs text-slate-500" />
+                                        <YAxis yAxisId="right" orientation="right" className="text-xs text-slate-500" />
+                                        <Tooltip contentStyle={{ backgroundColor: '#0f172a', color: '#f8fafc', borderRadius: '8px' }} />
+                                        <Legend />
+                                        <Area yAxisId="left" type="monotone" dataKey="requests" fill="#3b82f6" fillOpacity={0.1} stroke="#3b82f6" name="Requests" />
+                                        <Line yAxisId="right" type="monotone" dataKey="latency" stroke="#f59e0b" strokeWidth={2} name="Latency (ms)" dot={false} />
+                                    </ComposedChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+
+                        {/* Violation Distribution */}
+                        <Card className={`${theme.card} shadow-sm`}>
+                            <CardHeader className={theme.cardHeader}>
+                                <CardTitle className="text-base flex items-center gap-2"><ShieldAlert className="w-4 h-4 text-red-500" /> Violation Distribution</CardTitle>
+                                <CardDescription>Breakdown of blocked requests by category</CardDescription>
+                            </CardHeader>
+                            <CardContent className="h-[350px] p-4">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={radarData}>
+                                        <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" vertical={false} />
+                                        <XAxis dataKey="subject" className="text-xs text-slate-500" />
+                                        <YAxis className="text-xs text-slate-500" />
+                                        <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: '#0f172a', color: '#f8fafc', borderRadius: '8px' }} />
+                                        <Bar dataKey="A" name="Risk Score" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={40} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+            )}
+
+            {/* 2. REPORTS VIEW */}
+            {activeTab === 'Reports' && (
+                <div className="animate-in fade-in duration-300">
+                    <Card className={`${theme.card} shadow-sm`}>
+                        <CardHeader className={theme.cardHeader}>
+                            <CardTitle className="text-base">Generated Compliance Reports</CardTitle>
+                            <CardDescription>Download detailed audits and governance summaries.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                                {[
+                                    { name: "Monthly Compliance Audit - January", type: "PDF", size: "2.4 MB", date: "Jan 31, 2025" },
+                                    { name: "Incident Response Summary - Week 4", type: "CSV", size: "156 KB", date: "Jan 28, 2025" },
+                                    { name: "SLA Performance Review", type: "PDF", size: "1.2 MB", date: "Jan 25, 2025" },
+                                    { name: "GDPR Data Access Log", type: "JSON", size: "8.5 MB", date: "Jan 24, 2025" },
+                                ].map((report, i) => (
+                                    <div key={i} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-2 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg">
+                                                <FileText className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-sm text-slate-900 dark:text-slate-100">{report.name}</p>
+                                                <p className="text-xs text-slate-500">{report.date} • {report.size}</p>
+                                            </div>
+                                        </div>
+                                        <Button variant="outline" size="sm" className="gap-2">
+                                            <Download className="w-3.5 h-3.5" /> {report.type}
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+
+            {/* 3. NOTIFICATIONS VIEW */}
+            {activeTab === 'Notifications' && (
+                <div className="animate-in fade-in duration-300 max-w-4xl mx-auto">
+                    <Card className={`${theme.card} shadow-sm`}>
+                        <CardHeader className={`${theme.cardHeader} flex flex-row items-center justify-between`}>
+                            <div className="flex items-center gap-2">
+                                <div className="p-1.5 bg-red-100 text-red-600 rounded-lg">
+                                    <ShieldAlert className="w-4 h-4" />
+                                </div>
+                                <CardTitle className="text-base">System Alerts</CardTitle>
+                            </div>
+                            <Badge variant="outline" className="text-slate-500">Live Feed</Badge>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                                {logs.length > 0 ? logs.map((log) => (
+                                    <div key={log.id} className="p-4 flex gap-4 hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+                                        <div className={`mt-1 p-1.5 rounded-full shrink-0 ${log.level === 'ERROR' ? 'bg-red-100 text-red-600' :
+                                            log.level === 'WARN' ? 'bg-amber-100 text-amber-600' :
+                                                'bg-blue-100 text-blue-600'
+                                            }`}>
+                                            {log.level === 'ERROR' ? <ShieldAlert className="w-3.5 h-3.5" /> :
+                                                log.level === 'WARN' ? <AlertTriangle className="w-3.5 h-3.5" /> :
+                                                    <Activity className="w-3.5 h-3.5" />}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <p className="text-sm font-semibold text-slate-900 dark:text-slate-200">
+                                                    {log.service} {log.level === 'ERROR' && 'Blocked Request'}
+                                                </p>
+                                                <span className="text-xs text-slate-400 font-mono">{new Date(log.timestamp).toLocaleTimeString()}</span>
+                                            </div>
+                                            <p className="text-sm text-slate-600 dark:text-slate-400 font-mono text-[11px] truncate">
+                                                {log.message}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )) : (
+                                    <div className="p-12 text-center text-slate-400">
+                                        <CheckCircle2 className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                                        <p>No active alerts</p>
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+
+            {/* --- DEFAULT VIEW: OVERVIEW --- */}
+            {activeTab === 'Overview' && viewMode === 'ciso' && (
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 animate-in slide-in-from-bottom-2 duration-300">
-
-                    {/* A. KPI CARDS ROW (Top) */}
-                    <div className="md:col-span-12 lg:col-span-3">
-                        <Card id="compliance-score-card" className={`${theme.card} relative overflow-hidden border-none shadow-md bg-gradient-to-br from-blue-600 to-indigo-600 text-white h-full`}>
-                            <div className="absolute -right-6 -top-6 text-white/10"><ShieldCheck className="w-32 h-32" /></div>
-                            <CardContent className="p-6 flex flex-col justify-between h-full relative z-10">
-                                <div>
-                                    <div className="text-blue-100 font-medium text-xs uppercase tracking-wider mb-1">Compliance Score</div>
-                                    <div className="text-5xl font-bold">{stats.risk_score}%</div>
-                                </div>
-                                <div className="mt-4 flex items-center gap-2 text-xs font-medium bg-white/20 w-fit px-3 py-1.5 rounded-full backdrop-blur-md border border-white/10">
-                                    <CheckCircle2 className="w-3.5 h-3.5" /> Deployment Ready
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    <div id="compliance-stats-grid" className="md:col-span-12 lg:col-span-9 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                        <Card className={`${theme.card} shadow-sm border-l-4 border-l-blue-500`}>
-                            <CardContent className="p-5">
-                                <div className={`text-xs font-semibold uppercase tracking-wider ${theme.text.secondary} mb-2`}>Active Policies</div>
-                                <div className={`text-3xl font-bold ${theme.text.primary}`}>{policies.filter(p => p.is_active).length} <span className={`text-lg font-normal ${theme.text.muted}`}>/ {policies.length}</span></div>
-                            </CardContent>
-                        </Card>
-                        <Card className={`${theme.card} shadow-sm border-l-4 border-l-orange-500`}>
-                            <CardContent className="p-5">
-                                <div className={`text-xs font-semibold uppercase tracking-wider ${theme.text.secondary} mb-2`}>Total Violations</div>
-                                <div className={`text-3xl font-bold ${theme.text.primary}`}>{stats.violations}</div>
-                            </CardContent>
-                        </Card>
-                        <Card className={`${theme.card} shadow-sm border-l-4 border-l-emerald-500`}>
-                            <CardContent className="p-5">
-                                <div className={`text-xs font-semibold uppercase tracking-wider ${theme.text.secondary} mb-2`}>Audits Passed</div>
-                                <div className={`text-3xl font-bold ${theme.text.primary}`}>{stats.pg_passed !== undefined ? stats.pg_passed : (stats.traces_analyzed - stats.violations)}</div>
-                            </CardContent>
-                        </Card>
-                        <Card className={`${theme.card} shadow-sm border-l-4 border-l-purple-500`}>
-                            <CardContent className="p-5">
-                                <div className={`text-xs font-semibold uppercase tracking-wider ${theme.text.secondary} mb-2`}>Pending Review</div>
-                                <div className={`text-3xl font-bold ${theme.text.primary}`}>2 <span className="text-xs font-medium text-amber-500">HITL</span></div>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    {/* B. MAIN CONTENT (Split 4/8) */}
 
                     {/* Left: Policy Insights */}
                     <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-6">
