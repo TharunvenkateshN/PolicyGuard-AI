@@ -2,7 +2,7 @@ import json
 import os
 from typing import List
 from models.policy import PolicyDocument
-from models.settings import PolicySettings
+from models.settings import PolicySettings, GatekeeperSettings
 from config import settings
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -480,14 +480,101 @@ class PolicyStorage:
 
     # --- Settings Management ---
     def get_settings(self) -> PolicySettings:
-        if self.db:
+        # Check cache/local first if needed, but for now fetch from DB
+        if self._use_firebase:
             try:
                 doc = self.db.collection('settings').document('global').get()
                 if doc.exists:
                     return PolicySettings(**doc.to_dict())
-            except: pass
-        return PolicySettings()
+            except Exception as e:
+                print(f"[STORAGE] Failed to fetch settings: {e}")
+        
+        # Fallback to local or default
+        return self._local_settings
 
+    # --- SLA Persistence ---
+
+    def add_sla_risk(self, risk_data: dict):
+        """Save SLA risk assessment to history"""
+        if self._use_firebase:
+            try:
+                # Add timestamp if missing
+                if "timestamp" not in risk_data:
+                    import datetime
+                    risk_data["timestamp"] = datetime.datetime.now().isoformat()
+                    
+                self.db.collection('sla_risk_history').add(risk_data)
+            except Exception as e:
+                print(f"[STORAGE] Failed to save SLA risk: {e}")
+
+    def get_sla_risk_history(self, limit: int = 50) -> list:
+        """Get recent SLA risk assessments"""
+        history = []
+        if self._use_firebase:
+            try:
+                from firebase_admin import firestore
+                docs = self.db.collection('sla_risk_history')\
+                    .order_by('timestamp', direction=firestore.Query.DESCENDING)\
+                    .limit(limit).stream()
+                
+                for doc in docs:
+                    history.append(doc.to_dict())
+            except Exception as e:
+                print(f"[STORAGE] Failed to fetch SLA history: {e}")
+        
+        # Return in chronological order (oldest first) for charts
+        return list(reversed(history))
+
+    def add_sla_analysis(self, analysis_data: dict):
+        """Save comprehensive SLA analysis report"""
+        if self._use_firebase:
+            try:
+                if "timestamp" not in analysis_data:
+                    import datetime
+                    analysis_data["timestamp"] = datetime.datetime.now().isoformat()
+                
+                self.db.collection('sla_analysis_reports').add(analysis_data)
+            except Exception as e:
+                print(f"[STORAGE] Failed to save SLA analysis: {e}")
+
+    def get_latest_sla_analysis(self) -> dict:
+        """Get the most recent SLA analysis report"""
+        if self._use_firebase:
+            try:
+                from firebase_admin import firestore
+                docs = self.db.collection('sla_analysis_reports')\
+                    .order_by('timestamp', direction=firestore.Query.DESCENDING)\
+                    .limit(1).stream()
+                
+                for doc in docs:
+                    return doc.to_dict()
+            except Exception as e:
+                print(f"[STORAGE] Failed to fetch latest SLA analysis: {e}")
+        return None
+
+    # --- Gatekeeper Persistence ---
+
+    def get_gatekeeper_settings(self) -> GatekeeperSettings:
+        """Fetch Gatekeeper configuration from Firebase"""
+        if self._use_firebase:
+            try:
+                doc = self.db.collection('settings').document('gatekeeper').get()
+                if doc.exists:
+                    return GatekeeperSettings(**doc.to_dict())
+            except Exception as e:
+                print(f"[STORAGE] Failed to fetch Gatekeeper settings: {e}")
+        
+        # Default fallback
+        return GatekeeperSettings()
+
+    def save_gatekeeper_settings(self, settings_data: dict):
+        """Save Gatekeeper configuration to Firebase"""
+        if self._use_firebase:
+            try:
+                self.db.collection('settings').document('gatekeeper').set(settings_data)
+            except Exception as e:
+                print(f"[STORAGE] Failed to save Gatekeeper settings: {e}")
+                
     def save_settings(self, settings: PolicySettings):
         if self.db:
             try:

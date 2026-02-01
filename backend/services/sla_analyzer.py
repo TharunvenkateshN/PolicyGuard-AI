@@ -57,6 +57,15 @@ OUTPUT FORMAT: Strict JSON only."""
                     {"factor": "Latency Volatility", "severity": "medium", "impact_percentage": 15}
                 ])
             })
+            
+            # Persist Analysis to DB
+            try:
+                from services.storage import policy_db
+                # Run in background to avoid blocking
+                policy_db.add_sla_analysis(analysis)
+            except Exception as e:
+                print(f"[SLA Analyzer] Failed to persist report: {e}")
+                
             return analysis
             
         except asyncio.TimeoutError:

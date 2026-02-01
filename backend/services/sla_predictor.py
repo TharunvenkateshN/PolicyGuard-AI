@@ -8,6 +8,22 @@ class SLAPredictor:
         # Limit to last 50 points per service
         self.history: Dict[str, List[dict]] = {}
         self.risk_history: Dict[str, List[dict]] = {}
+        
+        # Hydrate from DB
+        import threading
+        threading.Thread(target=self._hydrate, daemon=True).start()
+    
+    def _hydrate(self):
+        try:
+            from services.storage import policy_db
+            print("[SLA] Hydrating risk history from Firebase...")
+            history = policy_db.get_sla_risk_history(limit=50)
+            if history:
+                 # Reconstruct risk history for default service
+                 self.risk_history["default"] = history
+                 print(f"[SLA] ✅ Hydrated {len(history)} risk assessments")
+        except Exception as e:
+            print(f"[SLA] ⚠️ Hydration failed: {e}")
 
     def ingest_metrics(self, service_id: str, metrics: dict):
         if service_id not in self.history:
@@ -98,6 +114,15 @@ class SLAPredictor:
         self.risk_history[start_key].append(result)
         if len(self.risk_history[start_key]) > 50:
              self.risk_history[start_key].pop(0)
+             
+        # Perist to DB
+        try:
+            from services.storage import policy_db
+            # Run in thread to avoid blocking response
+            import threading
+            threading.Thread(target=policy_db.add_sla_risk, args=(result,), daemon=True).start()
+        except Exception as e:
+            print(f"[SLA] Failed to persist risk: {e}")
              
         return result
 

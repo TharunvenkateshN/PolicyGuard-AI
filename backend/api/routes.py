@@ -359,6 +359,16 @@ async def update_settings(settings: PolicySettings):
     await policy_db.save_settings(settings)
     return {"status": "saved"}
 
+@router.get("/settings/gatekeeper")
+async def get_gatekeeper_settings():
+    from models.settings import GatekeeperSettings
+    return policy_db.get_gatekeeper_settings()
+
+@router.post("/settings/gatekeeper")
+async def update_gatekeeper_settings(settings: dict):
+    policy_db.save_gatekeeper_settings(settings)
+    return {"status": "success"}
+
 # --- Chat & Remediation ---
 
 @router.post("/chat", response_model=ChatResponse)

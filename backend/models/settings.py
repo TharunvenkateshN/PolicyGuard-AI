@@ -26,6 +26,13 @@ class Notifications(BaseModel):
     dashboard: bool = True
     triggers: NotificationTriggers = NotificationTriggers()
 
+class GatekeeperSettings(BaseModel):
+    stream1_url: str = "https://generativelanguage.googleapis.com"
+    stream1_key: str = ""
+    stream2_url: str = "http://localhost:8001" # Fin-Agent default
+    stream2_key: str = ""
+    routing_mode: str = "Failover" # Failover | Parallel | Semantic
+
 class PolicySettings(BaseModel):
     domains: PolicyDomains = PolicyDomains()
     region: str = "Global"

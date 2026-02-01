@@ -136,18 +136,27 @@ const sections = [
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'audit', label: 'Audit', icon: FileText },
     { id: 'ai', label: 'AI Model', icon: Bot },
+    { id: 'gatekeeper', label: 'Gatekeeper', icon: Shield },
 ];
 
 export default function SettingsPage() {
     const { profile, updateProfile } = useUser();
     const { theme, setTheme } = useTheme();
     const [settings, setSettings] = useState<PolicySettings>(defaultSettings);
+    const [gkSettings, setGkSettings] = useState({
+        stream1_url: '',
+        stream1_key: '',
+        stream2_url: '',
+        stream2_key: '',
+        routing_mode: 'Failover'
+    });
     const [isSaving, setIsSaving] = useState(false);
     const [activeSection, setActiveSection] = useState('profile');
     const [simResult, setSimResult] = useState<any>(null);
     const [showSimResult, setShowSimResult] = useState(false);
     const [saveMessage, setSaveMessage] = useState("");
     const [initialSettings, setInitialSettings] = useState<PolicySettings>(defaultSettings);
+    const [initialGkSettings, setInitialGkSettings] = useState(gkSettings);
     const [isDirty, setIsDirty] = useState(false);
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -160,6 +169,14 @@ export default function SettingsPage() {
                     setSettings(data);
                     setInitialSettings(data);
                 }
+
+                // Fetch Gatekeeper settings
+                const gkRes = await fetch(`${apiUrl}/api/v1/settings/gatekeeper`);
+                if (gkRes.ok) {
+                    const gkData = await gkRes.json();
+                    setGkSettings(gkData);
+                    setInitialGkSettings(gkData);
+                }
             } catch (error) {
                 console.error("Failed to load settings:", error);
             }
@@ -168,8 +185,10 @@ export default function SettingsPage() {
     }, []);
 
     useEffect(() => {
-        setIsDirty(JSON.stringify(settings) !== JSON.stringify(initialSettings));
-    }, [settings, initialSettings]);
+        const settingsDirty = JSON.stringify(settings) !== JSON.stringify(initialSettings);
+        const gkDirty = JSON.stringify(gkSettings) !== JSON.stringify(initialGkSettings);
+        setIsDirty(settingsDirty || gkDirty);
+    }, [settings, initialSettings, gkSettings, initialGkSettings]);
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -179,7 +198,15 @@ export default function SettingsPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(settings),
             });
-            if (!res.ok) throw new Error("Failed to save");
+            if (!res.ok) throw new Error("Failed to save settings");
+
+            const gkRes = await fetch(`${apiUrl}/api/v1/settings/gatekeeper`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(gkSettings),
+            });
+            if (!gkRes.ok) throw new Error("Failed to save Gatekeeper settings");
+
             setInitialSettings(settings);
             // Simulate profile save (it's already local, just strict sync)
             setSaveMessage("Saved successfully!");
@@ -730,6 +757,105 @@ export default function SettingsPage() {
                                     <Switch checked={settings.aiConflict} onCheckedChange={(c) => updateDirect('aiConflict', c)} />
                                 </SettingsRow>
                             </SettingsGroup>
+                        </div>
+                    )}
+
+                    {activeSection === 'gatekeeper' && (
+                        <div className="max-w-2xl space-y-8">
+                            <div>
+                                <GroupHeader
+                                    title="Connection Streams"
+                                    description="Configure upstream LLM and downstream agent endpoints."
+                                />
+                                <SettingsGroup>
+                                    <div className="py-5 space-y-4">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="p-1.5 bg-blue-100 rounded text-blue-600">
+                                                <Zap className="h-3.5 w-3.5" />
+                                            </div>
+                                            <Label className="text-base font-semibold">Stream 1: Upstream LLM</Label>
+                                        </div>
+                                        <div className="grid gap-3">
+                                            <div className="space-y-1.5">
+                                                <Label className="text-xs text-muted-foreground ml-1">Endpoint URL</Label>
+                                                <input
+                                                    type="text"
+                                                    value={gkSettings.stream1_url}
+                                                    onChange={(e) => setGkSettings(prev => ({ ...prev, stream1_url: e.target.value }))}
+                                                    placeholder="https://generativelanguage.googleapis.com"
+                                                    className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                                />
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <Label className="text-xs text-muted-foreground ml-1">API Key (Masked)</Label>
+                                                <input
+                                                    type="password"
+                                                    value={gkSettings.stream1_key}
+                                                    onChange={(e) => setGkSettings(prev => ({ ...prev, stream1_key: e.target.value }))}
+                                                    placeholder="Enter Upstream API Key"
+                                                    className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="py-5 space-y-4 border-t border-border/40">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="p-1.5 bg-cyan-100 rounded text-cyan-600">
+                                                <Bot className="h-3.5 w-3.5" />
+                                            </div>
+                                            <Label className="text-base font-semibold">Stream 2: Downstream Agent</Label>
+                                        </div>
+                                        <div className="grid gap-3">
+                                            <div className="space-y-1.5">
+                                                <Label className="text-xs text-muted-foreground ml-1">Endpoint URL</Label>
+                                                <input
+                                                    type="text"
+                                                    value={gkSettings.stream2_url}
+                                                    onChange={(e) => setGkSettings(prev => ({ ...prev, stream2_url: e.target.value }))}
+                                                    placeholder="http://localhost:8001"
+                                                    className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                                />
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <Label className="text-xs text-muted-foreground ml-1">Agent Auth Key</Label>
+                                                <input
+                                                    type="password"
+                                                    value={gkSettings.stream2_key}
+                                                    onChange={(e) => setGkSettings(prev => ({ ...prev, stream2_key: e.target.value }))}
+                                                    placeholder="Optional Agent Key"
+                                                    className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </SettingsGroup>
+                            </div>
+
+                            <div>
+                                <GroupHeader title="Routing Strategy" />
+                                <SettingsGroup>
+                                    <SettingsRow noDivider>
+                                        <div className="space-y-0.5">
+                                            <Label className="text-base">Load Balance Mode</Label>
+                                            <p className="text-sm text-muted-foreground">How requests travel between streams.</p>
+                                        </div>
+                                        <Select
+                                            value={gkSettings.routing_mode}
+                                            onValueChange={(v) => setGkSettings(prev => ({ ...prev, routing_mode: v }))}
+                                        >
+                                            <SelectTrigger className="w-[180px]">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Failover">Failover (1 -&gt; 2)</SelectItem>
+                                                <SelectItem value="Parallel">Parallel Audit</SelectItem>
+                                                <SelectItem value="Semantic">Semantic Filter</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </SettingsRow>
+                                </SettingsGroup>
+                            </div>
                         </div>
                     )}
                 </motion.div>

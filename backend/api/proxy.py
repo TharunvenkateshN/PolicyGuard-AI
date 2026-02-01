@@ -80,21 +80,33 @@ async def gemini_proxy(model_name: str, request: Request, background_tasks: Back
 
         # 5. FORWARD TO UPSTREAM
         async with httpx.AsyncClient() as client:
-            # Clean model_name to prevent double prefixing (e.g. models/models/...)
+            # Fetch Dynamic Gatekeeper Settings
+            from services.storage import policy_db
+            gk_settings = policy_db.get_gatekeeper_settings()
+            
+            # Use dynamic URL and key
+            upstream_url = gk_settings.stream1_url
+            upstream_key = gk_settings.stream1_key if gk_settings.stream1_key else api_key
+
+            # Clean model_name to prevent double prefixing
             cleaned_model = model_name
             if cleaned_model.startswith("models/"):
                 cleaned_model = cleaned_model[7:]
                 
-            # Reverting to v1beta as systemInstruction is not supported in v1 for this model/payload
-            google_url = f"https://generativelanguage.googleapis.com/v1beta/models/{cleaned_model}:generateContent?key={api_key}"
-            print(f"[PROXY DEBUG] model_name='{model_name}'")
-            print(f"[PROXY DEBUG] google_url='{google_url}'")
+            # Construct Google URL dynamically
+            if "google" in upstream_url.lower():
+                google_url = f"https://generativelanguage.googleapis.com/v1beta/models/{cleaned_model}:generateContent?key={upstream_key}"
+            else:
+                # Custom upstream (Stream 2 or alternative)
+                google_url = f"{upstream_url.rstrip('/')}/v1/models/{cleaned_model}:generateContent"
             
-            metrics_store.record_audit_log(f"PASS: Prompt safe after {metadata['redactions']} redactions.", status="PASS")
+            print(f"[PROXY DEBUG] Targeting: {google_url}")
+            
+            metrics_store.record_audit_log(f"PASS: Prompt safe after {metadata['redactions']} redactions. Routing to upstream.", status="PASS")
             
             response = await client.post(
                 google_url,
-                headers={"Content-Type": "application/json"},
+                headers={"Content-Type": "application/json", "x-goog-api-key": upstream_key},
                 json=body,
                 timeout=30.0
             )
