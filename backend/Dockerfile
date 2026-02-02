@@ -29,6 +29,7 @@ WORKDIR $HOME/app
 COPY --chown=user . $HOME/app
 
 # Hugging Face Spaces requires port 7860
+ENV PORT=7860
 EXPOSE 7860
 
 # Production execution with Gunicorn
