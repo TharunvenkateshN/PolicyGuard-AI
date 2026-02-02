@@ -14,10 +14,7 @@ class PolicyStorage:
         self._ground_truth: List[dict] = []
         self.db = None
         self._initialized = False
-        self._hitl_queue: List[dict] = [
-            { "id": 'HITL-3829', "agent": 'Wealth-Advisor-Live', "issue": 'Borderline Toxicity (68%)', "status": 'Needs Calibration' },
-            { "id": 'HITL-4012', "agent": 'Risk-Engine-V3', "issue": 'Contextual Drift', "status": 'Needs Calibration' }
-        ]
+        self._hitl_queue: List[dict] = []
         self._local_vector_path = "vectors.json"
         self._local_store_path = "policy_store.json"
         self._use_firebase = settings.USE_FIREBASE

@@ -31,7 +31,6 @@ export default function MonitorPage() {
     // --- Fetching Logic ---
     useEffect(() => {
         const fetchMonitor = async () => {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
             try {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout

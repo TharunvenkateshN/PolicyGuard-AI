@@ -13,3 +13,4 @@ fpdf2
 firebase-admin
 pypdf
 python-docx
+gunicorn

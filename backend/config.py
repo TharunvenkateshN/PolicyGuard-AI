@@ -12,14 +12,14 @@ class Settings(BaseModel):
     GOOGLE_API_KEY: str = GOOGLE_API_KEYS[0] if GOOGLE_API_KEYS else os.getenv("GOOGLE_API_KEY", "")
     
     # Model Configuration - Updated for Quota Availability
-    MODEL_FLASH: str = "gemini-3-flash-preview"
-    MODEL_PRO: str = "gemini-3-pro-preview" 
+    MODEL_FLASH: str = os.getenv("MODEL_FLASH", "gemini-3-flash-preview")
+    MODEL_PRO: str = os.getenv("MODEL_PRO", "gemini-3-pro-preview") 
     
     # Unified Fallbacks
-    GEMINI_MODEL: str = MODEL_FLASH
-    SLA_MODEL: str = MODEL_PRO
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", MODEL_FLASH)
+    SLA_MODEL: str = os.getenv("SLA_MODEL", MODEL_PRO)
     
-    EMBEDDING_MODEL: str = "text-embedding-004"
+    EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "text-embedding-004")
     
     # Thinking Levels (1-10)
     THINKING_LEVELS: Dict[str, int] = {

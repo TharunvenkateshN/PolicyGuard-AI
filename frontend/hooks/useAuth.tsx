@@ -192,8 +192,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         router.push('/login');
     };
 
-    const isJudge = (user?.uid === 'guest_judge_1' || user?.email === 'judge@hackathon.com') &&
-        (typeof window !== 'undefined' && localStorage.getItem('pg_is_judge') === 'true');
+    const isJudge = !!user && (typeof window !== 'undefined' && localStorage.getItem('pg_is_judge') === 'true');
 
     return (
         <AuthContext.Provider value={{ user, login, signup, logout, isLoading, loginAsGuest, isJudge }}>

@@ -17,11 +17,20 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY . .
+# Create a non-root user for Hugging Face Spaces security
+RUN useradd -m -u 1000 user
+USER user
+ENV HOME=/home/user \
+    PATH=/home/user/.local/bin:$PATH
 
-# Expose port
-EXPOSE 8000
+WORKDIR $HOME/app
 
-# Run without hot reload for memory stability
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Copy application code with correct ownership
+COPY --chown=user . $HOME/app
+
+# Hugging Face Spaces requires port 7860
+EXPOSE 7860
+
+# Production execution with Gunicorn
+# Using 7860 for HF Spaces compatibility
+CMD ["gunicorn", "main:app", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:7860", "--timeout", "120"]

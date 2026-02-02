@@ -19,15 +19,16 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# CORS - Must be added BEFORE routers for proper preflight handling
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3001",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-]
+# CORS - Load from env for deployment flexibility
+env_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
+origins = [o.strip() for o in env_origins if o.strip()]
+if not origins:
+    origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ]
 
 app.add_middleware(
     CORSMiddleware,

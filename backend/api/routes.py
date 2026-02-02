@@ -599,11 +599,11 @@ async def get_governance_legitimacy():
     The Authority Anchor: Provides the institutional mandate for PolicyGuard.
     """
     return {
-        "authorized_by": "Global Security Board (Resolution #2026-04)",
-        "mandate": "Direct oversight of all multi-modal agentic outputs via Project PolicyGuard.",
-        "appeal_process": "https://internal.policyguard.ai/appeals",
+        "authorized_by": f"{settings.PROJECT_NAME} Governance Module",
+        "mandate": "Automated oversight of agentic outputs via PolicyGuard enforcement.",
+        "appeal_process": "Contact Security Administrator",
         "last_audit": datetime.datetime.now().isoformat(),
-        "accountability_tier": "Level 4 (Deterministic Enforcement)"
+        "accountability_tier": "Standard Compliance (Deterministic Enforcement)"
     }
 
 @router.post("/visual/scan")
