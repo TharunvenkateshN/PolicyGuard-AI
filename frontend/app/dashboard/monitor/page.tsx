@@ -189,18 +189,7 @@ export default function MonitorPage() {
                 if (res.ok) {
                     const monitorData = await res.json();
                     setData(monitorData);
-                    if (isJudge && monitorData.traces.length === 0) {
-                        setData({
-                            traces_per_min: 124,
-                            blocking_rate: 2.4,
-                            active_policies: 8,
-                            traces: [
-                                { id: 'T-1', timestamp: new Date().toISOString(), agent: 'SalesBot', action: 'Prompt Scanned', status: 'pass', details: 'No violations detected' },
-                                { id: 'T-2', timestamp: new Date(Date.now() - 2000).toISOString(), agent: 'FinanceAI', action: 'PII Detection', status: 'block', details: 'Blocked attempt to leak SSN' },
-                                { id: 'T-3', timestamp: new Date(Date.now() - 5000).toISOString(), agent: 'SupportAgent', action: 'Toxicity Filter', status: 'warn', details: 'Harassment detected, user warned' }
-                            ]
-                        });
-                    }
+                    // Mock data logic removed to prevent confusion during real testing
                 }
             } catch (err: any) {
                 if (err.name === 'AbortError') {
@@ -208,18 +197,8 @@ export default function MonitorPage() {
                 } else {
                     console.error(err);
                 }
-                if (isJudge) {
-                    setData({
-                        traces_per_min: 124,
-                        blocking_rate: 2.4,
-                        active_policies: 8,
-                        traces: [
-                            { id: 'T-1', timestamp: new Date().toISOString(), agent: 'SalesBot', action: 'Prompt Scanned', status: 'pass', details: 'No violations detected' },
-                            { id: 'T-2', timestamp: new Date(Date.now() - 2000).toISOString(), agent: 'FinanceAI', action: 'PII Detection', status: 'block', details: 'Blocked attempt to leak SSN' },
-                            { id: 'T-3', timestamp: new Date(Date.now() - 5000).toISOString(), agent: 'SupportAgent', action: 'Toxicity Filter', status: 'warn', details: 'Harassment detected, user warned' }
-                        ]
-                    });
-                }
+                // Mock data logic removed to prevent confusion during real testing
+                // We want to see empty state if fetch fails, not fake data
             }
         };
         fetchMonitor();

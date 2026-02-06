@@ -12,9 +12,10 @@ import {
     Globe, Eye,
     Cpu, HardDrive, Database, Layers,
     FileText, Check, XCircle, Stethoscope, Wrench, Sparkles, Image as ImageIcon, Download, Box, ShieldAlert,
-    Gavel, History, Scale as LegalScale, Sun, Moon
+    Gavel, History, Scale as LegalScale, Sun, Moon, Bell, BellOff
 } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
+import { toast } from 'sonner';
 import {
     Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer,
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Line, ComposedChart, Legend,
@@ -87,6 +88,10 @@ export default function OverviewPage() {
         stage: 'analyzing' | 'patching' | 'verified' | 'idle';
         patchedPrompt?: string;
     }>({ active: false, agent: '', stage: 'idle' });
+
+    const [healedViolations, setHealedViolations] = useState<Set<string>>(new Set());
+    const lastNotifiedId = useRef<string | null>(null);
+    const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
     const handleHotPatch = async (agent: string, violations: string[]) => {
         setHealingStatus({ active: true, agent, stage: 'analyzing' });
@@ -253,8 +258,42 @@ export default function OverviewPage() {
 
     useEffect(() => {
         const timer = setTimeout(() => setMounted(true), 100);
+
+        // Check notification permission
+        if (typeof window !== 'undefined' && 'Notification' in window) {
+            setNotificationsEnabled(Notification.permission === 'granted');
+        }
+
+        // Load healed violations from localStorage
+        const savedHealed = localStorage.getItem('pg_healed_violations');
+        if (savedHealed) {
+            try {
+                const healedArray = JSON.parse(savedHealed);
+                setHealedViolations(new Set(healedArray));
+            } catch (e) {
+                console.error('Failed to load healed violations:', e);
+            }
+        }
+
         return () => clearTimeout(timer);
     }, []);
+
+    const requestNotificationPermission = async () => {
+        if (!('Notification' in window)) {
+            toast.error('Browser does not support desktop notifications');
+            return;
+        }
+
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            setNotificationsEnabled(true);
+            toast.success('Push notifications enabled!');
+            new Notification('PolicyGuard AI', {
+                body: 'Notifications are now active. You will be alerted of critical blocks.',
+                icon: '/shield_logo.png'
+            });
+        }
+    };
 
     // Stats
     const [stats, setStats] = useState<DashboardStats>({
@@ -329,7 +368,9 @@ export default function OverviewPage() {
                         level: t.status === 'block' ? 'ERROR' : t.status === 'warn' ? 'WARN' : 'INFO',
                         service: 'RedTeam',
                         message: `[SCAN] ${t.agent}: ${t.details}`,
-                        latency: 0
+                        latency: 0,
+                        agent: t.agent,
+                        status: t.status
                     }));
                 }
 
@@ -338,13 +379,15 @@ export default function OverviewPage() {
                 let proxyLogs = [];
                 if (proxyLogsRes.ok) {
                     const data = await proxyLogsRes.json();
-                    proxyLogs = data.map((l: any, i: number) => ({
-                        id: `PRX-${i}`,
+                    proxyLogs = data.map((l: any) => ({
+                        id: l.id,
                         timestamp: l.timestamp,
                         level: l.status === 'BLOCK' ? 'ERROR' : l.status === 'WARN' ? 'WARN' : 'INFO',
                         service: 'Proxy',
                         message: `[GATEKEEPER] ${l.event}`,
-                        latency: 0
+                        latency: 0,
+                        agent: 'PolicyGuard-Proxy',
+                        status: l.status.toLowerCase() as any
                     }));
                 }
 
@@ -354,9 +397,40 @@ export default function OverviewPage() {
                         if (activeFilters.severity !== 'all' && log.level !== activeFilters.severity) return false;
                         return true;
                     })
-                    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                    .slice(0, 50);
-                setLogs(allLogs);
+                    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+                // --- PUSH NOTIFICATION LOGIC ---
+                if (allLogs.length > 0) {
+                    const latestLog = allLogs[0];
+                    if (latestLog.level === 'ERROR' && latestLog.id !== lastNotifiedId.current) {
+                        // Avoid notifying on first load or duplicate
+                        if (lastNotifiedId.current !== null) {
+                            // Trigger Sonner Toast
+                            toast.error(`CRITICAL BLOCK: ${latestLog.message}`, {
+                                description: `Agent: ${latestLog.agent}`,
+                                duration: 8000,
+                                action: {
+                                    label: "View Details",
+                                    onClick: () => router.push('/dashboard/monitor')
+                                }
+                            });
+
+                            // Trigger Browser Push Notification
+                            if (Notification.permission === 'granted') {
+                                new Notification('🚨 PolicyGuard Block', {
+                                    body: `${latestLog.agent}: ${latestLog.message}`,
+                                    icon: '/shield_logo.png'
+                                });
+                            }
+                        }
+                        lastNotifiedId.current = latestLog.id;
+                    } else if (lastNotifiedId.current === null) {
+                        // Initialize on first load
+                        lastNotifiedId.current = latestLog.id;
+                    }
+                }
+
+                setLogs(allLogs.slice(0, 50));
 
                 // 6. Fetch Global SLA Metrics (Optional - for logs or something else, but stats are now handled by /dashboard/stats)
                 // We keep this call if we need it for other parts, but we remove the setStats from here
@@ -476,6 +550,16 @@ export default function OverviewPage() {
                                 </button>
                             ))}
                         </div>
+
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={requestNotificationPermission}
+                            className={`w-9 h-9 border-slate-200 dark:border-slate-800 transition-colors ${notificationsEnabled ? 'text-blue-500' : 'text-slate-500'}`}
+                            title={notificationsEnabled ? "Push Notifications Active" : "Enable Push Notifications"}
+                        >
+                            {notificationsEnabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+                        </Button>
 
                         <Button
                             variant="outline"
@@ -1053,15 +1137,22 @@ export default function OverviewPage() {
                                                     {item.service === 'Proxy' && (
                                                         <Badge variant="outline" className="text-[9px] h-4 py-0 bg-blue-500/10 text-blue-500 border-blue-500/20">Zero-Trust</Badge>
                                                     )}
-                                                    {item.level === 'ERROR' && !healingStatus.active && (
-                                                        <Button
-                                                            size="sm"
-                                                            variant="ghost"
-                                                            className="h-6 px-2 text-[9px] text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1"
-                                                            onClick={() => router.push('/dashboard/monitor')}
-                                                        >
-                                                            <Stethoscope className="w-3 h-3" /> HEAL AGENT
-                                                        </Button>
+                                                    {item.level === 'ERROR' && (
+                                                        healedViolations.has(item.id) ? (
+                                                            <Badge className="bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-100 h-5 text-[9px]">
+                                                                <CheckCircle2 className="w-2.5 h-2.5 mr-1" />
+                                                                Healed
+                                                            </Badge>
+                                                        ) : !healingStatus.active && (
+                                                            <Button
+                                                                size="sm"
+                                                                variant="ghost"
+                                                                className="h-6 px-2 text-[9px] text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1"
+                                                                onClick={() => router.push('/dashboard/monitor')}
+                                                            >
+                                                                <Stethoscope className="w-3 h-3" /> HEAL AGENT
+                                                            </Button>
+                                                        )
                                                     )}
                                                 </div>
                                             </div>

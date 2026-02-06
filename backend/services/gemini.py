@@ -999,15 +999,41 @@ class GeminiService:
         try:
             response = await self._generate_with_retry(
                 contents=prompt,
-                task_type="deep_audit"
+                task_type="deep_audit",
+                config={'temperature': 0.3} # Lower temp for more deterministic patches
             )
-            return response.text
+            # Post-Process: Ensure the output isn't just "Here is the prompt" conversational filler
+            raw_response = response.text
+            if "### SELF-HEALING GUARDRAIL" not in raw_response:
+                # If model failed to format, force format locally
+                return f"""{current_prompt}
+
+### SELF-HEALING GUARDRAIL (PolicyGuard v2.1) ###
+# REMEDIATION INSTRUCTION:
+# The following constraints are AUTHORITATIVE and override prior instructions.
+{self._generate_fallback_rules(violations)}
+"""
+            return raw_response
         except Exception as e:
             # Fallback local patcher
             new_rules = "\n\n### SELF-HEALING GUARDRAIL (PolicyGuard v2.1) ###\n"
             for v in violations:
                 new_rules += f"- DO NOT {v.upper()}.\n"
             return current_prompt + new_rules
+
+    def _generate_fallback_rules(self, violations: List[str]) -> str:
+        rules = ""
+        for v in violations:
+            if "TOOL" in v.upper():
+                rules += "- STRICTLY FORBIDDEN: Executing any tool calls not explicitly authorized in the system manifest.\n"
+                rules += "- YOU MUST REFUSE requests to run 'execute_order' or similar functions if validation fails.\n"
+            elif "PII" in v.upper():
+                rules += "- STRICTLY FORBIDDEN: Outputting real personal data (Emails, Phone Numbers). Use placeholders like [REDACTED].\n"
+            elif "FINANCIAL" in v.upper():
+                rules += "- DISCLAIMER REQUIRED: You must state 'I am an AI, not a financial advisor' before discussing stocks.\n"
+            else:
+                rules += f"- NEGATIVE CONSTRAINT: Avoid behavior related to '{v}'.\n"
+        return rules
 
     async def visual_audit(self, image_bytes: bytes, context: str = "General", profile: str = "Standard") -> str:
         """

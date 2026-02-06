@@ -10,6 +10,7 @@ import os
 @dataclass
 class RequestMetric:
     """Individual request metric"""
+    id: str
     timestamp: datetime
     duration_ms: float
     status_code: int
@@ -20,6 +21,7 @@ class RequestMetric:
 @dataclass
 class AuditLog:
     """Real-time audit event log"""
+    id: str
     timestamp: str
     event: str
     status: str # INFO, PASS, BLOCK, WARN
@@ -82,6 +84,7 @@ class MetricsStore:
                 d = doc.to_dict()
                 try:
                     loaded.append(RequestMetric(
+                        id=d.get('id', 'legacy-req'),
                         timestamp=datetime.fromisoformat(d['timestamp']),
                         duration_ms=d.get('duration_ms', 0),
                         status_code=d.get('status_code', 200),
@@ -105,11 +108,18 @@ class MetricsStore:
         status_code: int,
         pii_detected: bool = False,
         policy_violation: bool = False,
-        endpoint: str = "/v1/chat/completions"
+        endpoint: str = "/v1/chat/completions",
+        request_id: str = None
     ):
         """Record a single request metric"""
-        print(f"[METRICS] Request: {endpoint} (status={status_code}, violation={policy_violation})")
+        import uuid
+        if not request_id:
+             request_id = f"req-{uuid.uuid4().hex[:8]}"
+
+        print(f"[METRICS] Request: {endpoint} (status={status_code}, violation={policy_violation}, id={request_id})")
+        
         metric = RequestMetric(
+            id=request_id,
             timestamp=datetime.now(),
             duration_ms=duration_ms,
             status_code=status_code,
@@ -124,6 +134,7 @@ class MetricsStore:
             def _persist():
                 try:
                     self.db.collection('proxy_metrics').add({
+                        "id": request_id,
                         "timestamp": metric.timestamp.isoformat(),
                         "duration_ms": duration_ms,
                         "status_code": status_code,
@@ -140,10 +151,15 @@ class MetricsStore:
             # Local mode: Mark dirty for debounced periodic save
             self._dirty = True
 
-    def record_audit_log(self, event: str, status: str = "INFO", details: Optional[str] = None):
+    def record_audit_log(self, event: str, status: str = "INFO", details: Optional[str] = None, log_id: str = None):
         """Record a real-time audit event"""
-        print(f"[METRICS] Audit: {event} ({status})")
+        import uuid
+        if not log_id:
+            log_id = f"log-{uuid.uuid4().hex[:8]}"
+            
+        print(f"[METRICS] Audit: {event} ({status}) [ID: {log_id}]")
         log = AuditLog(
+            id=log_id,
             timestamp=datetime.now().isoformat(),
             event=event,
             status=status,
@@ -309,6 +325,7 @@ class MetricsStore:
                     loaded_requests = data.get('requests', [])
                     for d in loaded_requests:
                         self.requests.append(RequestMetric(
+                            id=d.get('id', 'legacy-req-local'),
                             timestamp=datetime.fromisoformat(d['timestamp']),
                             duration_ms=d.get('duration_ms', 0),
                             status_code=d.get('status_code', 200),

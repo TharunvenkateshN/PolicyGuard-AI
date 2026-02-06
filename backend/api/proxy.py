@@ -27,7 +27,9 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
     if "models/" in full_path:
         model_name = full_path.split("models/")[1].split(":")[0]
     
-    print(f"[PROXY] Intercepted {request.method} {full_path} (Model: {model_name})")
+    import uuid
+    trace_id = f"trace-{uuid.uuid4().hex[:8]}"
+    print(f"[PROXY] Intercepted {request.method} {full_path} (Model: {model_name}) [TraceID: {trace_id}]")
     start_time = time.time()
     
     try:
@@ -36,7 +38,7 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
         agent_id = request.headers.get("x-policyguard-agent-id", "default")
         
         # Identity-based policy routing
-        metrics_store.record_audit_log(f"Intercepting request for Agent: {agent_id}", status="INFO")
+        metrics_store.record_audit_log(f"Intercepting request for Agent: {agent_id}", status="INFO", log_id=trace_id)
             
         # Get Key from Header (x-goog-api-key) or Query Param (key)
         api_key = request.headers.get("x-goog-api-key") or request.query_params.get("key") or settings.GOOGLE_API_KEY
@@ -57,12 +59,13 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
         
         if is_blocked:
             print(f"[PROXY] [BLOCK] BLOCK: {metadata['reason']}")
-            metrics_store.record_audit_log(f"BLOCK: {metadata['reason']}", status="BLOCK")
+            metrics_store.record_audit_log(f"BLOCK: {metadata['reason']}", status="BLOCK", log_id=trace_id)
             metrics_store.record_request(
                 duration_ms=(time.time() - start_time) * 1000,
                 status_code=403,
                 policy_violation=True,
-                endpoint=f"/v1/{model_name}"
+                endpoint=f"/v1/{model_name}",
+                request_id=trace_id
             )
             return JSONResponse(
                 status_code=403,
@@ -128,7 +131,7 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
             
             print(f"[PROXY DEBUG] Final Upstream URL: {google_url}", flush=True)
             
-            metrics_store.record_audit_log(f"PASS: Prompt safe after {metadata['redactions']} redactions. Routing to upstream.", status="PASS")
+            metrics_store.record_audit_log(f"PASS: Prompt safe after {metadata['redactions']} redactions. Routing to upstream.", status="PASS", log_id=trace_id)
             
             response = await client.post(
                 google_url,
@@ -139,7 +142,7 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
             
             if response.status_code != 200:
                 print(f"[PROXY UPSTREAM ERROR] Status: {response.status_code} Body: {response.text[:200]}", flush=True)
-                metrics_store.record_audit_log(f"UPSTREAM ERROR: {response.status_code}", status="WARN")
+                metrics_store.record_audit_log(f"UPSTREAM ERROR: {response.status_code}", status="WARN", log_id=trace_id)
 
             
             # --- EGRESS FILTERING (Response Audit) ---
@@ -162,12 +165,13 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
                 
                 if is_blocked_egress:
                     print(f"[PROXY] [BLOCK] EGRESS BLOCK: {egress_meta['reason']}")
-                    metrics_store.record_audit_log(f"EGRESS BLOCK: {egress_meta['reason']}", status="BLOCK")
+                    metrics_store.record_audit_log(f"EGRESS BLOCK: {egress_meta['reason']}", status="BLOCK", log_id=trace_id)
                     metrics_store.record_request(
                         duration_ms=(time.time() - start_time) * 1000,
                         status_code=403,
                         policy_violation=True,
-                        endpoint=f"/v1/{model_name}"
+                        endpoint=f"/v1/{model_name}",
+                        request_id=trace_id
                     )
                     return JSONResponse(
                         status_code=403,
@@ -184,7 +188,8 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
             metrics_store.record_request(
                 duration_ms=(time.time() - start_time) * 1000,
                 status_code=response.status_code,
-                endpoint=full_path
+                endpoint=full_path,
+                request_id=trace_id
             )
             
             return JSONResponse(status_code=response.status_code, content=response.json())
@@ -196,7 +201,8 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
         metrics_store.record_request(
             duration_ms=(time.time() - start_time) * 1000,
             status_code=500,
-            endpoint=f"/v1/{model_name}"
+            endpoint=f"/v1/{model_name}",
+            request_id=trace_id
         )
         return JSONResponse(status_code=500, content={"error": str(e)})
 

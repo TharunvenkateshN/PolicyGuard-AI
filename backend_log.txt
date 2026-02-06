@@ -3765,3 +3765,1335 @@ INFO:     127.0.0.1:57354 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
 [API] GET /dashboard/monitor requested
 [METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
 INFO:     127.0.0.1:52630 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58861 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:50366 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52546 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:57406 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58350 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51467 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59987 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59987 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59987 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59987 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51574 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51574 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51574 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:54409 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:54409 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:54409 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:62384 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:62384 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:62384 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:62384 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:56643 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:56643 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:56643 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:56395 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:56395 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:56792 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:56792 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:56183 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:56183 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:56183 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58573 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58573 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58573 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58360 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58360 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58360 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58360 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58360 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:62462 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:62462 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:62462 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:62462 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:55285 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:55285 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:55285 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:50496 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:50496 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:50496 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51959 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51959 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51959 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51959 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:64146 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:64146 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:64146 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:64146 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:64146 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53749 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53749 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53749 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53749 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53749 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51970 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59810 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59810 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59810 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:57247 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:57247 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:57247 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:57247 - "GET /api/v1/policies HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:57247 - "GET /api/v1/policies HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:56829 - "GET /api/v1/policies HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:56829 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65405 - "OPTIONS /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65099 - "OPTIONS /api/v1/sla/metrics HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:65405 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53520 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53520 - "OPTIONS /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65405 - "OPTIONS /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65099 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53520 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65099 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65099 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65099 - "OPTIONS /api/v1/sla/analyze HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:53520 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53520 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53520 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53520 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53520 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53520 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53520 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:53520 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53520 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53520 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53520 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:53520 - "GET /api/v1/policies HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:53520 - "GET /api/v1/policies HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[API] GET /settings/gatekeeper requested[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+
+[STORAGE] get_gatekeeper_settings requestedINFO:     127.0.0.1:54249 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+
+[API] GET /dashboard/monitor requested
+INFO:     127.0.0.1:50378 - "GET /api/v1/settings/gatekeeper HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:54249 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /settings/gatekeeper requested
+[STORAGE] get_gatekeeper_settings requested
+INFO:     127.0.0.1:50378 - "GET /api/v1/settings/gatekeeper HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:50378 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:50378 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:50378 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:50378 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:49738 - "GET /api/v1/policies HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:49738 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49738 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49738 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49738 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49738 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49738 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49738 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49738 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49738 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49738 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49738 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60030 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:60030 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60030 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60030 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60030 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60030 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60030 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60030 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:60030 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60030 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60030 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60030 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60030 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60030 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60030 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:60030 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60030 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60030 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60030 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60030 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60030 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60030 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:60030 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60030 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58399 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58399 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:58399 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58399 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58399 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:58399 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58399 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58399 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:58399 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:58399 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58399 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60630 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:60630 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60630 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60630 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60630 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60630 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60630 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60630 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:60630 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60630 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60630 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60630 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59671 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59671 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59671 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:59671 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59671 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59671 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59671 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59671 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59671 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59671 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:59671 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59671 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59671 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59671 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59671 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59671 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59671 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:59671 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59671 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59671 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59671 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59671 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59671 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52814 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:52814 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52814 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52814 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52814 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52814 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52814 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52814 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:52814 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52814 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52814 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52814 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52814 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52814 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52814 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:52814 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52814 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52814 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52814 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52814 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52814 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:55598 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:55598 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55598 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55598 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55598 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:55598 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55598 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:55598 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:55598 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55598 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55598 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55598 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:55598 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55598 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:55598 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:55598 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55598 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55598 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55598 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:55598 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55598 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:55598 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:55598 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55598 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52144 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52144 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:52144 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52144 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52144 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:52144 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52144 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52144 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:52144 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52144 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52144 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49813 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:49813 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49813 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49813 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49813 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49813 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49813 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49813 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:49813 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49813 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49813 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49813 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49813 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49813 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49813 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:49813 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49813 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49813 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49813 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49813 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49813 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:53287 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:53287 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:53287 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:53287 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:53287 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:53287 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:53287 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:53287 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53287 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:53287 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53287 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57802 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:57802 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57802 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /settings/gatekeeper requested
+[STORAGE] get_gatekeeper_settings requested[API] GET /dashboard/monitor requested
+
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:63807 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57802 - "GET /api/v1/settings/gatekeeper HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[API] GET /settings/gatekeeper requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+[STORAGE] get_gatekeeper_settings requested
+INFO:     127.0.0.1:63807 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57802 - "GET /api/v1/settings/gatekeeper HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:57802 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:57802 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49937 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49937 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49937 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49683 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49683 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49683 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49683 - "GET /api/v1/evaluate/latest HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49683 - "GET /api/v1/evaluate/latest HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49309 - "GET /api/v1/evaluate/latest HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49309 - "GET /api/v1/evaluate/latest HTTP/1.1" 404 Not Found
+[API] GET /policies requested
+INFO:     127.0.0.1:49309 - "GET /api/v1/policies HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:49309 - "GET /api/v1/policies HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49309 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51430 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49309 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51430 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49309 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49309 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:55615 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:55615 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55615 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55615 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:55615 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55615 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55615 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:50565 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:50565 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50565 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50565 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:50565 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50565 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50565 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:64465 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64465 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64465 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:56846 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:56846 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56846 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56846 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51239 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51239 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51239 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:51239 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51239 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51239 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51239 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:62416 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62416 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62416 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:62416 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:62416 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62416 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62416 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59918 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59918 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59918 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59918 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+INFO:     127.0.0.1:59918 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59918 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:55808 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60712 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60712 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60712 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60712 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60712 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60712 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:60214 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60214 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60214 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60214 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60214 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60214 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60214 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:61191 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61191 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61191 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:55536 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:55536 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55536 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55536 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:63459 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63459 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63459 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:63459 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:63459 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63459 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63459 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49344 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49344 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49344 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:49344 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49344 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49344 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49344 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53009 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53009 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53009 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53009 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+INFO:     127.0.0.1:53009 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53009 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:51893 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51893 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51893 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51893 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53665 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53665 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53665 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:53665 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53665 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53665 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53665 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:50118 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50118 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50118 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:65421 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65421 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:50118 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50118 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60147 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60147 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60147 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60147 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60147 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60147 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:60147 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60147 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60147 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60147 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:60147 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60147 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60147 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[DEBUG] SLA Analyze request received
+[DEBUG] Calling sla_analyzer.analyze_sla_risk()
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+Gemini API Error (1): 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>. Retrying in 1s...
+[SLA Analyzer] Error in analyze_sla_risk: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+[DEBUG] SLA Analyze complete
+INFO:     127.0.0.1:63891 - "POST /api/v1/sla/analyze HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:63891 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63891 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63891 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:63891 - "POST /api/v1/sla/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63891 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63891 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:62670 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:62670 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:62670 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62670 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:62670 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62670 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62670 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62670 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62670 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62670 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:54834 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:54834 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54834 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54834 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:54834 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:54834 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54834 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54834 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54834 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:54834 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54834 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:54834 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:54834 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54834 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54834 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54834 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:54834 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54834 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52883 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:52883 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52883 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52883 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52883 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52883 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52883 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52883 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:52883 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52883 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52883 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52883 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52883 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52883 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52883 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:52883 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52883 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52883 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52883 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:52883 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52883 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:52883 - "GET /api/v1/policies HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:52883 - "GET /api/v1/policies HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[API] GET /settings/gatekeeper requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+[STORAGE] get_gatekeeper_settings requested
+INFO:     127.0.0.1:59311 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+INFO:     127.0.0.1:62898 - "GET /api/v1/settings/gatekeeper HTTP/1.1" 200 OK
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:59311 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /settings/gatekeeper requested
+[STORAGE] get_gatekeeper_settings requested
+INFO:     127.0.0.1:62898 - "GET /api/v1/settings/gatekeeper HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:62898 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62898 - "GET /api/v1/evaluate/latest HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62898 - "GET /api/v1/evaluate/latest HTTP/1.1" 404 Not Found
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53558 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53558 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:53558 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53558 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:53558 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53558 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53558 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53558 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53558 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53558 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53558 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2INFO:     127.0.0.1:59094 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+
+INFO:     127.0.0.1:53558 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53558 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53558 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:53558 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53558 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53558 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53558 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:53558 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53558 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:51298 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:51298 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:51298 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:51298 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:51298 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:51298 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:51298 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:51298 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:51298 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:51298 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49222 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49222 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:49222 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49222 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49222 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:49222 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49222 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK
+[API] GET /dashboard/stats requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49222 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+[API] GET /policies requested
+INFO:     127.0.0.1:49222 - "GET /api/v1/policies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "POST /api/v1/sla/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "GET /api/v1/compliance/reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "GET /api/v1/hitl/queue HTTP/1.1" 200 OK
+[API] GET /dashboard/monitor requested
+[METRICS] Periodic Stats: total=9739, live_rpm=0.0, blocks=2
+INFO:     127.0.0.1:49222 - "GET /api/v1/dashboard/monitor HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "GET /api/v1/proxy/logs HTTP/1.1" 200 OK

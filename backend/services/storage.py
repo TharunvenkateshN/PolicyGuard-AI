@@ -431,14 +431,19 @@ class PolicyStorage:
 
         # 3. Combine Traces (Live Logs + Evaluation History)
         traces = []
+        seen_ids = set()
         
         # Add Live Logs (High Priority)
         for idx, log in enumerate(reversed(live_logs)):
             status = log['status'].lower()
             if status == 'info': continue 
             
+            trace_id = log.get('id') or f"LIVE-{idx}"
+            if trace_id in seen_ids: continue
+            
+            seen_ids.add(trace_id)
             traces.append({
-                "id": f"LIVE-{idx}",
+                "id": trace_id,
                 "timestamp": log['timestamp'],
                 "agent": "PolicyGuard-Proxy",
                 "action": log['event'],
@@ -460,8 +465,13 @@ class PolicyStorage:
                 if rating == 'High': status = 'block'
                 elif rating == 'Medium': status = 'warn'
                 
+                # Check if this historical eval ID conflicts (unlikely but safe)
+                hist_id = f"TR-{1000 + idx}"
+                if hist_id in seen_ids: continue
+                seen_ids.add(hist_id)
+
                 traces.append({
-                    "id": f"TR-{1000 + idx}",
+                    "id": hist_id,
                     "timestamp": entry['timestamp'],
                     "agent": report.get('workflow_name') or spec.get('agent_name') or "AI Agent",
                     "action": "Safety Evaluation",
