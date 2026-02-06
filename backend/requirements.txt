@@ -1,12 +1,11 @@
 fastapi
 uvicorn[standard]
 pydantic>=2.7.0
-langgraph
 google-genai
 python-multipart
 python-dotenv
 httpx
-weaviate-client
+
 
 numpy
 fpdf2
