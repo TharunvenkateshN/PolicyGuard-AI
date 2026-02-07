@@ -19,6 +19,8 @@ from typing import List, Optional
 from utils.cache import SimpleTTLCache
 from fpdf import FPDF
 import io
+from services.metrics import metrics_store
+
 
 router = APIRouter()
 gemini = GeminiService()
@@ -777,8 +779,6 @@ async def analyze_sla():
 @router.post("/telemetry/ingest")
 async def ingest_telemetry(payload: TelemetryPayload):
     """Ingest real-time telemetry from external agents"""
-    from services.metrics import metrics_store
-    
     # 1. Record for SLA Tracking
     metrics_store.record_request(
         duration_ms=payload.latency_ms,
