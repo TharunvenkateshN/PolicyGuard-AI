@@ -44,13 +44,13 @@ class GeminiService:
         }
         
         # Enable Gemini 3 Reasoning (Thinking) for high-score tasks
-        # if score >= 8:
-        #     config["thinking_config"] = {
-        #         "include_thoughts": True,
-        #         "include_raw_thought": True, # For transparency in governance
-        #         "budget_tokens": 16000 if score < 9 else 32000 # High reasoning budget for audits
-        #     }
-        #     config["temperature"] = 0.7 
+        if score >= 8:
+             config["thinking_config"] = {
+                 "include_thoughts": True,
+                 "include_raw_thought": True, # For transparency in governance
+                 "budget_tokens": 16000 if score < 9 else 32000 # High reasoning budget for audits
+             }
+             config["temperature"] = 0.7 
             
         return config
     def clean_json_text(self, text: str) -> str:
@@ -613,9 +613,9 @@ class GeminiService:
         # EXPERIMENTAL RED TEAM MODELS (Ordered by Reasoning Capability)
         # We explicitly switch models here to ensure the Red Team task completes even if the primary Pro model is rate-limited.
         red_team_stack = [
-            settings.MODEL_PRO,           # Configured Primary (Gemini 3 Pro)
-            "gemini-3-flash-preview",     # High speed 3 fallback
-            "gemini-2.5-pro",             # Stable High-Reasoning
+            settings.MODEL_PRO,           # Gemini 3 Pro (Primary)
+            "gemini-3-flash-preview",     # Gemini 3 Flash
+            "gemini-2.5-pro",             # Fallback to 2.5 Pro
             "gemini-2.0-flash-thinking-exp-1219", # Thinking Flash
             "gemini-2.0-flash"            # Fast Fallback
         ]
