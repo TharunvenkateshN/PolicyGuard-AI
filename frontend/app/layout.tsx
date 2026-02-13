@@ -29,11 +29,21 @@ export default function RootLayout({
     children: React.ReactNode
 }) {
     return (
-        <html lang="en" suppressHydrationWarning>
+        <html lang="en" suppressHydrationWarning className="dark">
+            <head>
+                <script dangerouslySetInnerHTML={{
+                    __html: `
+                        try {
+                            document.documentElement.classList.add('dark');
+                            document.documentElement.style.colorScheme = 'dark';
+                        } catch (e) {}
+                    `
+                }} />
+            </head>
             <body className={`${inter.variable} ${outfit.variable} font-sans antialiased bg-background bg-grid-cyber`} suppressHydrationWarning>
                 <ThemeProvider
                     attribute="class"
-                    defaultTheme="light"
+                    defaultTheme="dark"
                     enableSystem
                     disableTransitionOnChange
                 >

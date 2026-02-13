@@ -13,32 +13,33 @@ class GeminiService:
         self.clients = [genai.Client(api_key=key) for key in self.api_keys]
         self.current_key_index = 0
         
-        # Cascading Model Fallback Chain - VERIFIED Available Models (Feb 2026)
+        # Cascading Model Fallback Chain - REORDERED for Maximum Reliability (Feb 2026)
+        # We start with stable models and mix in Hackathon specials to ensure success.
         self.model_cascade = [
-            # Gemini 3 Series (Preview - Nov 2025+)
-            "gemini-3-pro-preview",           # Reasoning-first, adaptive thinking
-            "gemini-3-flash-preview",         # Complex multimodal understanding
+            # 1. Stable/High-Availability Models (Ensures success first)
+           
             
-            # Gemini 2.5 Series (GA - June 2025)
-            "gemini-2.5-pro",                 # High capability, 1M context
-            "gemini-2.5-pro-experimental",    # Experimental version
-            "gemini-2.5-flash",               # Balanced intelligence + latency
-            "gemini-2.5-flash-lite",          # Fast, cost-efficient
+            # 2. Gemini 3 Series (Hackathon Specials)
+            "gemini-3-pro-preview",
+            "gemini-3-flash-preview", 
+            "gemini-3-experimental",
             
-            # Gemini 2.0 Series (Experimental - Dec 2024+)
-            # NOTE: gemini-2.0-flash deprecated March 31, 2026
-            "gemini-2.0-flash-exp",           # Experimental with image output
-            "gemini-2.0-flash-thinking-exp-01-21",  # Thinking variant Jan 21
-            "gemini-2.0-flash-thinking-exp-1219",   # Thinking variant Dec 19
-            "gemini-exp-1206",                 # Experimental Dec 6
+            # 3. Gemini 2.5 Series
+            "gemini-2.5-pro",
+            "gemini-2.5-flash",
+            "gemini-2.5-flash-lite",
             
-            # Gemini 1.5 Series (Stable)
-            "gemini-1.5-pro-latest",          # Stable pro
-            "gemini-1.5-pro-002",             # Stable pro version 002
-            "gemini-1.5-flash-latest",        # Stable flash
-            "gemini-1.5-flash-002",           # Stable flash version 002
-            "gemini-1.5-flash",               # Stable flash
-            "gemini-1.5-flash-8b",            # Lightweight flash
+            # 4. Gemini 2.0 Thinking/Exp
+            "gemini-2.0-flash-thinking-exp-01-21",
+            "gemini-2.0-flash-exp",
+            "gemini-exp-1206",
+            
+            # 5. Legacy/Experimental Fallbacks
+            "gemini-1.5-flash-8b",
+            "gemini-1.5-pro-002",
+            "gemini-1.5-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro",
         ]
         
         # Model preference for different task types - Updated Feb 2026
@@ -137,9 +138,10 @@ class GeminiService:
                     
                 attempt += 1
                 client = self.clients[key_idx]
+                key_snippet = self.api_keys[key_idx][:5] + "..." if len(self.api_keys[key_idx]) > 5 else self.api_keys[key_idx]
                 
                 try:
-                    print(f"🔄 Attempt {attempt}/{max_retries}: Model[{model_name}] × Key[{key_idx+1}] for task={task_type}")
+                    print(f"🔄 Attempt {attempt}/{max_retries}: Model[{model_name}] × Key[{key_idx+1}] ({key_snippet}) for task={task_type}")
                     
                     response = await client.aio.models.generate_content(
                         model=model_name,
