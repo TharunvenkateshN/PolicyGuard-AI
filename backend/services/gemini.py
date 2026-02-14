@@ -64,11 +64,10 @@ class GeminiService:
         raise AttributeError(f"'GeminiService' object has no attribute '{name}'")
 
     def _get_models_for_task(self, task_type: str) -> list[str]:
-        """Get prioritized model list for a specific task type."""
+        """Get prioritized model short-list for a specific task type (Limited to 3 for Quota Safety)."""
         task_models = self.task_to_models.get(task_type, [])
-        # Combine task-specific models with full cascade, avoiding duplicates
-        combined = task_models + [m for m in self.model_cascade if m not in task_models]
-        return combined
+        # Only take the first 3 models to prevent massive cascade multiplier
+        return task_models[:3]
 
     def _get_config_for_thinking(self, score: int):
         """
@@ -106,37 +105,40 @@ class GeminiService:
 
     async def _generate_with_retry(self, contents, model=None, config=None, retries=None, fail_fast=True, task_type="deep_audit"):
         """
-        Cascading Model + API Key Fallback System.
-        Strategy: Try Model 1 on all 3 keys, then Model 2 on all 3 keys, etc.
-        Example: Gemini-3-Pro → Key1,Key2,Key3 → Gemini-3-Flash → Key1,Key2,Key3 → etc.
+        Optimized Quota-Saving Fallback:
+        1. Model A -> Key 1, 2, 3
+        2. If all keys exhausted for Model A -> Model B -> Key 1, 2, 3
+        3. Caches exhausted keys to avoid redundant 429 hits.
         """
-        # Get prioritized models for this task
         models_to_try = self._get_models_for_task(task_type)
+        if model: models_to_try = [model] + models_to_try
         
-        # Apply thinking level config
         base_config = self.thinking_configs.get(task_type, self._get_config_for_thinking(5))
-        if config:
-            base_config.update(config)
+        if config: base_config.update(config)
         
-        # Calculate total attempts: num_models × num_keys
-        total_attempts = len(models_to_try) * len(self.clients)
-        max_retries = retries if retries else total_attempts
-        
-        attempt = 0
         last_error = None
+        exhausted_keys = set()
+        total_attempts = 0
         
-        # Cascade through: Model 1 → All Keys, Model 2 → All Keys, Model 3 → All Keys
-        for model_idx, model_name in enumerate(models_to_try):
+        for model_name in models_to_try:
+            # Check if we should even try this model
+            if len(exhausted_keys) >= len(self.clients):
+                print(f"🛑 ALL KEYS EXHAUSTED. Stopping cascade early.")
+                break
+
             for key_idx in range(len(self.clients)):
-                if attempt >= max_retries:
-                    break
-                    
-                attempt += 1
+                if key_idx in exhausted_keys:
+                    continue
+                
+                total_attempts += 1
                 client = self.clients[key_idx]
-                key_snippet = self.api_keys[key_idx][:5] + "..." if len(self.api_keys[key_idx]) > 5 else self.api_keys[key_idx]
+                key_snip = self.api_keys[key_idx][:5] + "..."
                 
                 try:
-                    print(f"🔄 Attempt {attempt}/{max_retries}: Model[{model_name}] × Key[{key_idx+1}] ({key_snippet}) for task={task_type}")
+                    # Small delay if we are retrying to avoid "flood" flags
+                    if total_attempts > 1: await asyncio.sleep(0.5)
+                    
+                    print(f"🔄 Attempting {model_name} with Key {key_idx+1} ({key_snip})")
                     
                     response = await client.aio.models.generate_content(
                         model=model_name,
@@ -144,39 +146,35 @@ class GeminiService:
                         config=base_config
                     )
                     
-                    # Success!
-                    print(f"✅ Success with Model[{model_name}] × Key[{key_idx+1}]")
-                    self.current_key_index = key_idx  # Update for future calls
+                    print(f"✅ Success with {model_name} (Attempt {total_attempts})")
                     return response
-                    
+
                 except Exception as e:
-                    error_str = str(e)
+                    error_str = str(e).upper()
                     last_error = e
                     
-                    # Identify error type
-                    is_auth_error = "401" in error_str or "403" in error_str or "unauthorized" in error_str.lower()
-                    is_rate_limit = "429" in error_str or "RESOURCE_EXHAUSTED" in error_str
-                    is_not_found = "404" in error_str or "NOT_FOUND" in error_str or "models/" in error_str.lower()
-                    is_quota = "QUOTA" in error_str.upper() or "quota" in error_str.lower()
+                    # Quota / Rate Limit
+                    if any(x in error_str for x in ["429", "RESOURCE_EXHAUSTED", "QUOTA"]):
+                        print(f"📊 Key {key_idx+1} is OUT OF QUOTA. Blacklisting.")
+                        exhausted_keys.add(key_idx)
+                        continue
+                        
+                    # Model not available (404)
+                    if any(x in error_str for x in ["404", "NOT_FOUND", "MODEL"]):
+                        print(f"❌ Model {model_name} not found on Key {key_idx+1}. Skipping model.")
+                        # If the preferred model is not found, it's likely not found on other keys
+                        break # Break inner loop to try next model
                     
-                    # Log the specific error
-                    if is_auth_error:
-                        print(f"🔑 AUTH ERROR on Key[{key_idx+1}]: Ensure your API key is valid.")
-                    elif is_rate_limit:
-                        print(f"⏱️  Rate limit on Model[{model_name}] × Key[{key_idx+1}]")
-                    elif is_not_found:
-                        print(f"❌ Model {model_name} not available or name mismatch on Key[{key_idx+1}]")
-                    elif is_quota:
-                        print(f"📊 Quota exceeded on Model[{model_name}] × Key[{key_idx+1}]")
-                    else:
-                        print(f"⚠️  Detailed Error on Model[{model_name}] × Key[{key_idx+1}]: {error_str}")
-                    
-                    # Continue to next key (or next model if all keys exhausted)
+                    # Auth error
+                    if any(x in error_str for x in ["401", "403", "UNAUTHORIZED"]):
+                        print(f"🔑 Key {key_idx+1} AUTH FAILED. Blacklisting.")
+                        exhausted_keys.add(key_idx)
+                        continue
+                        
+                    print(f"⚠️  {model_name} Error: {str(e)[:100]}")
                     continue
-        
-        # All attempts exhausted
-        print(f"❌ All {attempt} attempts failed across {len(models_to_try)} models and {len(self.clients)} keys")
-        raise Exception(f"API cascade exhausted after {attempt} attempts. Last error: {last_error}")
+
+        raise Exception(f"API cascade exhausted after {total_attempts} attempts. Last error: {last_error}")
 
 
 
