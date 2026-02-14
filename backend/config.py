@@ -15,9 +15,9 @@ class Settings(BaseModel):
     GOOGLE_API_KEYS: list[str] = [k.strip() for k in os.getenv("GOOGLE_API_KEYS", "").split(",") if k.strip()]
     GOOGLE_API_KEY: str = GOOGLE_API_KEYS[0] if GOOGLE_API_KEYS else os.getenv("GOOGLE_API_KEY", "")
     
-    # Model Configuration - US East Virginia (Full Model Support)
+    # Model Configuration - FREE TIER OPTIMIZED (No Pro - only 50 RPD!)
     MODEL_FLASH: str = os.getenv("MODEL_FLASH", "gemini-2.5-flash-lite")
-    MODEL_PRO: str = os.getenv("MODEL_PRO", "gemini-2.5-pro")
+    MODEL_PRO: str = os.getenv("MODEL_PRO", "gemini-2.5-flash")
     
     # Unified Fallbacks
     GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", MODEL_FLASH)

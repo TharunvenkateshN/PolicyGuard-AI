@@ -13,26 +13,17 @@ class GeminiService:
         self.clients = [genai.Client(api_key=key) for key in self.api_keys]
         self.current_key_index = 0
         
-        # Cascading Model Fallback Chain - US EAST (Full Model Support)
+        # Cascading Model Fallback - FREE TIER OPTIMIZED
+        # Logic: Model 1 → Key1,Key2,Key3,Key4,Key5 → Model 2 → Key1,Key2...
         self.model_cascade = [
-            "gemini-2.5-flash-lite",    # Highest quota (1500 RPD)
-            "gemini-2.5-flash",         # Fast + smart
-            "gemini-2.0-flash",         # Universal fallback
-            "gemini-3-flash-preview",   # Latest Flash
-            "gemini-2.5-pro",           # Deep reasoning
-            "gemini-3-pro-preview",     # Latest Pro
+            "gemini-2.5-flash-lite",    # 1500 RPD - HIGHEST QUOTA
+            "gemini-2.0-flash",         # 1000 RPD
+            "gemini-2.5-flash",         # 500 RPD
+            "gemini-3-flash-preview",   # Preview
         ]
         
-        # Model preference - Lite first to preserve quota
-        self.task_to_models = {
-            "deep_audit": ["gemini-2.5-pro", "gemini-3-pro-preview", "gemini-2.5-flash"],
-            "sla_forecasting": ["gemini-2.5-pro", "gemini-3-pro-preview", "gemini-2.5-flash"],
-            "remediation": ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-2.0-flash"],
-            "inline_filter": ["gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-2.5-flash"],
-        }
-        
         print(f"[INIT] GeminiService initialized with {len(self.api_keys)} API key(s)")
-        print(f"[INIT] Model cascade: {' → '.join(self.model_cascade[:3])}...")
+        print(f"[INIT] Model cascade: {' → '.join(self.model_cascade)}")
         
         # Thinking Level Mapping (Scale 1-10)
         self.thinking_configs = {
@@ -50,10 +41,8 @@ class GeminiService:
         raise AttributeError(f"'GeminiService' object has no attribute '{name}'")
 
     def _get_models_for_task(self, task_type: str) -> list[str]:
-        """Get prioritized model short-list for a specific task type (Limited to 3 for Quota Safety)."""
-        task_models = self.task_to_models.get(task_type, [])
-        # Only take the first 3 models to prevent massive cascade multiplier
-        return task_models[:3]
+        """Returns the full model cascade for any task."""
+        return self.model_cascade
 
     def _get_config_for_thinking(self, score: int):
         """
