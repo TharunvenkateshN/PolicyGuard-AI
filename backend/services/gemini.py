@@ -15,13 +15,14 @@ class GeminiService:
         
         # Cascading Model Fallback Chain - STICKING STRICTLY TO YOUR AVAILABLE MODELS
         self.model_cascade = [
+            "gemini-2.5-flash-lite",
             "gemini-2.0-flash",
             "gemini-2.5-pro",
             "gemini-3-pro-preview",
             "gemini-exp-1206",
             "gemini-2.0-flash-001",
             "gemini-2.0-flash-lite",
-            "gemini-2.5-flash-lite",
+            
             "gemini-3-flash-preview",
             "gemini-flash-latest",
             "gemini-pro-latest",
