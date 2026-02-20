@@ -19,8 +19,14 @@ const outfit = Outfit({
 })
 
 export const metadata: Metadata = {
-    title: 'PolicyGuard AI',
-    description: 'Enterprise AI Policy Governance & Guardrails',
+    title: 'Lexinel — Autonomous Compliance Sentinel',
+    description: 'Neural-to-Logic Policy Recompiler: Transform unstructured regulatory PDFs into live database enforcement. Powered by Gemini AI.',
+    keywords: 'compliance, AML, policy enforcement, AI agent, data governance, anti-money laundering',
+    openGraph: {
+        title: 'Lexinel — Autonomous Compliance Sentinel',
+        description: 'Transform unstructured PDF regulations into live enforcement across your entire data fabric.',
+        type: 'website',
+    }
 }
 
 export default function RootLayout({
@@ -29,12 +35,12 @@ export default function RootLayout({
     children: React.ReactNode
 }) {
     return (
-        <html lang="en" suppressHydrationWarning>
+        <html lang="en" suppressHydrationWarning className="dark">
             <body className={`${inter.variable} ${outfit.variable} font-sans antialiased bg-background bg-grid-cyber`} suppressHydrationWarning>
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="dark"
-                    enableSystem
+                    enableSystem={false}
                     disableTransitionOnChange
                 >
                     <AuthProvider>

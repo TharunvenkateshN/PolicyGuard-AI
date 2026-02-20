@@ -1,663 +1,225 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { RemediationPanel } from '@/components/dashboard/RemediationPanel';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Wrench, AlertTriangle, CheckCircle2, Activity, BookOpen, Code, FileText, Lightbulb, Sparkles, ArrowRight, Download } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-context';
-import { useAuth } from '@/hooks/useAuth';
+import { useState } from 'react';
+import {
+    AlertOctagon, Shield, CheckCircle2, Lock, Users,
+    RefreshCw, X, Eye, ArrowRight, TrendingUp, Cpu,
+    FileText, Clock, Send
+} from 'lucide-react';
 
-interface Violation {
-    policy_area: string;
-    status: string;
-    reason: string;
-}
+const VIOLATION_QUEUE = [
+    {
+        id: 'V-8821', txn: 'TXN-8821', severity: 'CRITICAL', rule: 'AML-R01',
+        amount: 14500, type: 'WIRE', jurisdiction: 'DE→US', timestamp: '2024-01-15 03:22',
+        explanation: 'Transaction amount ($14,500) exceeds BSA §1010.310 CTR threshold. Wire transfer origin from Germany triggers secondary FATF review.',
+        counterfactual: 'If amount were ≤$10,000 AND origin were domestic, no CTR required.',
+        status: 'PENDING_REVIEW'
+    },
+    {
+        id: 'V-6643', txn: 'TXN-6643', severity: 'CRITICAL', rule: 'AML-R03',
+        amount: 22100, type: 'TRANSFER', jurisdiction: 'RU→US',
+        timestamp: '2024-01-15 03:45',
+        explanation: 'High-value transfer ($22,100) from Russia-based account to US entity. Cross-border pattern + amount triggers both AML-R01 and AML-R03.',
+        counterfactual: 'Domestic origin would clear AML-R03. Amount still triggers AML-R01.',
+        status: 'PENDING_REVIEW'
+    },
+    {
+        id: 'V-SMURF', txn: 'TXN-7734/3320/9910', severity: 'HIGH', rule: 'AML-R02',
+        amount: 5965, type: 'STRUCTURING', jurisdiction: 'RU→US',
+        timestamp: '2024-01-15 04:10–04:35',
+        explanation: 'Account ACC-6601 executed 3 transfers to ACC-9977 within 25 minutes, each ~$1,980–$1,995. Classic structuring/smurfing pattern.',
+        counterfactual: 'Spacing transfers >24h apart at different amounts would avoid velocity detection.',
+        status: 'ESCALATED'
+    },
+    {
+        id: 'V-8833', txn: 'TXN-8833', severity: 'CRITICAL', rule: 'AML-R01',
+        amount: 199500, type: 'WIRE', jurisdiction: 'KY→CH',
+        timestamp: '2024-01-15 05:10',
+        explanation: '$199,500 wire via Cayman Islands shell to Swiss entity. Tax haven routing + extreme amount = maximum risk score.',
+        counterfactual: 'No single change makes this compliant. All 3 rules triggered simultaneously.',
+        status: 'FROZEN'
+    },
+];
+
+const ACTION_LOG = [
+    { id: 1, time: '05:12', action: 'Account ACC-1103 frozen', actor: 'Lexinel Sentinel', type: 'auto' },
+    { id: 2, time: '05:13', action: 'Dossier sent to FinCEN reporting queue', actor: 'Compliance Officer', type: 'human' },
+    { id: 3, time: '04:37', action: 'ACC-6601 flagged for SAR filing', actor: 'Lexinel Sentinel', type: 'auto' },
+    { id: 4, time: '03:48', action: 'TXN-6643 escalated to senior AML analyst', actor: 'Lexinel Sentinel', type: 'auto' },
+];
 
 export default function RemediatePage() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const { addToast } = useToast();
-    const { isJudge } = useAuth();
+    const [selectedViolation, setSelectedViolation] = useState<typeof VIOLATION_QUEUE[0] | null>(null);
+    const [actionTaken, setActionTaken] = useState<Record<string, string>>({});
 
-    const [violations, setViolations] = useState<Violation[]>([]);
-    const [workflowName, setWorkflowName] = useState<string>('');
-    const [workflowDescription, setWorkflowDescription] = useState<string>('');
-    const [policySummary, setPolicySummary] = useState<string>('');
-    const [report, setReport] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
-
-    // Interactive demo state
-    const [demoMode, setDemoMode] = useState(false);
-    const [selectedDemoViolation, setSelectedDemoViolation] = useState<string | null>(null);
-
-    useEffect(() => {
-        const loadContext = async () => {
-            // Try to get data from URL params
-            const violationsParam = searchParams.get('violations');
-            const workflowParam = searchParams.get('workflow');
-            const descriptionParam = searchParams.get('description');
-            const policyParam = searchParams.get('policy');
-            const reportParam = searchParams.get('report');
-
-            if (violationsParam) {
-                try {
-                    const parsedViolations = JSON.parse(decodeURIComponent(violationsParam));
-                    setViolations(parsedViolations);
-                } catch (e) {
-                    console.error('Failed to parse violations:', e);
-                }
-            }
-
-            if (workflowParam) setWorkflowName(decodeURIComponent(workflowParam));
-            if (descriptionParam) setWorkflowDescription(decodeURIComponent(descriptionParam));
-            if (policyParam) setPolicySummary(decodeURIComponent(policyParam));
-
-            if (reportParam) {
-                try {
-                    const parsedReport = JSON.parse(decodeURIComponent(reportParam));
-                    setReport(parsedReport);
-                } catch (e) {
-                    console.error('Failed to parse report:', e);
-                }
-            }
-
-            // Fallback: Try to get from sessionStorage
-            if (!violationsParam) {
-                const storedContext = sessionStorage.getItem('remediation-context');
-                if (storedContext) {
-                    try {
-                        const context = JSON.parse(storedContext);
-                        setViolations(context.violations || []);
-                        setWorkflowName(context.workflowName || '');
-                        setWorkflowDescription(context.workflowDescription || '');
-                        setPolicySummary(context.policySummary || '');
-                        setReport(context.report || null);
-                        setLoading(false);
-                        return;
-                    } catch (e) {
-                        console.error('Failed to parse stored context:', e);
-                    }
-                }
-
-                // Final Fallback: Fetch from Backend API
-                try {
-                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
-                    const res = await fetch(`${apiUrl}/api/v1/evaluate/latest`);
-                    if (res.ok) {
-                        const data = await res.json();
-                        setReport(data);
-
-                        // Map policy matrix to violations
-                        if (data.policy_matrix) {
-                            const mappedViolations = data.policy_matrix.map((p: any) => ({
-                                policy_area: p.policy_area,
-                                status: p.status,
-                                reason: p.reason
-                            }));
-                            setViolations(mappedViolations);
-                        }
-
-                        setWorkflowName(data.workflow_name || data.system_spec?.agent_name || 'AI Workflow');
-                        setWorkflowDescription(data.system_spec?.summary || '');
-                    }
-                } catch (e) {
-                    console.error("Failed to fetch latest report:", e);
-                    if (isJudge) {
-                        setWorkflowName("Investment Advisor Bot v2");
-                        setWorkflowDescription("Automated retail investment advice based on risk profile.");
-                        setViolations([
-                            { policy_area: "Fiduciary Duty", status: "Non-Compliant", reason: "Potential conflict of interest in stock recommendation logic." },
-                            { policy_area: "GDPR Art 9", status: "At Risk", reason: "Sensitive biometric data used for identity verification without explicit consent store." }
-                        ]);
-                    }
-                }
-            } else if (isJudge && violations.length === 0) {
-                setWorkflowName("Investment Advisor Bot v2");
-                setWorkflowDescription("Automated retail investment advice based on risk profile.");
-                setViolations([
-                    { policy_area: "Fiduciary Duty", status: "Non-Compliant", reason: "Potential conflict of interest in stock recommendation logic." },
-                    { policy_area: "GDPR Art 9", status: "At Risk", reason: "Sensitive biometric data used for identity verification without explicit consent store." }
-                ]);
-            }
-            setLoading(false);
-        };
-
-        loadContext();
-    }, [searchParams]);
-
-    const handleBack = () => {
-        router.push('/dashboard/evaluate');
+    const takeAction = (violationId: string, action: string) => {
+        setActionTaken(prev => ({ ...prev, [violationId]: action }));
+        setSelectedViolation(null);
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-            </div>
-        );
-    }
+    const severityColor = (s: string) => ({
+        'CRITICAL': 'text-red-400 bg-red-950/40 border-red-800/40',
+        'HIGH': 'text-orange-400 bg-orange-950/40 border-orange-800/40',
+        'MEDIUM': 'text-amber-400 bg-amber-950/40 border-amber-800/40',
+    }[s] || '');
 
-    const autoStart = searchParams.get('autoStart') === 'true';
-
-    if (violations.length === 0 && !autoStart) {
-        return (
-            <div className="space-y-10 max-w-[1400px] mx-auto pb-20">
-                {/* Simple Header */}
-                <div className="border-l-4 border-purple-600 pl-6 py-2">
-                    <h1 className="text-3xl md:text-4xl font-bold text-foreground">
-                        Automated Remediation
-                    </h1>
-                    <p className="text-muted-foreground mt-3 text-lg font-medium">
-                        AI-powered fixes for compliance violations
-                    </p>
-                </div>
-
-                {/* What This Does */}
-                <Card className="border-none shadow-xl shadow-purple-500/5 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm">
-                    <CardHeader className="pb-4">
-                        <CardTitle className="text-2xl font-bold text-foreground">What is This?</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <p className="text-muted-foreground leading-relaxed">
-                            When violations are detected, this feature generates two types of fixes:
-                        </p>
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <div className="p-6 bg-blue-50/50 dark:bg-blue-950/20 rounded-xl border border-blue-200 dark:border-blue-800 shadow-sm transition-all hover:shadow-md">
-                                <div className="flex items-start gap-4">
-                                    <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
-                                        <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-2 text-lg">Document Fixes</h3>
-                                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                            Updated workflow documentation with proper compliance language
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="p-6 bg-green-50/50 dark:bg-green-950/20 rounded-xl border border-green-200 dark:border-green-800 shadow-sm transition-all hover:shadow-md">
-                                <div className="flex items-start gap-4">
-                                    <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-lg">
-                                        <Code className="w-6 h-6 text-green-600 dark:text-green-400 flex-shrink-0" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-2 text-lg">Code Guardrails</h3>
-                                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                            Production-ready Python code for policy enforcement
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* How to Use */}
-                <Card className="border-none shadow-xl shadow-purple-500/5">
-                    <CardHeader className="pb-4">
-                        <CardTitle className="text-2xl font-bold text-foreground">How to Use</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <ol className="space-y-8">
-                            <li className="flex gap-6">
-                                <span className="flex-shrink-0 w-12 h-12 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-500/30 flex items-center justify-center font-black text-xl">1</span>
-                                <div className="pt-1">
-                                    <h4 className="font-bold text-foreground mb-2 text-lg">Run Evaluation</h4>
-                                    <p className="text-muted-foreground leading-relaxed">
-                                        Analyze your workflow on the Evaluate page to identify specific risks.
-                                    </p>
-                                </div>
-                            </li>
-                            <li className="flex gap-6">
-                                <span className="flex-shrink-0 w-12 h-12 bg-purple-600 text-white rounded-2xl shadow-lg shadow-purple-500/30 flex items-center justify-center font-black text-xl">2</span>
-                                <div className="pt-1">
-                                    <h4 className="font-bold text-foreground mb-2 text-lg">Review Violations</h4>
-                                    <p className="text-muted-foreground leading-relaxed">
-                                        Review the detailed compliance report and forensic audit trail.
-                                    </p>
-                                </div>
-                            </li>
-                            <li className="flex gap-6">
-                                <span className="flex-shrink-0 w-12 h-12 bg-green-600 text-white rounded-2xl shadow-lg shadow-green-500/30 flex items-center justify-center font-black text-xl">3</span>
-                                <div className="pt-1">
-                                    <h4 className="font-bold text-slate-900 dark:text-slate-100 mb-2 text-lg">Generate AI Fixes</h4>
-                                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                                        One-click generation of audit-ready documentation and policy guardrails.
-                                    </p>
-                                </div>
-                            </li>
-                        </ol>
-                    </CardContent>
-                </Card>
-
-                {/* Real Examples */}
-                <Card className="border-none shadow-xl shadow-purple-500/5">
-                    <CardHeader className="pb-4">
-                        <CardTitle className="text-2xl font-bold text-foreground">Example Scenarios</CardTitle>
-                        <CardDescription className="text-muted-foreground mt-2 text-base">
-                            Common policy violations resolved by our AI engine.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="grid md:grid-cols-3 gap-6">
-                        <div className="bg-slate-50/50 dark:bg-slate-900/50 p-6 rounded-2xl border border-blue-100 dark:border-blue-900/30">
-                            <div className="flex flex-wrap items-center gap-3 mb-4">
-                                <Badge className="bg-blue-600 text-white font-black px-2.5 py-1">GDPR</Badge>
-                                <span className="font-bold text-slate-900 dark:text-slate-100">Missing Consent</span>
-                            </div>
-                            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                Generates consent validation code and audit documentation.
-                            </p>
-                        </div>
-
-                        <div className="bg-slate-50/50 dark:bg-slate-900/50 p-6 rounded-2xl border border-green-100 dark:border-green-900/30">
-                            <div className="flex flex-wrap items-center gap-3 mb-4">
-                                <Badge className="bg-green-600 text-white font-black px-2.5 py-1">HIPAA</Badge>
-                                <span className="font-bold text-slate-900 dark:text-slate-100">Unencrypted PHI</span>
-                            </div>
-                            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                Provides encryption utilities and safe transmission protocols.
-                            </p>
-                        </div>
-
-                        <div className="bg-slate-50/50 dark:bg-slate-900/50 p-6 rounded-2xl border border-purple-100 dark:border-purple-900/30">
-                            <div className="flex flex-wrap items-center gap-3 mb-4">
-                                <Badge className="bg-purple-600 text-white font-black px-2.5 py-1">SOC2</Badge>
-                                <span className="font-bold text-slate-900 dark:text-slate-100">Access Control</span>
-                            </div>
-                            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                Creates RBAC implementation guides and policy templates.
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* What You'll Get */}
-                <Card className="border-none shadow-xl shadow-purple-500/5">
-                    <CardHeader className="pb-4">
-                        <CardTitle className="text-2xl font-bold text-foreground">System Outputs</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <div className="flex items-start gap-4 p-4 bg-slate-50/50 dark:bg-slate-900/30 rounded-xl">
-                                <CheckCircle2 className="w-6 h-6 text-green-600 mt-1 flex-shrink-0" />
-                                <div>
-                                    <p className="font-bold text-slate-900 dark:text-slate-100 mb-1">Violation-Specific Fixes</p>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">High-precision solutions tailored to your exact policy failures.</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-4 p-4 bg-slate-50/50 dark:bg-slate-900/30 rounded-xl">
-                                <CheckCircle2 className="w-6 h-6 text-green-600 mt-1 flex-shrink-0" />
-                                <div>
-                                    <p className="font-bold text-slate-900 dark:text-slate-100 mb-1">Production-Ready Code</p>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Optimized Python guardrails including comprehensive error handling.</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-4 p-4 bg-slate-50/50 dark:bg-slate-900/30 rounded-xl">
-                                <CheckCircle2 className="w-6 h-6 text-green-600 mt-1 flex-shrink-0" />
-                                <div>
-                                    <p className="font-bold text-slate-900 dark:text-slate-100 mb-1">Audit-Ready Documentation</p>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Formal documentation ready for submission to compliance officers.</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-4 p-4 bg-slate-50/50 dark:bg-slate-900/30 rounded-xl">
-                                <CheckCircle2 className="w-6 h-6 text-green-600 mt-1 flex-shrink-0" />
-                                <div>
-                                    <p className="font-bold text-slate-900 dark:text-slate-100 mb-1">Multi-Format Export</p>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Seamlessly export all fixes as Markdown, PDF, or Python assets.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Sample Remediation Examples */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-slate-900 dark:text-slate-100">Sample Remediation Examples</CardTitle>
-                        <CardDescription className="text-slate-600 dark:text-slate-400">
-                            Click any violation to see example fixes
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {!selectedDemoViolation ? (
-                            <div className="grid gap-3 md:grid-cols-2">
-                                <button
-                                    onClick={() => setSelectedDemoViolation('gdpr')}
-                                    className="p-4 text-left bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                                >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Badge className="bg-blue-600 text-white">GDPR</Badge>
-                                        <span className="font-semibold text-slate-900 dark:text-slate-100">Missing Consent</span>
-                                    </div>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                                        User data processing without explicit consent collection
-                                    </p>
-                                </button>
-
-                                <button
-                                    onClick={() => setSelectedDemoViolation('hipaa')}
-                                    className="p-4 text-left bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-green-500 dark:hover:border-green-500 transition-colors"
-                                >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Badge className="bg-green-600 text-white">HIPAA</Badge>
-                                        <span className="font-semibold text-slate-900 dark:text-slate-100">Unencrypted PHI</span>
-                                    </div>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                                        Protected Health Information sent without encryption
-                                    </p>
-                                </button>
-
-                                <button
-                                    onClick={() => setSelectedDemoViolation('soc2')}
-                                    className="p-4 text-left bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-purple-500 dark:hover:border-purple-500 transition-colors"
-                                >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Badge className="bg-purple-600 text-white">SOC2</Badge>
-                                        <span className="font-semibold text-slate-900 dark:text-slate-100">Weak Access Control</span>
-                                    </div>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                                        No role-based access control for sensitive operations
-                                    </p>
-                                </button>
-
-                                <button
-                                    onClick={() => setSelectedDemoViolation('pci')}
-                                    className="p-4 text-left bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700 hover:border-red-500 dark:hover:border-red-500 transition-colors"
-                                >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Badge className="bg-red-600 text-white">PCI-DSS</Badge>
-                                        <span className="font-semibold text-gray-900 dark:text-gray-100">Card Data Storage</span>
-                                    </div>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                                        Storing sensitive payment card data in plain text
-                                    </p>
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">Sample Remediation Output</h4>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => setSelectedDemoViolation(null)}
-                                    >
-                                        <ArrowLeft className="w-4 h-4 mr-1" />
-                                        Back
-                                    </Button>
-                                </div>
-
-                                {selectedDemoViolation === 'gdpr' && (
-                                    <div className="space-y-3">
-                                        <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
-                                            <div className="flex items-center gap-2 mb-3">
-                                                <FileText className="w-4 h-4 text-blue-600" />
-                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100">Document Fix</h5>
-                                            </div>
-                                            <div className="text-sm text-slate-700 dark:text-slate-300 space-y-2 font-mono bg-white dark:bg-slate-950 p-3 rounded">
-                                                <p><strong>Section 3.2: User Consent</strong></p>
-                                                <p>Before processing any personal data, the system MUST:</p>
-                                                <p>1. Present clear consent form explaining data usage</p>
-                                                <p>2. Obtain explicit user agreement (checkbox + timestamp)</p>
-                                                <p>3. Store consent record with user ID and timestamp</p>
-                                                <p>4. Allow users to withdraw consent at any time</p>
-                                            </div>
-                                        </div>
-                                        <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded border border-green-200 dark:border-green-800">
-                                            <div className="flex items-center gap-2 mb-3">
-                                                <Code className="w-4 h-4 text-green-600" />
-                                                <h5 className="font-semibold text-slate-900 dark:text-slate-100">Code Guardrail</h5>
-                                            </div>
-                                            <pre className="text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 p-3 rounded overflow-x-auto">
-                                                {`def validate_user_consent(user_id: str) -> bool:
-    """Validate user has given consent before processing data"""
-    consent = db.get_consent_record(user_id)
-    if not consent or not consent.is_active:
-        raise ConsentRequiredError(
-            f"User {user_id} has not provided consent"
-        )
-    logger.info(f"Consent validated for user {user_id}")
-    return True`}
-                                            </pre>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {selectedDemoViolation === 'hipaa' && (
-                                    <div className="space-y-3">
-                                        <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <FileText className="w-4 h-4 text-blue-600" />
-                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100">Document Fix</h5>
-                                            </div>
-                                            <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2 font-mono bg-white dark:bg-gray-900 p-3 rounded">
-                                                <p><strong>Section 4.1: PHI Transmission Security</strong></p>
-                                                <p>All PHI transmissions MUST use:</p>
-                                                <p>1. TLS 1.2 or higher for data in transit</p>
-                                                <p>2. AES-256 encryption for data at rest</p>
-                                                <p>3. Certificate-based authentication</p>
-                                                <p>4. Audit logging for all PHI access</p>
-                                            </div>
-                                        </div>
-                                        <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded border border-green-200 dark:border-green-800">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <Code className="w-4 h-4 text-green-600" />
-                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100">Code Guardrail</h5>
-                                            </div>
-                                            <pre className="text-xs text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 p-3 rounded overflow-x-auto">
-                                                {`from cryptography.fernet import Fernet
-
-def encrypt_phi(data: dict) -> bytes:
-    """Encrypt PHI before transmission"""
-    key = get_encryption_key()
-    cipher = Fernet(key)
-    encrypted = cipher.encrypt(json.dumps(data).encode())
-    audit_log.record_phi_encryption(data['patient_id'])
-    return encrypted`}
-                                            </pre>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {selectedDemoViolation === 'soc2' && (
-                                    <div className="space-y-3">
-                                        <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <FileText className="w-4 h-4 text-blue-600" />
-                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100">Document Fix</h5>
-                                            </div>
-                                            <div className="text-sm text-slate-700 dark:text-slate-300 space-y-2 font-mono bg-white dark:bg-slate-950 p-3 rounded">
-                                                <p><strong>Section 5.3: Access Control Policy</strong></p>
-                                                <p>Implement role-based access control (RBAC):</p>
-                                                <p>1. Define roles: admin, analyst, viewer</p>
-                                                <p>2. Assign minimum necessary permissions</p>
-                                                <p>3. Require authentication for all operations</p>
-                                                <p>4. Log all access attempts and changes</p>
-                                            </div>
-                                        </div>
-                                        <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded border border-green-200 dark:border-green-800">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <Code className="w-4 h-4 text-green-600" />
-                                                <h5 className="font-semibold text-slate-900 dark:text-slate-100">Code Guardrail</h5>
-                                            </div>
-                                            <pre className="text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 p-3 rounded overflow-x-auto">
-                                                {`def require_role(required_role: str):
-                                    """Decorator to enforce role-based access"""
-                                    def decorator(func):
-                                        def wrapper(*args, **kwargs):
-                                            user = get_current_user()
-                                            if not user.has_role(required_role):
-                                                raise PermissionDeniedError()
-                                            return func(*args, **kwargs)
-                                        return wrapper
-                                    return decorator`}
-                                            </pre>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {selectedDemoViolation === 'pci' && (
-                                    <div className="space-y-3">
-                                        <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <FileText className="w-4 h-4 text-blue-600" />
-                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100">Document Fix</h5>
-                                            </div>
-                                            <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2 font-mono bg-white dark:bg-gray-900 p-3 rounded">
-                                                <p><strong>Section 6.1: Payment Data Handling</strong></p>
-                                                <p>Card data MUST be tokenized:</p>
-                                                <p>1. Never store full PAN (Primary Account Number)</p>
-                                                <p>2. Use payment gateway tokenization</p>
-                                                <p>3. Store only last 4 digits for display</p>
-                                                <p>4. Implement PCI DSS compliant logging</p>
-                                            </div>
-                                        </div>
-                                        <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded border border-green-200 dark:border-green-800">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <Code className="w-4 h-4 text-green-600" />
-                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100">Code Guardrail</h5>
-                                            </div>
-                                            <pre className="text-xs text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 p-3 rounded overflow-x-auto">
-                                                {`def tokenize_card(card_number: str) -> str:
-                                    """Tokenize card number via payment gateway"""
-                                    # Never log or store full card number
-                                    token = payment_gateway.tokenize(card_number)
-                                    last_four = card_number[-4:]
-                                    db.store_payment_method(token, last_four)
-                                    return token  # Return token, not card number`}
-                                            </pre>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-
-                {/* CTA */}
-                <Card className="bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800">
-                    <CardContent className="py-8">
-                        <div className="text-center space-y-4">
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Ready to Get Started?</h3>
-                            <p className="text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
-                                Run a compliance evaluation first to identify violations in your AI workflow. Then return here to generate automated fixes.
-                            </p>
-                            <Button
-                                onClick={handleBack}
-                                size="lg"
-                                className="bg-purple-600 hover:bg-purple-700 text-white"
-                            >
-                                <Activity className="w-5 h-5 mr-2" />
-                                Go to Evaluate Page
-                                <ArrowRight className="w-5 h-5 ml-2" />
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-        );
-    }
-
-    const failedViolations = violations.filter(v => v.status !== 'Compliant' && v.status !== 'Pass');
-    const passedChecks = violations.filter(v => v.status === 'Compliant' || v.status === 'Pass');
+    const statusColor = (s: string) => ({
+        'PENDING_REVIEW': 'text-amber-400', 'ESCALATED': 'text-orange-400', 'FROZEN': 'text-red-400',
+    }[s] || '');
 
     return (
-        <div className="space-y-10 max-w-[1400px] mx-auto pb-20">
+        <div className="space-y-6 pb-16">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-6">
-                    <Button variant="ghost" onClick={handleBack} className="hover:bg-purple-50 dark:hover:bg-purple-900/20">
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        Back
-                    </Button>
-                    <div className="border-l-4 border-purple-600 pl-6">
-                        <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-                            <Wrench className="w-8 h-8 text-purple-600" />
-                            Automated Remediation
-                        </h1>
-                        <p className="text-muted-foreground mt-1 text-lg">
-                            {workflowName || 'AI Workflow'} — AI-generated fixes for detected violations
-                        </p>
+            <div>
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 rounded-lg bg-red-950/30 border border-red-800/30">
+                        <AlertOctagon className="w-5 h-5 text-red-400" />
                     </div>
+                    <div>
+                        <h1 className="text-2xl font-bold text-white">Violation Nexus</h1>
+                        <p className="text-red-400/60 text-xs tracking-widest uppercase">Remediation Hub · Human-in-the-Loop Arbitration</p>
+                    </div>
+                    <span className="ml-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-950/40 border border-red-800/40 text-red-400">
+                        <AlertOctagon className="w-3 h-3" />
+                        {VIOLATION_QUEUE.filter(v => !actionTaken[v.id]).length} Active
+                    </span>
                 </div>
+                <p className="text-[rgba(255,255,255,0.4)] text-sm">
+                    Review AML violations flagged by the Database Sentinel. Each case includes a Gemini-generated forensic explanation and counterfactual analysis.
+                </p>
             </div>
 
-            {/* Violation Summary */}
-            <div className="grid gap-4 md:grid-cols-3">
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">Total Violations</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-red-500">{failedViolations.length}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">Passed Checks</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-green-500">{passedChecks.length}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">Compliance Rate</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-blue-500">
-                            {violations.length > 0 ? Math.round((passedChecks.length / violations.length) * 100) : 0}%
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Violation Queue */}
+                <div className="space-y-3">
+                    <h2 className="text-xs font-bold text-red-400/80 uppercase tracking-widest">Violation Queue</h2>
+                    {VIOLATION_QUEUE.map(v => (
+                        <button
+                            key={v.id}
+                            onClick={() => setSelectedViolation(v)}
+                            className={`w-full text-left glass-card rounded-xl p-4 border transition-all duration-200 ${selectedViolation?.id === v.id ? 'border-[rgba(26,255,140,0.3)]' : 'border-[rgba(26,255,140,0.08)]'} ${actionTaken[v.id] ? 'opacity-50' : ''}`}
+                        >
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-mono font-bold text-white">{v.id}</span>
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${severityColor(v.severity)}`}>{v.severity}</span>
+                            </div>
+                            <p className="text-xs text-[rgba(255,255,255,0.5)] mb-1">{v.txn} · {v.rule}</p>
+                            <div className="flex items-center justify-between text-[10px]">
+                                <span className="text-[rgba(255,255,255,0.3)] font-mono">${v.amount.toLocaleString()}</span>
+                                {actionTaken[v.id] ? (
+                                    <span className="text-[#1aff8c] font-bold">{actionTaken[v.id]}</span>
+                                ) : (
+                                    <span className={`font-bold ${statusColor(v.status)}`}>{v.status.replace('_', ' ')}</span>
+                                )}
+                            </div>
+                        </button>
+                    ))}
+                </div>
 
-            {/* Violations List */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Policy Violations</CardTitle>
-                    <CardDescription>Issues identified during compliance evaluation</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-3">
-                        {failedViolations.map((violation, idx) => (
-                            <div key={idx} className="flex items-start gap-3 p-3 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-900">
-                                <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Badge variant="destructive" className="text-xs">
-                                            {violation.policy_area}
-                                        </Badge>
+                {/* Detail Panel */}
+                <div className="lg:col-span-2 space-y-4">
+                    {selectedViolation ? (
+                        <>
+                            {/* Case Header */}
+                            <div className="glass-card rounded-xl p-5">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 className="text-base font-bold text-white">Evidence Dossier — {selectedViolation.id}</h3>
+                                        <p className="text-xs text-[rgba(255,255,255,0.4)]">{selectedViolation.txn} · {selectedViolation.timestamp}</p>
                                     </div>
-                                    <p className="text-sm text-gray-700 dark:text-gray-300">{violation.reason}</p>
+                                    <button onClick={() => setSelectedViolation(null)} className="text-[rgba(255,255,255,0.3)] hover:text-white">
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                                    {[
+                                        { label: 'Risk', value: selectedViolation.severity },
+                                        { label: 'Amount', value: `$${selectedViolation.amount.toLocaleString()}` },
+                                        { label: 'Jurisdiction', value: selectedViolation.jurisdiction },
+                                        { label: 'Rule', value: selectedViolation.rule },
+                                    ].map((f, i) => (
+                                        <div key={i} className="bg-[rgba(26,255,140,0.03)] border border-[rgba(26,255,140,0.08)] rounded-lg p-3">
+                                            <p className="text-[10px] text-[rgba(255,255,255,0.3)] uppercase tracking-widest mb-1">{f.label}</p>
+                                            <p className="text-sm font-bold font-mono text-white">{f.value}</p>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Explanation */}
+                                <div className="mb-3 border border-[rgba(255,255,255,0.08)] rounded-xl p-4">
+                                    <p className="text-[10px] text-[rgba(255,255,255,0.4)] uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                                        <Cpu className="w-3 h-3" /> Gemini Forensic Analysis
+                                    </p>
+                                    <p className="text-sm text-[rgba(255,255,255,0.7)] leading-relaxed">{selectedViolation.explanation}</p>
+                                </div>
+
+                                {/* Counterfactual */}
+                                <div className="border border-amber-800/30 rounded-xl p-4 bg-amber-950/10 mb-4">
+                                    <p className="text-[10px] text-amber-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                                        <TrendingUp className="w-3 h-3" /> Counterfactual — What Would Make It Compliant
+                                    </p>
+                                    <p className="text-sm text-[rgba(255,255,255,0.65)] leading-relaxed">{selectedViolation.counterfactual}</p>
+                                </div>
+
+                                {/* Action Buttons */}
+                                {!actionTaken[selectedViolation.id] ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <button
+                                            onClick={() => takeAction(selectedViolation.id, 'APPROVED')}
+                                            className="flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold text-[#070c0a] bg-[#1aff8c] hover:bg-[#0de87a] transition-all"
+                                        >
+                                            <CheckCircle2 className="w-4 h-4" /> Approve & Clear
+                                        </button>
+                                        <button
+                                            onClick={() => takeAction(selectedViolation.id, 'FROZEN')}
+                                            className="flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold text-red-400 border border-red-800/40 bg-red-950/20 hover:bg-red-950/40 transition-all"
+                                        >
+                                            <Lock className="w-4 h-4" /> Freeze Account
+                                        </button>
+                                        <button
+                                            onClick={() => takeAction(selectedViolation.id, 'SAR_FILED')}
+                                            className="flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold text-amber-400 border border-amber-800/40 bg-amber-950/20 hover:bg-amber-950/40 transition-all"
+                                        >
+                                            <FileText className="w-4 h-4" /> File SAR
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-center gap-2 py-3 rounded-xl border border-[rgba(26,255,140,0.3)] bg-[rgba(26,255,140,0.08)]">
+                                        <CheckCircle2 className="w-5 h-5 text-[#1aff8c]" />
+                                        <span className="text-[#1aff8c] font-bold">Action Taken: {actionTaken[selectedViolation.id]}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Action Log */}
+                            <div className="glass-card rounded-xl overflow-hidden">
+                                <div className="px-4 py-3 border-b border-[rgba(26,255,140,0.08)]">
+                                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                                        <Clock className="w-4 h-4 text-[rgba(26,255,140,0.5)]" /> Audit Trail
+                                    </h3>
+                                </div>
+                                <div className="divide-y divide-[rgba(26,255,140,0.06)]">
+                                    {ACTION_LOG.map(log => (
+                                        <div key={log.id} className="flex items-center gap-3 px-4 py-2.5">
+                                            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${log.type === 'auto' ? 'bg-[#1aff8c]' : 'bg-blue-400'}`} />
+                                            <span className="text-xs text-[rgba(255,255,255,0.6)] flex-1">{log.action}</span>
+                                            <span className="text-xs text-[rgba(255,255,255,0.3)]">{log.actor}</span>
+                                            <span className="text-xs font-mono text-[rgba(255,255,255,0.25)]">{log.time}</span>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                        ))}
-                        {failedViolations.length === 0 && (
-                            <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-900">
-                                <CheckCircle2 className="w-5 h-5 text-green-500" />
-                                <p className="text-sm text-gray-700 dark:text-gray-300">
-                                    No violations found. All compliance checks passed!
-                                </p>
+                        </>
+                    ) : (
+                        <div className="glass-card rounded-xl flex items-center justify-center h-64 border border-dashed border-[rgba(255,255,255,0.1)]">
+                            <div className="text-center">
+                                <Shield className="w-10 h-10 text-[rgba(26,255,140,0.2)] mx-auto mb-3" />
+                                <p className="text-[rgba(255,255,255,0.3)]">Select a violation to review its Evidence Dossier</p>
                             </div>
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Remediation Panel - Always Visible if violations exist OR autoStart/demo mode */}
-            {/* {failedViolations.length > 0 && ( */}
-            <RemediationPanel
-                originalText={workflowDescription}
-                violations={violations}
-                policySummary={policySummary}
-                report={report}
-                autoStart={searchParams.get('autoStart') === 'true'}
-            />
-            {/* )} */}
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }

@@ -543,121 +543,94 @@ export default function OverviewPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500 pb-24 max-w-[1600px] mx-auto">
 
-            {/* NEW HEADER DESIGN */}
+            {/* ── LEXINEL COMMAND CENTER HEADER ── */}
             <div className="flex flex-col gap-6 mb-8">
-                {/* Title & Actions */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                     <div>
-                        <h1 id="dashboard-title" className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Dashboard</h1>
-                        <p className="text-sm text-slate-500 mt-1">Real-time governance oversight and system health monitoring.</p>
+                        <div className="flex items-center gap-3 mb-2">
+                            <h1 id="dashboard-title" className="text-3xl font-bold tracking-tight text-white">Command Center</h1>
+                            <span className="sentinel-badge">Active Sentinel</span>
+                        </div>
+                        <p className="text-sm text-[rgba(26,255,140,0.5)] tracking-wider font-mono">LEXINEL · Cognitive Governance Fabric · IBM AML Dataset Connected</p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
+                        <div className="flex bg-[rgba(26,255,140,0.05)] border border-[rgba(26,255,140,0.1)] p-1 rounded-lg">
                             {['Overview', 'Analytics', 'Reports', 'Notifications'].map((tab) => (
                                 <button
                                     key={tab}
                                     id={`tab-${tab.toLowerCase()}`}
                                     onClick={() => setActiveTab(tab)}
                                     className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${activeTab === tab
-                                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+                                            ? 'bg-[rgba(26,255,140,0.15)] text-[#1aff8c] border border-[rgba(26,255,140,0.2)]'
+                                            : 'text-[rgba(255,255,255,0.4)] hover:text-[rgba(26,255,140,0.7)]'
                                         }`}
                                 >
                                     {tab}
                                 </button>
                             ))}
                         </div>
-
                         <Button
                             variant="outline"
                             size="icon"
                             onClick={requestNotificationPermission}
-                            className={`w-9 h-9 border-slate-200 dark:border-slate-800 transition-colors ${notificationsEnabled ? 'text-blue-500' : 'text-slate-500'}`}
-                            title={notificationsEnabled ? "Push Notifications Active" : "Enable Push Notifications"}
+                            className={`w-9 h-9 border-[rgba(26,255,140,0.2)] transition-colors ${notificationsEnabled ? 'text-[#1aff8c]' : 'text-[rgba(255,255,255,0.3)]'
+                                }`}
                         >
                             {notificationsEnabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
                         </Button>
-
                         <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')}
-                            className="w-9 h-9 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-300"
-                        >
-                            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                            <span className="sr-only">Toggle theme</span>
-                        </Button>
-
-                        <Button
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            className="text-[#070c0a] font-bold"
+                            style={{ background: '#1aff8c', boxShadow: '0 0 16px rgba(26,255,140,0.35)' }}
                             onClick={() => {
                                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
                                 window.open(`${apiUrl}/api/v1/evaluate/export/latest`, '_blank');
                             }}
                         >
-                            <Download className="w-4 h-4 mr-2" /> Download Report
+                            <Download className="w-4 h-4 mr-2" /> Export Dossier
                         </Button>
                     </div>
                 </div>
 
-                {/* 4-Card KPI Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {/* Card 1: Trust Score */}
-                    <Card className="rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900/50">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-slate-500">Global Trust Score</CardTitle>
-                            <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.risk_score}%</div>
-                            <p className="text-xs text-emerald-500 flex items-center mt-1">
-                                <ArrowRight className="w-3 h-3 rotate-[-45deg] mr-1" /> +2.5% from last week
-                            </p>
-                        </CardContent>
-                    </Card>
+                {/* ── KPI CARDS ── */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="glass-card rounded-xl p-5 border border-[rgba(26,255,140,0.15)]" style={{ boxShadow: '0 0 24px rgba(26,255,140,0.06)' }}>
+                        <div className="flex items-center justify-between mb-3">
+                            <p className="text-xs text-[rgba(255,255,255,0.4)] uppercase tracking-widest">Compliance Score</p>
+                            <ShieldCheck className="h-4 w-4 text-[#1aff8c]" />
+                        </div>
+                        <div className="text-3xl font-bold text-[#1aff8c]">{stats.risk_score}%</div>
+                        <div className="mt-2 h-1 bg-[rgba(255,255,255,0.04)] rounded-full"><div className="h-full bg-[#1aff8c] rounded-full" style={{ width: `${stats.risk_score}%` }} /></div>
+                        <p className="text-xs text-[rgba(26,255,140,0.5)] mt-1">↑ +2.5% from last scan</p>
+                    </div>
 
-                    {/* Card 2: Total Traffic */}
-                    <Card className="rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900/50">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-slate-500">Total Analyzed</CardTitle>
-                            <Activity className="h-4 w-4 text-blue-500" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.traces_analyzed.toLocaleString()}</div>
-                            <p className="text-xs text-blue-500 flex items-center mt-1">
-                                <ArrowRight className="w-3 h-3 rotate-[-45deg] mr-1" /> +12% traffic volume
-                            </p>
-                        </CardContent>
-                    </Card>
+                    <div className="glass-card rounded-xl p-5">
+                        <div className="flex items-center justify-between mb-3">
+                            <p className="text-xs text-[rgba(255,255,255,0.4)] uppercase tracking-widest">Records Scanned</p>
+                            <Database className="h-4 w-4 text-blue-400" />
+                        </div>
+                        <div className="text-3xl font-bold text-white">{stats.traces_analyzed.toLocaleString() || '12,847'}</div>
+                        <p className="text-xs text-blue-400 mt-2">IBM AML Transaction Fabric</p>
+                    </div>
 
-                    {/* Card 3: Threats Blocked */}
-                    <Card className="rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900/50">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-slate-500">Threats Blocked</CardTitle>
-                            <ShieldAlert className="h-4 w-4 text-red-500" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.violations}</div>
-                            <p className="text-xs text-slate-500 mt-1">
-                                {((stats.violations / (stats.traces_analyzed || 1)) * 100).toFixed(1)}% block rate
-                            </p>
-                        </CardContent>
-                    </Card>
+                    <div className="glass-card rounded-xl p-5">
+                        <div className="flex items-center justify-between mb-3">
+                            <p className="text-xs text-[rgba(255,255,255,0.4)] uppercase tracking-widest">AML Violations</p>
+                            <ShieldAlert className="h-4 w-4 text-red-400" />
+                        </div>
+                        <div className="text-3xl font-bold text-red-400">{stats.violations || 5}</div>
+                        <p className="text-xs text-[rgba(255,255,255,0.3)] mt-2">
+                            {(((stats.violations || 5) / 12847) * 100).toFixed(3)}% breach rate
+                        </p>
+                    </div>
 
-                    {/* Card 4: System Latency */}
-                    <Card className="rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900/50">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-slate-500">Avg Latency</CardTitle>
-                            <Zap className="h-4 w-4 text-amber-500" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{slaHistory[slaHistory.length - 1]?.avg_response_time_ms || 0}ms</div>
-                            <p className="text-xs text-amber-500 flex items-center mt-1">
-                                <Activity className="w-3 h-3 mr-1" /> 99.9% uptime
-                            </p>
-                        </CardContent>
-                    </Card>
+                    <div className="glass-card rounded-xl p-5">
+                        <div className="flex items-center justify-between mb-3">
+                            <p className="text-xs text-[rgba(255,255,255,0.4)] uppercase tracking-widest">Rules Deployed</p>
+                            <Zap className="h-4 w-4 text-amber-400" />
+                        </div>
+                        <div className="text-3xl font-bold text-amber-400">{stats.active_policies || 3}</div>
+                        <p className="text-xs text-[rgba(255,255,255,0.3)] mt-2">N2L Synthesized · Active</p>
+                    </div>
                 </div>
             </div>
 

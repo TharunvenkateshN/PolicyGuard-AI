@@ -1,33 +1,39 @@
+"use client"
+
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import { Home, Shield, Activity, Settings, FileText, ChevronRight, BarChart3, LogOut, Zap, MessageSquare, Wrench, Flame } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import {
+    Home, Shield, Activity, Settings, FileText,
+    BarChart3, LogOut, Zap, MessageSquare, Wrench,
+    Flame, Database, Search, AlertOctagon, GitBranch,
+    ScanLine, Clock
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/context/UserContext';
 import { useAuth } from '@/hooks/useAuth';
 
-// Grouped Navigation Configuration
 const navGroups = [
     {
-        label: "Governance Core",
+        label: "Intelligence Layer",
         items: [
-            { name: 'Dashboard', href: '/dashboard', icon: Home },
-            { name: 'Policies', href: '/dashboard/policies', icon: FileText },
-            { name: 'Integration Wizards', href: '/dashboard/proxy', icon: Shield },
+            { name: 'Command Center', href: '/dashboard', icon: Home },
+            { name: 'Policy Vault', href: '/dashboard/policies', icon: FileText },
+            { name: 'N2L Recompiler', href: '/dashboard/evaluate', icon: GitBranch },
         ]
     },
     {
-        label: "Defense Operations",
+        label: "Enforcement Fabric",
         items: [
-            { name: 'Live Monitor', href: '/dashboard/monitor', icon: BarChart3 },
-            { name: 'Red Team', href: '/dashboard/redteam', icon: Flame },
-            { name: 'Remediate', href: '/dashboard/remediate', icon: Wrench },
+            { name: 'Database Sentinel', href: '/dashboard/sentinel', icon: Database },
+            { name: 'Live Scan Feed', href: '/dashboard/monitor', icon: ScanLine },
+            { name: 'Violation Nexus', href: '/dashboard/remediate', icon: AlertOctagon },
         ]
     },
     {
-        label: "Analytics & System",
+        label: "Red Team & Analytics",
         items: [
-            { name: 'Evaluate', href: '/dashboard/evaluate', icon: Activity },
-            { name: 'SLA Monitoring', href: '/dashboard/sla', icon: Zap },
+            { name: 'Adversarial Hub', href: '/dashboard/redteam', icon: Flame },
+            { name: 'Drift Monitor', href: '/dashboard/sla', icon: Activity },
             { name: 'Settings', href: '/dashboard/settings', icon: Settings },
         ]
     }
@@ -40,33 +46,56 @@ interface SidebarProps {
 
 export function Sidebar({ className, onNavigate }: SidebarProps) {
     const pathname = usePathname();
-    const router = useRouter();
     const { profile } = useUser();
-
     const { logout } = useAuth();
-    const handleLogout = async () => {
-        await logout();
-    };
 
     return (
-        <div className={cn("flex h-full w-64 flex-col bg-slate-50/50 dark:bg-slate-950/50 border-r-0 z-20", className)}>
-            {/* Header */}
-            <div className="flex h-16 items-center px-6 mb-2">
-                <Shield className="h-6 w-6 text-blue-600 dark:text-blue-500 mr-2 drop-shadow-sm" />
-                <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white mr-2">PolicyGuard AI</span>
+        <div className={cn("flex h-full w-64 flex-col bg-[#070c0a]/80 border-r border-[rgba(26,255,140,0.1)] z-20 backdrop-blur-xl", className)}>
 
+            {/* Logo */}
+            <div className="flex h-16 items-center px-5 mb-1 border-b border-[rgba(26,255,140,0.08)]">
+                <div className="flex items-center gap-3">
+                    {/* Lexinel Hex Shield */}
+                    <div className="relative">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <path d="M16 3L27 9V23L16 29L5 23V9L16 3Z"
+                                stroke="#1aff8c" strokeWidth="1.5" strokeLinejoin="round"
+                                opacity="0.4" />
+                            <path d="M16 7L23 11V21L16 25L9 21V11L16 7Z"
+                                fill="rgba(26,255,140,0.06)" stroke="#1aff8c" strokeWidth="1.5" strokeLinejoin="round" />
+                            <path d="M13 11V21H22" stroke="#1aff8c" strokeWidth="2.5"
+                                strokeLinecap="round" strokeLinejoin="round" />
+                            <circle cx="22" cy="21" r="2" fill="#1aff8c" opacity="0.9">
+                                <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" />
+                            </circle>
+                        </svg>
+                        <div className="absolute inset-0 rounded-full"
+                            style={{ boxShadow: '0 0 12px rgba(26,255,140,0.3)' }} />
+                    </div>
+                    <div>
+                        <span className="text-base font-bold tracking-widest text-white font-outfit">LEX<span className="text-neon">INEL</span></span>
+                        <p className="text-[9px] text-[rgba(26,255,140,0.5)] tracking-[0.2em] uppercase">Compliance Sentinel</p>
+                    </div>
+                </div>
             </div>
 
-            {/* Scrollable Nav Area */}
-            <div className="flex-1 overflow-y-auto px-4 py-2 space-y-6">
+            {/* Active Sentinel Badge */}
+            <div className="mx-4 my-3">
+                <div className="sentinel-badge w-full justify-center">
+                    Active Sentinel
+                </div>
+            </div>
+
+            {/* Nav */}
+            <div className="flex-1 overflow-y-auto px-3 py-2 space-y-5">
                 {navGroups.map((group, groupIdx) => (
                     <div key={groupIdx}>
-                        <h3 className="mb-2 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        <h3 className="mb-2 px-3 text-[10px] font-bold text-[rgba(26,255,140,0.4)] uppercase tracking-[0.15em]">
                             {group.label}
                         </h3>
-                        <div className="space-y-1">
+                        <div className="space-y-0.5">
                             {group.items.map((item) => {
-                                const isActive = pathname === item.href;
+                                const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
                                 const Icon = item.icon;
 
                                 return (
@@ -75,19 +104,22 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
                                         href={item.href}
                                         onClick={onNavigate}
                                         className={cn(
-                                            "flex items-center px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200",
+                                            "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 group",
                                             isActive
-                                                ? "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300 shadow-sm"
-                                                : "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-200"
+                                                ? "bg-[rgba(26,255,140,0.1)] text-[#1aff8c] border border-[rgba(26,255,140,0.2)]"
+                                                : "text-[rgba(255,255,255,0.45)] hover:bg-[rgba(26,255,140,0.05)] hover:text-[rgba(26,255,140,0.8)]"
                                         )}
+                                        style={isActive ? { boxShadow: '0 0 12px rgba(26,255,140,0.1)' } : {}}
                                     >
-                                        <Icon
-                                            className={cn(
-                                                "mr-3 h-4 w-4 transition-colors",
-                                                isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-500"
-                                            )}
-                                        />
+                                        <Icon className={cn(
+                                            "mr-3 h-4 w-4 transition-colors flex-shrink-0",
+                                            isActive ? "text-[#1aff8c]" : "text-[rgba(255,255,255,0.3)] group-hover:text-[rgba(26,255,140,0.7)]"
+                                        )} />
                                         {item.name}
+                                        {isActive && (
+                                            <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#1aff8c]"
+                                                style={{ boxShadow: '0 0 6px #1aff8c' }} />
+                                        )}
                                     </Link>
                                 );
                             })}
@@ -96,26 +128,27 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
                 ))}
             </div>
 
-            {/* Footer Profile */}
-            <div className="p-4 mt-auto">
-                <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 shadow-sm">
+            {/* Footer */}
+            <div className="p-3 border-t border-[rgba(26,255,140,0.08)]">
+                <div className="rounded-xl bg-[rgba(26,255,140,0.04)] border border-[rgba(26,255,140,0.1)] p-3">
                     <Link href="/dashboard/profile" onClick={onNavigate} className="flex items-center group mb-3">
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold ring-2 ring-white dark:ring-slate-800">
-                            {profile?.name?.charAt(0) || 'U'}
+                        <div className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ring-1 ring-[rgba(26,255,140,0.3)]"
+                            style={{ background: 'linear-gradient(135deg, #0d2918, #1aff8c33)', color: '#1aff8c' }}>
+                            {profile?.name?.charAt(0) || 'L'}
                         </div>
                         <div className="ml-3 min-w-0 flex-1">
-                            <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate group-hover:text-blue-600 transition-colors">
-                                {profile?.name || 'User'}
+                            <p className="text-sm font-medium text-white truncate group-hover:text-[#1aff8c] transition-colors">
+                                {profile?.name || 'Compliance Officer'}
                             </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-500 truncate">
-                                {profile?.jobTitle || 'Administrator'}
+                            <p className="text-xs text-[rgba(255,255,255,0.3)] truncate">
+                                {profile?.jobTitle || 'AML Analyst'}
                             </p>
                         </div>
                     </Link>
 
                     <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center justify-center px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-all"
+                        onClick={async () => await logout()}
+                        className="w-full flex items-center justify-center px-3 py-1.5 text-xs font-medium text-[rgba(255,255,255,0.3)] hover:text-red-400 hover:bg-red-950/30 rounded-lg transition-all"
                     >
                         <LogOut className="mr-2 h-3.5 w-3.5" />
                         Sign Out

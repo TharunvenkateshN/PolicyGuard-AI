@@ -4,103 +4,191 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 4%;
+    --foreground: 150 10% 95%;
+    --card: 0 0% 6%;
+    --card-foreground: 150 10% 95%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 150 10% 95%;
+    --primary: 150 100% 55%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 150 10% 85%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 50%;
+    --accent: 150 100% 55%;
+    --accent-foreground: 0 0% 4%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14%;
+    --input: 0 0% 12%;
+    --ring: 150 100% 55%;
+    --radius: 0.75rem;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
+    /* Lexinel Brand Tokens */
+    --neon: #1aff8c;
+    --neon-dim: rgba(26, 255, 140, 0.15);
+    --neon-glow: 0 0 20px rgba(26, 255, 140, 0.4);
+    --void: #070c0a;
+    --surface: #0d1310;
+    --surface-2: #111a16;
+    --surface-3: #162019;
+    --border-neon: rgba(26, 255, 140, 0.2);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%; /* Slate 950 */
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 47.4% 11.2%; /* Slate 900 */
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 47.4% 11.2%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 217.2 91.2% 59.8%; /* Blue 500 equivalent for vibrant accent */
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%; /* Slate 800 */
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%; /* Slate 800 */
-    --muted-foreground: 215 20.2% 65.1%; /* Slate 400 */
-
-    --accent: 217.2 32.6% 17.5%; /* Slate 800 */
-    --accent-foreground: 210 40% 98%;
-
+    --background: 0 0% 4%;
+    --foreground: 150 10% 95%;
+    --card: 0 0% 6%;
+    --card-foreground: 150 10% 95%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 150 10% 95%;
+    --primary: 150 100% 55%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 150 10% 85%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 50%;
+    --accent: 150 100% 55%;
+    --accent-foreground: 0 0% 4%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%; /* Slate 800 */
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-  }
-}
-
-@layer utilities {
-  .bg-grid-cyber {
-    background-size: 40px 40px;
-    background-image: linear-gradient(to right, rgba(14, 165, 233, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
-  }
-
-  .animate-scanline {
-    animation: scanline 4s linear infinite;
-  }
-}
-
-@keyframes scanline {
-  0% {
-    transform: translateY(-100%);
-  }
-
-  100% {
-    transform: translateY(1000%);
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14%;
+    --input: 0 0% 12%;
+    --ring: 150 100% 55%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+}
+
+/* ─── Lexinel Grid Overlay ─────────────────────────────────── */
+@layer utilities {
+  .bg-grid-cyber {
+    background-size: 48px 48px;
+    background-image:
+      linear-gradient(to right, rgba(26, 255, 140, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(26, 255, 140, 0.04) 1px, transparent 1px);
   }
 
-  body {
-    @apply bg-background text-foreground;
+  /* Glassmorphism card */
+  .glass-card {
+    background: rgba(13, 19, 16, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(26, 255, 140, 0.12);
+  }
+
+  /* Neon text glow */
+  .text-neon {
+    color: #1aff8c;
+    text-shadow: 0 0 12px rgba(26, 255, 140, 0.6);
+  }
+
+  .border-neon {
+    border-color: rgba(26, 255, 140, 0.25);
+  }
+
+  .bg-neon-dim {
+    background: rgba(26, 255, 140, 0.08);
+  }
+
+  .shadow-neon {
+    box-shadow: 0 0 24px rgba(26, 255, 140, 0.2), inset 0 0 24px rgba(26, 255, 140, 0.04);
+  }
+
+  .shadow-neon-sm {
+    box-shadow: 0 0 10px rgba(26, 255, 140, 0.25);
+  }
+
+  .ring-neon {
+    box-shadow: 0 0 0 2px rgba(26, 255, 140, 0.3);
+  }
+
+  /* Scan animations */
+  .animate-scanline {
+    animation: scanline 4s linear infinite;
+  }
+
+  .animate-pulse-neon {
+    animation: pulse-neon 2s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-data-flow {
+    animation: data-flow 8s linear infinite;
+  }
+
+  .desktop-only-card {
+    display: block;
   }
 }
 
-/* Custom Override for Floating Cards */
 @media (max-width: 1535px) {
   .desktop-only-card {
     display: none !important;
   }
+}
+
+/* ─── Keyframes ─────────────────────────────────────────────── */
+@keyframes scanline {
+  0%   { transform: translateY(-100%); opacity: 0.6; }
+  50%  { opacity: 0.3; }
+  100% { transform: translateY(1000%); opacity: 0; }
+}
+
+@keyframes pulse-neon {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(26, 255, 140, 0.3), 0 0 20px rgba(26, 255, 140, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(26, 255, 140, 0.6), 0 0 40px rgba(26, 255, 140, 0.2);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes data-flow {
+  0%   { stroke-dashoffset: 1000; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* ─── Scrollbar Styling ─────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0d1310; }
+::-webkit-scrollbar-thumb { background: rgba(26, 255, 140, 0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(26, 255, 140, 0.4); }
+
+/* ─── Sentinel Badge ─────────────────────────────────────────── */
+.sentinel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(26, 255, 140, 0.1);
+  border: 1px solid rgba(26, 255, 140, 0.3);
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1aff8c;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.sentinel-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1aff8c;
+  box-shadow: 0 0 8px #1aff8c;
+  animation: pulse-neon 2s ease-in-out infinite;
 }
