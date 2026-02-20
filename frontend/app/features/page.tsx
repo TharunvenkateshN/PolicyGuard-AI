@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
-    Shield,
     Target,
     Activity,
     Flame,
@@ -28,40 +27,40 @@ export default function FeaturesPage() {
     return (
         <div className="bg-[#020202] text-white min-h-screen font-outfit selection:bg-cyan-500/30 overflow-hidden">
             {/* Nav */}
-            <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-4 bg-black/60 backdrop-blur-xl border-b border-white/5' : 'py-8 bg-transparent'}`}>
+            <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-3 bg-[#030806]/80 backdrop-blur-xl border-b border-[rgba(26,255,140,0.08)]' : 'py-6 bg-transparent'}`}>
                 <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between">
-                    <div className="flex flex-col items-start gap-1">
-                        <div onClick={() => router.push('/')} className="flex items-center gap-3 group cursor-pointer">
-                            <div className="w-10 h-10 bg-cyan-600 flex items-center justify-center rounded-none border border-cyan-400/50 shadow-[0_0_20px_rgba(6,182,212,0.4)] group-hover:scale-110 transition-transform">
-                                <Shield className="w-6 h-6 text-white" />
-                            </div>
-                            <span className="text-xl font-black uppercase tracking-tighter">Policy<span className="text-cyan-500">Guard</span> AI</span>
-                        </div>
-                        <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[7px] font-black uppercase tracking-[0.2em] text-cyan-400 backdrop-blur-md">
-                            <span className="w-1 h-1 rounded-full bg-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.8)]"></span>
-                            AI Governance Framework
+                    <div onClick={() => router.push('/')} className="flex items-center gap-3 cursor-pointer">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <path d="M16 3L27 9V23L16 29L5 23V9L16 3Z" stroke="#1aff8c" strokeWidth="1.5" strokeLinejoin="round" opacity="0.4" />
+                            <path d="M16 7L23 11V21L16 25L9 21V11L16 7Z" fill="rgba(26,255,140,0.06)" stroke="#1aff8c" strokeWidth="1.5" strokeLinejoin="round" />
+                            <path d="M13 11V21H22" stroke="#1aff8c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                            <circle cx="22" cy="21" r="2" fill="#1aff8c" opacity="0.9" />
+                        </svg>
+                        <div>
+                            <span className="text-lg font-black tracking-widest text-white">LEX<span className="text-[#1aff8c]">INEL</span></span>
+                            <p className="text-[9px] text-[rgba(26,255,140,0.5)] tracking-[0.2em] uppercase -mt-0.5">AML Compliance Engine</p>
                         </div>
                     </div>
 
-                    <div className="hidden md:flex items-center gap-12">
+                    <div className="hidden md:flex items-center gap-10">
                         {[
                             { name: 'Features', href: '/features' },
-                            { name: 'Governance', href: '/governance' },
-                            { name: 'Pricing', href: '/pricing' },
-                            { name: 'Team', href: '/team' }
+                            { name: 'How It Works', href: '/how-it-works' },
                         ].map((item) => (
                             <Link key={item.name} href={item.href} className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-white transition-colors relative group">
                                 {item.name}
-                                <span className="absolute -bottom-1 left-0 w-0 h-px bg-cyan-500 transition-all group-hover:w-full"></span>
+                                <span className="absolute -bottom-1 left-0 w-0 h-px bg-[#1aff8c] transition-all group-hover:w-full" />
                             </Link>
                         ))}
                     </div>
 
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-4">
                         <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 hover:text-white transition-colors">Log In</Link>
-                        <Button onClick={() => router.push('/login')} className="bg-white text-black hover:bg-zinc-200 rounded-none px-6 font-black uppercase tracking-widest text-[10px] h-11 border border-white/20">
-                            Initialize Shell
-                        </Button>
+                        <Link href="/signup">
+                            <button className="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-lg border border-[rgba(26,255,140,0.3)] text-[#1aff8c] bg-[rgba(26,255,140,0.06)] hover:bg-[rgba(26,255,140,0.12)] transition-all">
+                                Get Started
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </nav>

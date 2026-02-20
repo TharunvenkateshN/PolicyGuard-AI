@@ -4,39 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-    Shield,
-    ShieldCheck,
-    ArrowRight,
-    Activity,
-    Brain,
-    LayoutDashboard,
-    Terminal,
-    Lock,
-    ExternalLink,
-    Play,
-    Flame,
-    Wrench,
-    Zap,
-    Github,
-    Linkedin,
-    Check,
-    Building,
-    Hexagon,
-    Atom,
-    Target,
-    Users,
-    CreditCard,
-    Globe,
-    CheckCircle2,
-    Database,
-    Crosshair,
-    FileCheck,
-    Code,
-    ShieldAlert,
-    Link2,
-    Fingerprint
+    ArrowRight, Terminal, Fingerprint, ShieldCheck,
+    Activity, Brain, Lock, Zap, Globe, FileCheck,
+    CreditCard, Database, Target, ShieldAlert, CheckCircle2
 } from 'lucide-react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -49,26 +21,20 @@ export default function LandingPage() {
 
     const triggerGuestLogin = async () => {
         setDemoSequence(true);
-        // Simulate Terminal Sequence
         const lines = [
-            "Initializing Test Protocol...",
-            "Bypassing SSO...",
-            "Granting 'Judge' Permissions...",
-            "ACCESS_GRANTED: Welcome to Lexinel."
+            '> Initializing Lexinel Sentinel Protocol...',
+            '> Verifying judge credentials...',
+            '> Granting ANALYST_SUDO permissions...',
+            '> Loading IBM AML enforcement engine...',
+            '> ACCESS_GRANTED: Welcome to Lexinel.',
         ];
-
         for (const line of lines) {
-            await new Promise(r => setTimeout(r, 600)); // Delay per line
+            await new Promise(r => setTimeout(r, 600));
             setTerminalLines(prev => [...prev, line]);
         }
-
-        await new Promise(r => setTimeout(r, 800)); // Final pause for wow factor
-
-        // Start Tour
+        await new Promise(r => setTimeout(r, 700));
         localStorage.setItem('pg_tour_active', 'true');
         window.dispatchEvent(new CustomEvent('pg-start-tour'));
-
-        // Login
         loginAsGuest();
     };
 
@@ -79,35 +45,28 @@ export default function LandingPage() {
     }, []);
 
     return (
-        <div className="bg-[#020202] text-white min-h-screen font-outfit selection:bg-blue-500/30">
-            {/* Demo Sequence Overlay */}
+        <div className="bg-[#030806] text-white min-h-screen font-outfit selection:bg-[rgba(26,255,140,0.2)]">
+
+            {/* Demo Terminal Overlay */}
             <AnimatePresence>
                 {demoSequence && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center font-mono text-cyan-400 p-8"
+                        className="fixed inset-0 z-[100] bg-[#030806] flex flex-col items-center justify-center font-mono p-8"
                     >
-                        <div className="w-full max-w-lg space-y-4">
-                            <div className="flex items-center gap-2 text-white mb-6 border-b border-white/10 pb-4">
-                                <Terminal className="w-6 h-6" />
-                                <span className="text-xl font-bold tracking-widest uppercase">JUDGE_TERMINAL_V1.0</span>
+                        <div className="w-full max-w-lg">
+                            <div className="flex items-center gap-2 text-[#1aff8c] mb-6 border-b border-[rgba(26,255,140,0.15)] pb-4">
+                                <Terminal className="w-5 h-5" />
+                                <span className="text-base font-bold tracking-widest">LEXINEL_SENTINEL_v2.0</span>
                             </div>
-
                             <div className="space-y-2">
                                 {terminalLines.map((line, i) => (
-                                    <motion.div
-                                        key={i}
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        className="flex items-center gap-3"
-                                    >
-                                        <span className="text-cyan-600">➜</span>
-                                        <span>{line}</span>
-                                        {i === terminalLines.length - 1 && (
-                                            <span className="inline-block w-2 h-4 bg-cyan-400 animate-pulse ml-2" />
-                                        )}
+                                    <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2">
+                                        <span className="text-[rgba(26,255,140,0.4)]">$</span>
+                                        <span className={i === terminalLines.length - 1 ? 'text-[#1aff8c] font-bold' : 'text-[rgba(26,255,140,0.7)]'}>{line}</span>
+                                        {i === terminalLines.length - 1 && <span className="inline-block w-2 h-4 bg-[#1aff8c] animate-pulse ml-1" />}
                                     </motion.div>
                                 ))}
                             </div>
@@ -115,245 +74,262 @@ export default function LandingPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
             {/* Nav */}
-            <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-4 bg-black/60 backdrop-blur-xl border-b border-white/5' : 'py-8 bg-transparent'}`}>
+            <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-3 bg-[#030806]/80 backdrop-blur-xl border-b border-[rgba(26,255,140,0.08)]' : 'py-6 bg-transparent'}`}>
                 <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between">
-                    <div className="flex flex-col items-start gap-1">
-                        <div className="flex items-center gap-3 group cursor-pointer">
-                            <div className="w-10 h-10 bg-cyan-600 flex items-center justify-center rounded-none border border-cyan-400/50 shadow-[0_0_20px_rgba(6,182,212,0.4)] group-hover:scale-110 transition-transform">
-                                <Shield className="w-6 h-6 text-white" />
-                            </div>
-                            <span className="text-xl font-black uppercase tracking-tighter">Policy<span className="text-cyan-500">Guard</span> AI</span>
-                        </div>
-                        <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[7px] font-black uppercase tracking-[0.2em] text-cyan-400 backdrop-blur-md">
-                            <span className="w-1 h-1 rounded-full bg-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.8)]"></span>
-                            AI Governance Framework
+                    {/* Logo */}
+                    <div className="flex items-center gap-3">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <path d="M16 3L27 9V23L16 29L5 23V9L16 3Z" stroke="#1aff8c" strokeWidth="1.5" strokeLinejoin="round" opacity="0.4" />
+                            <path d="M16 7L23 11V21L16 25L9 21V11L16 7Z" fill="rgba(26,255,140,0.06)" stroke="#1aff8c" strokeWidth="1.5" strokeLinejoin="round" />
+                            <path d="M13 11V21H22" stroke="#1aff8c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                            <circle cx="22" cy="21" r="2" fill="#1aff8c" opacity="0.9" />
+                        </svg>
+                        <div>
+                            <span className="text-lg font-black tracking-widest text-white">LEX<span className="text-[#1aff8c]">INEL</span></span>
+                            <p className="text-[9px] text-[rgba(26,255,140,0.5)] tracking-[0.2em] uppercase -mt-0.5">AML Compliance Engine</p>
                         </div>
                     </div>
 
-                    <div className="hidden md:flex items-center gap-12">
+                    <div className="hidden md:flex items-center gap-10">
                         {[
                             { name: 'Features', href: '/features' },
-                            { name: 'Governance', href: '/governance' },
-                            { name: 'Pricing', href: '/pricing' },
-                            { name: 'Team', href: '/team' }
+                            { name: 'How It Works', href: '/how-it-works' },
                         ].map((item) => (
-                            <Link key={item.name} href={item.href} className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-white transition-colors relative group">
+                            <Link key={item.name} href={item.href}
+                                className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-white transition-colors relative group">
                                 {item.name}
-                                <span className="absolute -bottom-1 left-0 w-0 h-px bg-cyan-500 transition-all group-hover:w-full"></span>
+                                <span className="absolute -bottom-1 left-0 w-0 h-px bg-[#1aff8c] transition-all group-hover:w-full" />
                             </Link>
                         ))}
                     </div>
 
-                    <div className="flex items-center gap-6">
-                        <button
-                            onClick={triggerGuestLogin}
-                            className="hidden lg:flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-cyan-400 hover:text-cyan-300 transition-colors mr-4"
-                        >
+                    <div className="flex items-center gap-4">
+                        <button onClick={triggerGuestLogin}
+                            className="hidden lg:flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#1aff8c] hover:text-[rgba(26,255,140,0.7)] transition-colors">
                             <Fingerprint className="w-3.5 h-3.5" />
                             Judge Access
                         </button>
                         <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 hover:text-white transition-colors">Log In</Link>
                         <Link href="/signup">
-                            <Button className="bg-cyan-600 hover:bg-cyan-500 text-white rounded-none px-6 font-black uppercase tracking-widest text-[10px] h-11 border border-cyan-400/50 shadow-[0_0_20px_rgba(6,182,212,0.3)]">
-                                Sign Up Free
-                            </Button>
+                            <button className="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-lg border border-[rgba(26,255,140,0.3)] text-[#1aff8c] bg-[rgba(26,255,140,0.06)] hover:bg-[rgba(26,255,140,0.12)] transition-all" style={{ boxShadow: '0 0 16px rgba(26,255,140,0.1)' }}>
+                                Get Started
+                            </button>
                         </Link>
                     </div>
                 </div>
             </nav>
 
-            {/* Hero Section */}
-            <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-                <div
-                    className="max-w-[1400px] mx-auto px-6 grid lg:grid-cols-2 gap-20 items-center relative z-10"
-                >
-                    <div className="space-y-10">
-                        <motion.div
-                            initial={{ opacity: 0, x: -50 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.8 }}
-                        >
-                            <h1 className="text-6xl md:text-8xl font-outfit font-black tracking-tighter leading-[0.9] uppercase">
-                                THE <span className="text-cyan-600">CONTROL LAYER</span><br />
-                                <span className="text-zinc-400">FOR AI AGENTS.</span>
-                            </h1>
-                            <p className="text-lg md:text-xl text-zinc-400 max-w-xl mt-8 leading-relaxed font-medium">
-                                A policy-driven governance framework for continuous, live-stream observability of autonomous agent workflows.
-                                Secure your AI fleet with proactive, real-time intervention.
-                            </p>
+            {/* Hero */}
+            <section className="relative min-h-screen flex items-center pt-24 overflow-hidden">
+                {/* Background glow */}
+                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full blur-[180px] bg-[rgba(26,255,140,0.04)] pointer-events-none" />
+                <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#030806] via-transparent to-transparent pointer-events-none" />
+
+                <div className="max-w-[1400px] mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10 w-full">
+                    <div className="space-y-8">
+                        {/* Badge */}
+                        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(26,255,140,0.25)] bg-[rgba(26,255,140,0.06)] text-[10px] font-black uppercase tracking-[0.2em] text-[#1aff8c]">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#1aff8c] animate-pulse" />
+                                IBM AML Dataset · Gemini N2L Synthesis · Live
+                            </span>
                         </motion.div>
 
-                        <div className="flex flex-wrap gap-4 pt-10">
+                        <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.1 }}>
+                            <h1 className="text-6xl md:text-7xl font-black tracking-tighter leading-[0.9] uppercase">
+                                AML<br />
+                                <span className="text-[#1aff8c]" style={{ textShadow: '0 0 60px rgba(26,255,140,0.35)' }}>COMPLIANCE</span><br />
+                                <span className="text-zinc-500">AUTOMATED.</span>
+                            </h1>
+                        </motion.div>
+
+                        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+                            className="text-lg text-zinc-400 max-w-xl leading-relaxed">
+                            Lexinel ingests regulatory PDFs — BSA, FATF, EU AMLD6 — and uses <span className="text-white font-semibold">Neural-to-Logic synthesis</span> to generate enforcement rules that scan the IBM AML dataset in real-time. Zero manual configuration.
+                        </motion.p>
+
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="flex flex-wrap gap-4">
                             <Link href="/signup">
-                                <Button size="lg" className="h-16 px-10 bg-cyan-600 hover:bg-cyan-500 text-white font-black uppercase tracking-widest border-none rounded-none shadow-[0_0_50px_rgba(6,182,212,0.3)]">
-                                    Start Free Trial <ArrowRight className="ml-2 w-5 h-5" />
-                                </Button>
+                                <button className="h-14 px-8 font-black uppercase tracking-widest text-sm text-[#030806] rounded-lg transition-all hover:brightness-110"
+                                    style={{ background: '#1aff8c', boxShadow: '0 0 40px rgba(26,255,140,0.3)' }}>
+                                    Start Free Trial <span className="ml-1">→</span>
+                                </button>
                             </Link>
-                            <Button size="lg" variant="outline" onClick={triggerGuestLogin} className="h-16 px-10 border-cyan-500/30 text-white font-black uppercase tracking-widest hover:bg-cyan-500/10 bg-black/40 rounded-none relative group overflow-hidden">
-                                <div className="absolute inset-0 bg-cyan-500/5 group-hover:bg-cyan-500/10 transition-colors"></div>
-                                <span className="relative flex items-center gap-3">
-                                    <Fingerprint className="w-5 h-5 text-cyan-500" />
-                                    Judge Test Access
-                                </span>
-                            </Button>
-                        </div>
+                            <button onClick={triggerGuestLogin}
+                                className="h-14 px-8 font-black uppercase tracking-widest text-sm text-[#1aff8c] rounded-lg border border-[rgba(26,255,140,0.3)] bg-[rgba(26,255,140,0.06)] hover:bg-[rgba(26,255,140,0.10)] transition-all flex items-center gap-2">
+                                <Fingerprint className="w-4 h-4" />
+                                Judge Test Access
+                            </button>
+                        </motion.div>
+
+                        {/* Stats row */}
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}
+                            className="flex gap-8 pt-4 border-t border-[rgba(26,255,140,0.08)]">
+                            {[
+                                { val: '8,720', label: 'IBM AML Records' },
+                                { val: '5', label: 'Active AML Rules' },
+                                { val: '< 2s', label: 'Synthesis Time' },
+                                { val: '100%', label: 'Audit Trace' },
+                            ].map((s, i) => (
+                                <div key={i}>
+                                    <div className="text-2xl font-black text-white">{s.val}</div>
+                                    <div className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mt-0.5">{s.label}</div>
+                                </div>
+                            ))}
+                        </motion.div>
                     </div>
 
-                    <div className="relative pointer-events-none flex items-center justify-center">
-                        <div className="grid grid-cols-2 grid-rows-4 gap-4 w-full max-w-[550px]">
-                            {/* Card 1: Activity Metric */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
-                                className="row-span-1 bg-[#0A0A0A]/80 backdrop-blur-3xl border border-white/10 p-6 rounded-[2rem] flex flex-col justify-center"
-                            >
-                                <div className="text-4xl font-black text-white tracking-tighter">500+</div>
-                                <div className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500 mt-2">Threat Vectors Scanned</div>
-                            </motion.div>
-
-                            {/* Card 2: Highlight Asset (Iridescent Feel) */}
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.5, duration: 0.8 }}
-                                className="row-span-4 col-start-2 bg-[#050505] border border-white/5 p-10 rounded-[3rem] flex flex-col justify-between relative overflow-hidden shadow-2xl"
-                            >
-                                <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-cyan-600/10 via-purple-600/5 to-transparent"></div>
-                                {/* Iridescent Line Pattern */}
-                                <div className="absolute -top-1/2 -right-1/4 w-[200%] h-[200%] opacity-20 pointer-events-none rotate-12">
-                                    <div className="w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-500 via-transparent to-transparent blur-3xl"></div>
+                    {/* Right: Terminal card */}
+                    <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.3 }}
+                        className="relative">
+                        <div className="rounded-2xl overflow-hidden border border-[rgba(26,255,140,0.15)] bg-[#070c0a]"
+                            style={{ boxShadow: '0 0 60px rgba(26,255,140,0.08)' }}>
+                            {/* Terminal bar */}
+                            <div className="flex items-center gap-1.5 px-4 py-3 bg-[#050a07] border-b border-[rgba(26,255,140,0.08)]">
+                                <div className="w-3 h-3 rounded-full bg-red-500/60" />
+                                <div className="w-3 h-3 rounded-full bg-amber-500/60" />
+                                <div className="w-3 h-3 rounded-full bg-[#1aff8c]/60" />
+                                <span className="ml-3 text-[10px] font-mono text-[rgba(26,255,140,0.35)]">lexinel.sentinel — enforcement-stream</span>
+                                <div className="ml-auto flex items-center gap-1.5">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#1aff8c] animate-pulse" />
+                                    <span className="text-[9px] font-mono text-[#1aff8c]">LIVE</span>
                                 </div>
+                            </div>
 
-                                <div className="relative z-10">
-                                    <div className="text-7xl font-black text-white tracking-tighter leading-none">100%</div>
-                                    <div className="text-xs font-black uppercase tracking-[0.3em] text-cyan-500 mt-4">Audit Transparency</div>
+                            {/* Simulated output */}
+                            <div className="p-5 font-mono text-xs space-y-1.5">
+                                {[
+                                    { t: '19:21:44', s: 'BLOCK', c: 'text-red-400', msg: 'AML-R01 | ACC-8912 · $14,200 wire → CTR threshold exceeded' },
+                                    { t: '19:21:02', s: 'WARN', c: 'text-amber-400', msg: 'AML-R05 | ACC-3301 · SWIFT: BOFIUS3N→KY · tax-haven route' },
+                                    { t: '19:20:18', s: 'PASS', c: 'text-[#1aff8c]', msg: 'BATCH  | 482 records scanned · 0 violations' },
+                                    { t: '19:19:55', s: 'BLOCK', c: 'text-red-400', msg: 'AML-R02 | ACC-6671 · $1,800×4 txns / 6h · structuring' },
+                                    { t: '19:19:11', s: 'PASS', c: 'text-[#1aff8c]', msg: 'N2L    | 6 rules active · Gemini synthesis OK' },
+                                    { t: '19:18:44', s: 'WARN', c: 'text-amber-400', msg: 'AML-R04 | ACC-3345 · SSN field unencrypted in audit log' },
+                                ].map((row, i) => (
+                                    <div key={i} className="flex items-center gap-3">
+                                        <span className="text-[rgba(26,255,140,0.35)] w-14 shrink-0">{row.t}</span>
+                                        <span className={`w-10 shrink-0 text-[9px] font-black border rounded px-1 py-0.5 text-center ${row.s === 'BLOCK' ? 'border-red-700/40 bg-red-950/30 text-red-400' : row.s === 'WARN' ? 'border-amber-700/40 bg-amber-950/30 text-amber-400' : 'border-[rgba(26,255,140,0.25)] bg-[rgba(26,255,140,0.06)] text-[#1aff8c]'}`}>{row.s}</span>
+                                        <span className="text-zinc-400 truncate">{row.msg}</span>
+                                    </div>
+                                ))}
+                                <div className="flex items-center gap-2 pt-1 text-[rgba(26,255,140,0.4)]">
+                                    <span>$</span>
+                                    <span className="animate-pulse">_</span>
                                 </div>
-                                <div className="relative flex justify-center py-10">
-                                    <div className="absolute inset-0 bg-cyan-500/20 blur-[60px] rounded-full animate-pulse"></div>
-                                    <div className="w-40 h-40 bg-white/5 border border-white/10 rounded-[2.5rem] flex items-center justify-center rotate-12 group-hover:rotate-0 transition-transform duration-700">
-                                        <Shield className="w-20 h-20 text-cyan-500" />
+                            </div>
+                        </div>
+
+                        {/* Floating badge */}
+                        <div className="absolute -bottom-4 -right-4 px-4 py-2 rounded-xl border border-[rgba(26,255,140,0.2)] bg-[#070c0a] text-[10px] font-black uppercase tracking-widest text-[#1aff8c]"
+                            style={{ boxShadow: '0 0 20px rgba(26,255,140,0.1)' }}>
+                            N2L Synthesis · Gemini 2.5 Pro
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* How It Works */}
+            <section className="py-32 bg-[#030806]">
+                <div className="max-w-[1400px] mx-auto px-6">
+                    <div className="text-center mb-16">
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[rgba(26,255,140,0.5)] mb-3">The Pipeline</p>
+                        <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter">
+                            PDF In. <span className="text-[#1aff8c]">Violations Out.</span>
+                        </h2>
+                    </div>
+
+                    <div className="grid md:grid-cols-4 gap-6">
+                        {[
+                            { step: '01', icon: FileCheck, title: 'Ingest Regulation', desc: 'Drop in BSA, FATF, or AMLD6 PDFs. Lexinel chunks and embeds them automatically.' },
+                            { step: '02', icon: Brain, title: 'N2L Synthesis', desc: 'Gemini 2.5 Pro converts natural-language regulation into typed enforcement rules.' },
+                            { step: '03', icon: Database, title: 'AML Scan', desc: 'Synthesized rules run against the IBM AML dataset. Every record checked in real-time.' },
+                            { step: '04', icon: ShieldCheck, title: 'Violation Nexus', desc: 'Violations are scored, flagged, and queued for SAR drafting or human review.' },
+                        ].map((s, i) => (
+                            <motion.div key={i} whileHover={{ y: -6 }}
+                                className="p-8 rounded-2xl border border-[rgba(26,255,140,0.08)] bg-[#070c0a] group hover:border-[rgba(26,255,140,0.2)] transition-all">
+                                <div className="flex items-center justify-between mb-6">
+                                    <span className="text-5xl font-black text-[rgba(26,255,140,0.08)] group-hover:text-[rgba(26,255,140,0.15)] transition-colors">{s.step}</span>
+                                    <div className="p-3 rounded-xl bg-[rgba(26,255,140,0.06)] border border-[rgba(26,255,140,0.1)] group-hover:bg-[rgba(26,255,140,0.12)] transition-all">
+                                        <s.icon className="w-5 h-5 text-[#1aff8c]" />
                                     </div>
                                 </div>
-                                <div className="relative z-10 text-[9px] font-bold uppercase tracking-widest text-zinc-600">
-                                    PG-SECURITY // OPS-72
-                                </div>
+                                <h3 className="text-white font-black uppercase text-sm tracking-wide mb-3">{s.title}</h3>
+                                <p className="text-zinc-500 text-sm leading-relaxed">{s.desc}</p>
                             </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
 
-                            {/* Card 3: Policies Metric */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.7 }}
-                                className="row-span-2 bg-[#0A0A0A]/40 backdrop-blur-3xl border border-white/10 p-8 rounded-[2.5rem] flex flex-col justify-center overflow-hidden group"
-                            >
-                                <div className="text-5xl font-black text-white tracking-tighter leading-none">30+</div>
-                                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mt-3">Governance Policies</div>
-                                <div className="mt-8 relative h-16">
-                                    <Atom className="w-16 h-16 text-zinc-800 absolute -bottom-4 -left-4 animate-spin-slow group-hover:text-cyan-500/20 transition-colors" />
-                                </div>
-                            </motion.div>
+            {/* AML Rules */}
+            <section className="py-32 bg-[#050a07]">
+                <div className="max-w-[1400px] mx-auto px-6">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[rgba(26,255,140,0.5)] mb-3">Enforcement Rules</p>
+                            <h2 className="text-4xl font-black uppercase tracking-tighter mb-6">
+                                5 Rules.<br /><span className="text-[#1aff8c]">Every Violation Caught.</span>
+                            </h2>
+                            <p className="text-zinc-400 text-lg leading-relaxed mb-8">
+                                Lexinel's N2L engine synthesizes AML rules directly from legislation. Each rule is typed, versioned, and auditable.
+                            </p>
+                            <Link href="/signup">
+                                <button className="px-6 py-3 font-black uppercase tracking-widest text-xs text-[#030806] rounded-lg"
+                                    style={{ background: '#1aff8c', boxShadow: '0 0 30px rgba(26,255,140,0.25)' }}>
+                                    See All Rules →
+                                </button>
+                            </Link>
+                        </div>
 
-                            {/* Card 4: High Contrast Text */}
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.9 }}
-                                className="row-span-1 bg-white p-6 rounded-[2rem] flex items-center justify-center text-center shadow-[0_0_50px_rgba(255,255,255,0.15)]"
-                            >
-                                <div className="text-black font-black uppercase tracking-tighter leading-none text-[11px]">
-                                    SEMANTIC <br />
-                                    <span className="text-cyan-600 block my-1">RISK</span>
-                                    CONTROLLER
+                        <div className="space-y-3">
+                            {[
+                                { id: 'AML-R01', clause: 'BSA §1010.310', title: 'CTR Threshold', desc: 'Flag transactions exceeding $10,000', color: 'text-red-400', border: 'border-red-900/30' },
+                                { id: 'AML-R02', clause: 'FATF Rec. 10', title: 'Structuring', desc: '≥3 sub-$2K transactions within 24h', color: 'text-amber-400', border: 'border-amber-900/30' },
+                                { id: 'AML-R03', clause: 'FinCEN 103.29', title: 'Cross-Border', desc: 'International wire > $5,000 to high-risk jurisdictions', color: 'text-amber-400', border: 'border-amber-900/30' },
+                                { id: 'AML-R04', clause: 'GDPR Art. 5', title: 'PII Exposure', desc: 'Unencrypted PII in audit records', color: 'text-[#1aff8c]', border: 'border-[rgba(26,255,140,0.15)]' },
+                                { id: 'AML-R05', clause: 'AMLD6 Art. 3(4)', title: 'Tax-Haven Route', desc: 'Routing via Cayman, CH, BVI > $3,000', color: 'text-red-400', border: 'border-red-900/30' },
+                            ].map((r) => (
+                                <div key={r.id} className={`flex items-start gap-4 p-4 rounded-xl border ${r.border} bg-[#070c0a]`}>
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className={`text-[10px] font-black font-mono ${r.color}`}>{r.id}</span>
+                                            <span className="text-[9px] text-zinc-600 uppercase tracking-widest">{r.clause}</span>
+                                        </div>
+                                        <p className="text-white font-semibold text-sm">{r.title}</p>
+                                        <p className="text-zinc-500 text-xs">{r.desc}</p>
+                                    </div>
                                 </div>
-                            </motion.div>
+                            ))}
                         </div>
                     </div>
                 </div>
-
-                {/* Vertical Decorative Strips */}
-                <div className="absolute right-0 top-0 bottom-0 w-24 border-l border-white/5 hidden xl:flex flex-col items-center justify-end py-20 gap-10">
-                    <p className="rotate-90 text-[10px] font-black uppercase tracking-[0.5em] text-zinc-600 whitespace-nowrap mb-20 origin-center">
-                        Secure AI Protocol v4.0.2
-                    </p>
-                    <div className="w-px h-40 bg-gradient-to-b from-transparent via-zinc-800 to-transparent"></div>
-                </div>
             </section>
 
-
-            {/* Section 3: The Architecture Pillars */}
-            <section className="py-32 bg-[#020202]">
+            {/* Compliance Standards */}
+            <section className="py-32 bg-[#030806]">
                 <div className="max-w-[1400px] mx-auto px-6">
-                    <div className="grid lg:grid-cols-3 gap-8">
-                        {/* Pillar 1 */}
-                        <motion.div
-                            whileHover={{ y: -10 }}
-                            className="p-12 bg-zinc-900/20 border border-white/5 rounded-[3rem] group"
-                        >
-                            <div className="w-16 h-16 bg-cyan-600/10 border border-cyan-500/20 rounded-2xl flex items-center justify-center mb-10 group-hover:bg-cyan-600 group-hover:text-white transition-all">
-                                <ShieldAlert className="w-8 h-8 text-cyan-500 group-hover:text-white" />
-                            </div>
-                            <h3 className="text-3xl font-black uppercase text-white mb-6">Hallucination <br />Deflector</h3>
-                            <p className="text-zinc-500 leading-relaxed font-medium">
-                                Real-time semantic comparison between agent output and verified knowledge base to intercept false claims before they reach the user.
-                            </p>
-                        </motion.div>
-
-                        {/* Pillar 2 */}
-                        <motion.div
-                            whileHover={{ y: -10 }}
-                            className="p-12 bg-zinc-900/20 border border-white/5 rounded-[3rem] group"
-                        >
-                            <div className="w-16 h-16 bg-emerald-600/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center mb-10 group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                                <Lock className="w-8 h-8 text-emerald-500 group-hover:text-white" />
-                            </div>
-                            <h3 className="text-3xl font-black uppercase text-white mb-6">Autonomous <br />SLA Guard</h3>
-                            <p className="text-zinc-500 leading-relaxed font-medium">
-                                Hard latency and reliability constraints enforced at the proxy layer. If the agent exceeds parameters, the system executes failover protocols.
-                            </p>
-                        </motion.div>
-
-                        {/* Pillar 3 */}
-                        <motion.div
-                            whileHover={{ y: -10 }}
-                            className="p-12 bg-zinc-900/20 border border-white/5 rounded-[3rem] group"
-                        >
-                            <div className="w-16 h-16 bg-purple-600/10 border border-purple-500/20 rounded-2xl flex items-center justify-center mb-10 group-hover:bg-purple-600 group-hover:text-white transition-all">
-                                <Target className="w-8 h-8 text-purple-500 group-hover:text-white" />
-                            </div>
-                            <h3 className="text-3xl font-black uppercase text-white mb-6">PII Redaction <br />Engines</h3>
-                            <p className="text-zinc-500 leading-relaxed font-medium">
-                                Multi-layered scanning for secrets, crypto-keys, and sensitive personal data within agent trace logs and live response streams.
-                            </p>
-                        </motion.div>
+                    <div className="text-center mb-16">
+                        <h2 className="text-4xl font-black uppercase tracking-tighter">
+                            Built for <span className="text-[#1aff8c]">Compliance.</span>
+                        </h2>
+                        <p className="text-zinc-500 text-lg mt-4">Lexinel maps to the world's most rigorous AML and security frameworks.</p>
                     </div>
-                </div>
-            </section>
-
-            {/* Section 4: Global Standards Grid */}
-            <section className="py-32 bg-[#050505] relative">
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-600/5 blur-[120px] rounded-full pointer-events-none"></div>
-                <div className="max-w-[1400px] mx-auto px-6">
-                    <div className="text-center mb-20">
-                        <h2 className="text-4xl md:text-5xl font-outfit font-black uppercase mb-6">Built for <span className="text-cyan-500">Compliance.</span></h2>
-                        <p className="text-zinc-500 text-lg font-medium max-w-2xl mx-auto">Lexinel mapped to the world's most rigorous security frameworks.</p>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                         {[
-                            { name: "SOC2 Type II", level: "L3", icon: FileCheck },
-                            { name: "GDPR", level: "L3", icon: Globe },
-                            { name: "HIPAA", level: "L2", icon: Activity },
-                            { name: "ISO 27001", level: "L3", icon: ShieldCheck },
-                            { name: "NIST AI RMF", level: "L1", icon: Brain },
-                            { name: "PCI DSS", level: "L2", icon: CreditCard }
+                            { name: 'BSA / FinCEN', icon: ShieldCheck },
+                            { name: 'FATF Rec. 10', icon: Globe },
+                            { name: 'EU AMLD6', icon: Lock },
+                            { name: 'GDPR Art. 5', icon: FileCheck },
+                            { name: 'PCI DSS', icon: CreditCard },
+                            { name: 'NIST AI RMF', icon: Brain },
                         ].map((std) => (
-                            <div key={std.name} className="p-6 bg-zinc-900/40 border border-white/5 rounded-3xl group hover:border-blue-500/30 transition-all text-center flex flex-col items-center">
-                                <div className="mb-5 p-4 bg-zinc-800/30 rounded-2xl group-hover:bg-cyan-500/10 group-hover:scale-110 transition-all duration-300">
-                                    <std.icon className="w-6 h-6 text-zinc-500 group-hover:text-cyan-500 transition-colors" />
+                            <div key={std.name}
+                                className="p-6 bg-[#070c0a] border border-[rgba(26,255,140,0.08)] rounded-2xl group hover:border-[rgba(26,255,140,0.2)] transition-all text-center flex flex-col items-center">
+                                <div className="mb-4 p-3 bg-[rgba(26,255,140,0.04)] rounded-xl group-hover:bg-[rgba(26,255,140,0.1)] transition-all">
+                                    <std.icon className="w-5 h-5 text-zinc-500 group-hover:text-[#1aff8c] transition-colors" />
                                 </div>
-                                <div className="text-[10px] font-black tracking-widest text-cyan-500 mb-2 uppercase">Protocol_{std.level}</div>
                                 <div className="text-xs font-black uppercase text-zinc-300 group-hover:text-white transition-colors">{std.name}</div>
                             </div>
                         ))}
@@ -361,85 +337,54 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* Section 5: The Invisible Shield (Value Statement) */}
-            <section className="py-40 bg-black relative">
-                <div className="max-w-[1400px] mx-auto px-6">
-                    <div className="bg-gradient-to-r from-cyan-600/20 to-purple-600/20 rounded-[4rem] p-20 border border-white/10 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-10 opacity-20">
-                            <ShieldCheck className="w-64 h-64 text-white" />
-                        </div>
-                        <div className="max-w-2xl relative z-10">
-                            <h2 className="text-5xl md:text-7xl font-outfit font-black uppercase tracking-tighter mb-10 leading-none">
-                                THE <span className="text-white">INVISIBLE SHIELD</span> <br />
-                                <span className="text-cyan-500">BETWEEN AI & APPS.</span>
+            {/* CTA */}
+            <section className="py-32 bg-[#050a07]">
+                <div className="max-w-[900px] mx-auto px-6 text-center">
+                    <div className="rounded-3xl border border-[rgba(26,255,140,0.15)] bg-[#070c0a] p-16 relative overflow-hidden"
+                        style={{ boxShadow: '0 0 80px rgba(26,255,140,0.06)' }}>
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full blur-[100px] bg-[rgba(26,255,140,0.05)] pointer-events-none" />
+                        <div className="relative z-10">
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[rgba(26,255,140,0.5)] mb-4">Hackathon Demo</p>
+                            <h2 className="text-5xl font-black uppercase tracking-tighter mb-6">
+                                See Lexinel<br /><span className="text-[#1aff8c]">In Action.</span>
                             </h2>
-                            <p className="text-zinc-400 text-xl font-medium leading-relaxed mb-12">
-                                Lexinel operates at the network periphery, intercepting and inspecting every token in milliseconds.
-                                We enable enterprises to deploy agents with the confidence that their core values and security protocols are hard-coded into the infrastructure.
+                            <p className="text-zinc-400 mb-10 text-lg max-w-lg mx-auto">
+                                One click gets you a full sandbox with real IBM AML data, live rule synthesis, and violation detection.
                             </p>
-                            <div className="flex gap-10">
-                                <div>
-                                    <div className="text-4xl font-black text-white">8ms</div>
-                                    <div className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mt-2">Avg Overhead</div>
-                                </div>
-                                <div className="w-px h-12 bg-zinc-800"></div>
-                                <div>
-                                    <div className="text-4xl font-black text-white">99.9%</div>
-                                    <div className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mt-2">Uptime Verifier</div>
-                                </div>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <button onClick={triggerGuestLogin}
+                                    className="h-14 px-10 font-black uppercase tracking-widest text-sm text-[#030806] rounded-xl flex items-center gap-2 mx-auto sm:mx-0"
+                                    style={{ background: '#1aff8c', boxShadow: '0 0 40px rgba(26,255,140,0.3)' }}>
+                                    <Fingerprint className="w-4 h-4" />
+                                    One-Click Judge Access
+                                </button>
+                                <Link href="/login">
+                                    <button className="h-14 px-10 font-black uppercase tracking-widest text-sm text-[#1aff8c] rounded-xl border border-[rgba(26,255,140,0.3)] bg-[rgba(26,255,140,0.04)] hover:bg-[rgba(26,255,140,0.08)] transition-all">
+                                        Sign In →
+                                    </button>
+                                </Link>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* CTA Final */}
-            <section className="py-20 bg-black text-center border-t border-white/5">
-                <div className="max-w-4xl mx-auto px-6">
-                    <h2 className="text-4xl md:text-5xl font-outfit font-black uppercase mb-10 tracking-tighter">Ready to secure your fleet?</h2>
-                    <Button size="lg" onClick={() => router.push('/login')} className="h-16 px-12 bg-cyan-600 hover:bg-cyan-500 text-white font-black uppercase tracking-widest rounded-none">
-                        Establish Protocol
-                    </Button>
-                </div>
-            </section>
-
             {/* Footer */}
-            <footer className="py-20 border-t border-white/5 bg-[#020202] relative z-20">
-                <div className="max-w-[1400px] mx-auto px-6 grid md:grid-cols-4 gap-12">
-                    <div className="col-span-2">
-                        <div className="flex items-center gap-3 mb-8">
-                            <Shield className="w-8 h-8 text-cyan-500" />
-                            <span className="text-xl font-black uppercase tracking-tighter">Lexinel</span>
-                        </div>
-                        <p className="text-zinc-500 text-sm max-w-sm leading-relaxed">
-                            A specialized observability and governance core for securing
-                            autonomous agent fleets and complex AI workflows.
-                        </p>
+            <footer className="py-16 border-t border-[rgba(26,255,140,0.06)] bg-[#030806]">
+                <div className="max-w-[1400px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-3">
+                        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                            <path d="M16 7L23 11V21L16 25L9 21V11L16 7Z" fill="rgba(26,255,140,0.06)" stroke="#1aff8c" strokeWidth="1.5" strokeLinejoin="round" />
+                            <path d="M13 11V21H22" stroke="#1aff8c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                            <circle cx="22" cy="21" r="2" fill="#1aff8c" opacity="0.9" />
+                        </svg>
+                        <span className="text-base font-black tracking-widest text-white">LEX<span className="text-[#1aff8c]">INEL</span></span>
                     </div>
-                    <div>
-                        <h4 className="text-white font-black uppercase tracking-widest text-xs mb-8">Platform</h4>
-                        <ul className="space-y-4 text-zinc-500 text-xs font-bold uppercase transition-colors">
-                            <Link href="/features" className="hover:text-white cursor-pointer transition-colors block">Risk Core</Link>
-                            <Link href="/governance" className="hover:text-white cursor-pointer transition-colors block">Proxy Hub</Link>
-                            <Link href="/pricing" className="hover:text-white cursor-pointer transition-colors block">Pricing</Link>
-                            <Link href="/team" className="hover:text-white cursor-pointer transition-colors block">Team</Link>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 className="text-white font-black uppercase tracking-widest text-xs mb-8">Company</h4>
-                        <ul className="space-y-4 text-zinc-500 text-xs font-bold uppercase transition-colors">
-                            <li className="hover:text-white cursor-pointer transition-colors">Research</li>
-                            <li className="hover:text-white cursor-pointer transition-colors">Security</li>
-                            <li className="hover:text-white cursor-pointer transition-colors">Legal</li>
-                            <li className="hover:text-white cursor-pointer transition-colors">Contact</li>
-                        </ul>
-                    </div>
-                </div>
-                <div className="max-w-[1400px] mx-auto px-6 mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between gap-6 text-[10px] font-bold uppercase tracking-widest text-zinc-700">
-                    <p>© 2026 Lexinel Framework. All rights reserved.</p>
-                    <div className="flex gap-10">
-                        <span className="hover:text-zinc-400 cursor-pointer">Privacy Protocol</span>
-                        <span className="hover:text-zinc-400 cursor-pointer">SLA Agreement</span>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-700">© 2026 Lexinel. AI-native AML Compliance Engine.</p>
+                    <div className="flex gap-6 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                        <Link href="/features" className="hover:text-zinc-400 transition-colors">Features</Link>
+                        <Link href="/how-it-works" className="hover:text-zinc-400 transition-colors">How It Works</Link>
+                        <Link href="/login" className="hover:text-zinc-400 transition-colors">Sign In</Link>
                     </div>
                 </div>
             </footer>

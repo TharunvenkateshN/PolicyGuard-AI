@@ -99,7 +99,7 @@ export default function LoginPage() {
             </AnimatePresence>
 
             {/* Left Panel */}
-            <div className="hidden lg:flex w-1/2 flex-col justify-between p-12 relative overflow-hidden bg-[#070c0a] dark:bg-[#070c0a] bg-[#f0faf5]">
+            <div className="hidden lg:flex w-1/2 flex-col justify-between p-12 relative overflow-hidden bg-[#070c0a]">
                 <div className="absolute inset-0 bg-grid-cyber opacity-60" />
                 <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full blur-[120px] bg-[rgba(26,255,140,0.06)]" />
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full blur-[120px] bg-[rgba(26,255,140,0.04)]" />
