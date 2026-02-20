@@ -226,7 +226,7 @@ class MetricsStore:
         requests_per_minute = round(len(last_2min) / 2, 1)
         requests_per_hour = len(last_1hour)
         
-        # PolicyGuard Specific Metrics
+        # Lexinel AML Specific Metrics
         pii_blocks = len([r for r in all_requests if r.pii_detected])
         policy_violations = len([r for r in all_requests if r.policy_violation])
         pg_blocks = len([r for r in all_requests if r.pii_detected or r.policy_violation])

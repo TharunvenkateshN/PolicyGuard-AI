@@ -120,7 +120,7 @@ export function DashboardMobileNav() {
             <div className="lg:hidden sticky top-0 z-40 flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-950 text-white backdrop-blur-sm">
                 <div className="flex items-center gap-2">
                     <Shield className="h-6 w-6 text-blue-600" />
-                    <span className="text-lg font-bold tracking-tight">PolicyGuard AI</span>
+                    <span className="text-lg font-bold tracking-tight">Lexinel</span>
                 </div>
 
                 <Button variant="ghost" size="icon" onClick={() => setIsOpen(true)} className="text-white hover:bg-zinc-800">

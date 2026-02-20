@@ -78,7 +78,7 @@ export default function FeaturesPage() {
                                 <span className="text-zinc-500">PROTECT.</span>
                             </h2>
                             <p className="text-zinc-400 text-lg font-medium leading-relaxed max-w-xl">
-                                PolicyGuard acts as a live semantic firewall. We inspect every token in your agent's
+                                Lexinel acts as a live semantic firewall. We inspect every token in your agent's
                                 stream against codified security policies, providing unbroken observability and
                                 immediate intervention for non-compliant signals.
                             </p>

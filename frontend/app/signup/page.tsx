@@ -30,7 +30,7 @@ export default function SignUpPage() {
             "Initializing Test Protocol...",
             "Bypassing SSO...",
             "Granting 'Judge' Permissions...",
-            "ACCESS_GRANTED: Welcome to PolicyGuard AI."
+            "ACCESS_GRANTED: Welcome to Lexinel."
         ];
 
         for (const line of lines) {
@@ -121,7 +121,7 @@ export default function SignUpPage() {
                 <div className="z-10">
                     <div className="flex items-center gap-2 text-white/90 font-bold text-xl tracking-tight mb-8">
                         <Shield className="w-8 h-8 text-blue-500" />
-                        PolicyGuard AI
+                        Lexinel
                     </div>
 
                     <h1 className="text-5xl font-bold text-white leading-tight mb-6">
@@ -157,7 +157,7 @@ export default function SignUpPage() {
                 <div className="w-full max-w-md space-y-8 px-4 sm:px-6">
                     <div className="space-y-2 text-center lg:text-left">
                         <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Create Account</h2>
-                        <p className="text-gray-500 dark:text-gray-400">Get started with PolicyGuard AI today</p>
+                        <p className="text-gray-500 dark:text-gray-400">Get started with Lexinel today</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">

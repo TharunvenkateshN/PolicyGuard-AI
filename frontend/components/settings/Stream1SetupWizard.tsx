@@ -151,7 +151,7 @@ export function Stream1SetupWizard({ open, onClose, onComplete }: SetupWizardPro
                                         className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                     />
                                     <p className="text-xs text-muted-foreground">
-                                        This is the API endpoint that PolicyGuard will proxy requests to
+                                        This is the API endpoint that Lexinel will proxy requests to
                                     </p>
                                 </div>
                             </div>
@@ -193,7 +193,7 @@ export function Stream1SetupWizard({ open, onClose, onComplete }: SetupWizardPro
                                         Enable Self-Healing? (Optional)
                                     </h3>
                                     <p className="text-sm text-muted-foreground mb-4">
-                                        Self-healing allows PolicyGuard to automatically patch vulnerabilities in your downstream agents
+                                        Self-healing allows Lexinel to automatically patch vulnerabilities in your downstream agents
                                     </p>
                                 </div>
 
@@ -212,7 +212,7 @@ export function Stream1SetupWizard({ open, onClose, onComplete }: SetupWizardPro
                                                 Yes, enable self-healing for my agents
                                             </Label>
                                             <p className="text-sm text-muted-foreground mt-1">
-                                                When enabled, PolicyGuard can automatically generate and deploy patches to fix detected vulnerabilities
+                                                When enabled, Lexinel can automatically generate and deploy patches to fix detected vulnerabilities
                                             </p>
                                         </div>
                                     </div>

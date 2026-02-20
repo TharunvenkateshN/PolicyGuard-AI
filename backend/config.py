@@ -7,7 +7,7 @@ load_dotenv()
 from typing import Dict
 
 class Settings(BaseModel):
-    PROJECT_NAME: str = "PolicyGuard AI"
+    PROJECT_NAME: str = "Lexinel"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     
@@ -38,7 +38,7 @@ class Settings(BaseModel):
     DEFAULT_PII_BLOCK_LEVEL: str = "strict" # strict | warn | log
     
     # DB Config (Keep existing for compatibility)
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./policyguard.db")
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./lexinel.db")
     USE_FIREBASE: bool = os.getenv("USE_FIREBASE", "true").lower() == "true"
     FIREBASE_CREDENTIALS: str = os.getenv("FIREBASE_CREDENTIALS", "serviceAccountKey.json")
 

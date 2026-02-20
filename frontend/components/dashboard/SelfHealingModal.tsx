@@ -52,17 +52,17 @@ export function SelfHealingModal({
 
     const getFixStrategy = (type: string) => {
         const t = type.toUpperCase();
-        if (t.includes("404")) return "PolicyGuard will inject a fallback routing instruction, forcing the agent to use the 'gemini-2.0-flash' model instead of the deprecated version.";
-        if (t.includes("429")) return "PolicyGuard will implement a client-side backoff strategy and request grouping to stay within rate limits.";
-        if (t.includes("PII")) return "PolicyGuard will apply a 'Privacy Masking' directive, instructing the agent to redact or hash all sensitive entities before responding.";
-        return "PolicyGuard will harden the system prompt with explicit negative constraints to prevent this specific failure mode.";
+        if (t.includes("404")) return "Lexinel will inject a fallback routing instruction, forcing the agent to use the 'gemini-2.0-flash' model instead of the deprecated version.";
+        if (t.includes("429")) return "Lexinel will implement a client-side backoff strategy and request grouping to stay within rate limits.";
+        if (t.includes("PII")) return "Lexinel will apply a 'Privacy Masking' directive, instructing the agent to redact or hash all sensitive entities before responding.";
+        return "Lexinel will harden the system prompt with explicit negative constraints to prevent this specific failure mode.";
     };
 
     const getFormattedPatch = (patch: string) => {
         if (!patch.includes("You are")) {
             return `... (Existing System Prompt) ...
 
-### 🛡️ POLICYGUARD REMEDIATION INSTRUCTION 🛡️
+### 🛡️ Lexinel REMEDIATION INSTRUCTION 🛡️
 ${patch}
 
 ... (End of Prompt) ...`;
@@ -136,7 +136,7 @@ ${patch}
                             ? 'The vulnerability has been neutralized. The agent is now immune to this failure pattern.'
                             : healingFailed
                                 ? 'Could not apply the fix. Please check connectivity.'
-                                : 'PolicyGuard has analyzed the failure and generated a targeted fix.'}
+                                : 'Lexinel has analyzed the failure and generated a targeted fix.'}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -218,7 +218,8 @@ ${patch}
                             <Button
                                 onClick={handleConfirm}
                                 disabled={!understood || isHealing}
-                                className="bg-purple-600 hover:bg-purple-700 text-white"
+                                className="text-[#070c0a] font-bold"
+                                style={{ background: '#1aff8c', boxShadow: '0 0 12px rgba(26,255,140,0.3)' }}
                             >
                                 {isHealing ? (
                                     <>

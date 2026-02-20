@@ -61,7 +61,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        const saved = localStorage.getItem('policyguard_user_profile');
+        const saved = localStorage.getItem('Lexinel_user_profile');
         if (saved) {
             try {
                 setProfile(JSON.parse(saved));
@@ -75,7 +75,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const updateProfile = (updates: Partial<UserProfileEnhanced>) => {
         setProfile(prev => {
             const newState = { ...prev, ...updates };
-            localStorage.setItem('policyguard_user_profile', JSON.stringify(newState));
+            localStorage.setItem('Lexinel_user_profile', JSON.stringify(newState));
             return newState;
         });
     };

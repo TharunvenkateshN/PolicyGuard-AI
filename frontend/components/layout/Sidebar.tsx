@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
     Home, Shield, Activity, Settings, FileText,
-    BarChart3, LogOut, Zap, MessageSquare, Wrench,
-    Flame, Database, Search, AlertOctagon, GitBranch,
-    ScanLine, Clock
+    BarChart3, LogOut, Zap, MessageSquare, Plug,
+    Flame, Database, AlertOctagon, GitBranch,
+    ScanLine, TrendingUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/context/UserContext';
@@ -18,7 +18,7 @@ const navGroups = [
         items: [
             { name: 'Command Center', href: '/dashboard', icon: Home },
             { name: 'Policy Vault', href: '/dashboard/policies', icon: FileText },
-            { name: 'N2L Recompiler', href: '/dashboard/evaluate', icon: GitBranch },
+            { name: 'Rule Audit Log', href: '/dashboard/evaluate', icon: GitBranch },
         ]
     },
     {
@@ -33,8 +33,8 @@ const navGroups = [
         label: "Red Team & Analytics",
         items: [
             { name: 'Adversarial Hub', href: '/dashboard/redteam', icon: Flame },
-            { name: 'Drift Monitor', href: '/dashboard/sla', icon: Activity },
-            { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+            { name: 'AML Risk Analytics', href: '/dashboard/sla', icon: TrendingUp },
+            { name: 'Integration Hub', href: '/dashboard/proxy', icon: Plug },
         ]
     }
 ];

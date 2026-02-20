@@ -35,13 +35,13 @@ export default function RootLayout({
     children: React.ReactNode
 }) {
     return (
-        <html lang="en" suppressHydrationWarning className="dark">
+        <html lang="en" suppressHydrationWarning>
             <body className={`${inter.variable} ${outfit.variable} font-sans antialiased bg-background bg-grid-cyber`} suppressHydrationWarning>
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="dark"
-                    enableSystem={false}
-                    disableTransitionOnChange
+                    enableSystem={true}
+                    disableTransitionOnChange={false}
                 >
                     <AuthProvider>
                         <UserProvider>

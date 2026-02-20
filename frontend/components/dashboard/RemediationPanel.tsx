@@ -134,7 +134,7 @@ export function RemediationPanel({ originalText, violations, policySummary, repo
         setIsExplaining(false);
 
         await sleep(1000);
-        setRemediatedDoc("# PolicyGuard AI: Rewritten Technical Specification\n\n## Section 4: Data Retention\nAll PII gathered during the settlement lifecycle MUST be flagged with a `PURGE_DATE` calculated as `T+7Y`. The Log Collector service is now constrained to regional EU-West buckets only.\n\n## Section 5: Encryption\nSystem-level encryption is enforced via AES-256 for all SWIFT metadata fields.");
+        setRemediatedDoc("# Lexinel: Rewritten Technical Specification\n\n## Section 4: Data Retention\nAll PII gathered during the settlement lifecycle MUST be flagged with a `PURGE_DATE` calculated as `T+7Y`. The Log Collector service is now constrained to regional EU-West buckets only.\n\n## Section 5: Encryption\nSystem-level encryption is enforced via AES-256 for all SWIFT metadata fields.");
         setIsFixing(false);
 
         await sleep(1000);

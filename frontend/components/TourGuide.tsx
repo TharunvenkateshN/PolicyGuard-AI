@@ -18,7 +18,7 @@ const TOUR_STEPS = [
         selector: '#dashboard-title',
         badge: "Mission Control • 1/23",
         title: "Agent Governance Hub",
-        desc: "Welcome to PolicyGuard AI. This is your unified control plane for autonomous agent governance. We ensure your AI fleet remains safe, ethical, and within regulatory boundaries.",
+        desc: "Welcome to Lexinel. This is your unified control plane for autonomous agent governance. We ensure your AI fleet remains safe, ethical, and within regulatory boundaries.",
         icon: LayoutDashboard,
         color: "text-cyan-400",
         bg: "bg-cyan-500/10"
@@ -55,7 +55,7 @@ const TOUR_STEPS = [
         selector: '#tab-analytics',
         badge: "Telemetry • 4/23",
         title: "SRE Reliability Console",
-        desc: "Monitor per-token latency, error rates, and throughput. PolicyGuard tracks the heartbeat of your distributed AI infrastructure to prevent performance degradation.",
+        desc: "Monitor per-token latency, error rates, and throughput. Lexinel tracks the heartbeat of your distributed AI infrastructure to prevent performance degradation.",
         icon: Activity,
         color: "text-indigo-400",
         bg: "bg-indigo-500/10",
@@ -91,7 +91,7 @@ const TOUR_STEPS = [
         selector: '#proxy-wizard-step2-next', // NEW: Wizard Step 2
         badge: "Setup • 7/23",
         title: "Integration Pattern",
-        desc: "Select your stack. PolicyGuard generates drop-in SDK snippets for Python and Node.js to route traffic through the secure gateway.",
+        desc: "Select your stack. Lexinel generates drop-in SDK snippets for Python and Node.js to route traffic through the secure gateway.",
         icon: Code2,
         color: "text-emerald-400",
         bg: "bg-emerald-500/10",
@@ -144,7 +144,7 @@ const TOUR_STEPS = [
         selector: '#readiness-scorecard',
         badge: "Analysis • 11/23",
         title: "Compliance Readiness Results",
-        desc: "The audit is complete. PolicyGuard has generated a comprehensive scorecard mapping your agent's behavior against corporate policy and legal requirements.",
+        desc: "The audit is complete. Lexinel has generated a comprehensive scorecard mapping your agent's behavior against corporate policy and legal requirements.",
         icon: FileText,
         color: "text-green-500",
         bg: "bg-green-500/10"
@@ -207,7 +207,7 @@ const TOUR_STEPS = [
         selector: '#remediation-tabs',
         badge: "Resilience • 16/23",
         title: "Explainable Remediation",
-        desc: "PolicyGuard explains precisely HOW the fix solves the risk. We provide a logic graph and code-level walkthrough for the generated guardrails.",
+        desc: "Lexinel explains precisely HOW the fix solves the risk. We provide a logic graph and code-level walkthrough for the generated guardrails.",
         icon: Lightbulb,
         color: "text-indigo-400",
         bg: "bg-indigo-500/10"
@@ -272,7 +272,7 @@ const TOUR_STEPS = [
         selector: '#risk-factors-section',
         badge: "Intelligence • 21/23",
         title: "Risk Factor Analysis",
-        desc: "PolicyGuard identifies the causal drivers for SLA breaches—whether it's model versioning, prompt length, or geographic traffic spikes.",
+        desc: "Lexinel identifies the causal drivers for SLA breaches—whether it's model versioning, prompt length, or geographic traffic spikes.",
         icon: Zap,
         color: "text-cyan-500",
         bg: "bg-cyan-500/10"
@@ -294,7 +294,7 @@ const TOUR_STEPS = [
         selector: '#dashboard-title',
         badge: "Certified • 23/23",
         title: "Governance Mastery",
-        desc: "Mission Accomplished. Your AI fleet is now robust, compliant, and ready for scale. You have completed the full PolicyGuard Governance Cycle.",
+        desc: "Mission Accomplished. Your AI fleet is now robust, compliant, and ready for scale. You have completed the full Lexinel Governance Cycle.",
         icon: CheckCircle,
         color: "text-green-500",
         bg: "bg-green-500/10",

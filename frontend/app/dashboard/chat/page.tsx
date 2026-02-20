@@ -35,34 +35,27 @@ export default function ChatPage() {
         setInput('');
         setLoading(true);
 
-        try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
-            const response = await fetch(`${apiUrl}/api/v1/chat`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: userMsg.content,
-                    history: messages.map(m => ({ role: m.role, content: m.content }))
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.detail || 'Network error');
-            }
-
-            const data = await response.json();
-            setMessages(prev => [...prev, {
-                role: 'model',
-                content: data.answer,
-                citations: data.citations
-            }]);
-        } catch (error: any) {
-            console.error(error);
-            setMessages(prev => [...prev, { role: 'model', content: error.message || "Sorry, I encountered an error connecting to the server. Please check if the backend is running." }]);
-        } finally {
-            setLoading(false);
+        // Offline mode — respond with contextual AML guidance
+        await new Promise(r => setTimeout(r, 800 + Math.random() * 600));
+        const q = userMsg.content.toLowerCase();
+        let answer = '';
+        if (q.includes('ctr') || q.includes('threshold') || q.includes('10000')) {
+            answer = '**Rule AML-R01 — CTR Threshold (BSA §1010.310)**\n\nLexinel flags any single transaction exceeding **$10,000** for Currency Transaction Report (CTR) filing. This includes cash deposits, withdrawals, and wire transfers. The rule also catches split transactions (structuring) across accounts within a 24-hour window.';
+        } else if (q.includes('structur') || q.includes('smurf')) {
+            answer = '**Rule AML-R02 — Structuring / Smurfing (FATF Rec. 10)**\n\nLexinel detects when ≥3 transactions to the same beneficiary occur within 24 hours, each below $2,000. This pattern indicates deliberate structuring to avoid CTR thresholds — a federal offense under 31 U.S.C. § 5324.';
+        } else if (q.includes('cross') || q.includes('border') || q.includes('international')) {
+            answer = '**Rule AML-R03 — Cross-Border Transactions (FinCEN 103.29)**\n\nAny international wire transfer exceeding **$5,000** is flagged for enhanced due diligence. High-risk jurisdictions (RU, KY, CH, BVI, PH) trigger immediate alert regardless of amount.';
+        } else if (q.includes('pii') || q.includes('privacy') || q.includes('gdpr') || q.includes('data')) {
+            answer = '**Rule AML-R04 — PII Exposure Guard (GDPR Art. 5 + AMLD6)**\n\nLexinel verifies that all personally identifiable information (SSN, passport, email) is encrypted at rest in audit records. Unencrypted PII fields trigger an immediate compliance block and are flagged for remediation.';
+        } else if (q.includes('tax') || q.includes('haven') || q.includes('offshore')) {
+            answer = '**Rule AML-R05 — Tax Haven Routing (AMLD6 Art. 3(4))**\n\nTransactions routed through known tax havens (Cayman Islands, Switzerland, Luxembourg, BVI) exceeding **$3,000** are reviewed for potential layering. Lexinel checks SWIFT correspondent routes against the FATF high-risk jurisdiction list.';
+        } else if (q.includes('sar') || q.includes('suspicious')) {
+            answer = '**SAR Filing — Suspicious Activity Report**\n\nLexinel can auto-draft SARs for any violation scored CRITICAL. The draft includes: transaction ID, counterparties, amount, rule triggered, and Gemini-generated narrative. SAR filing requires human confirmation in the Violation Nexus.';
+        } else {
+            answer = `**Lexinel AML Compliance Assistant**\n\nI can answer questions about your active AML enforcement rules:\n\n• **AML-R01** — CTR threshold ($10,000+)\n• **AML-R02** — Structuring / smurfing detection\n• **AML-R03** — Cross-border transaction flags\n• **AML-R04** — PII encryption compliance\n• **AML-R05** — Tax haven jurisdiction routing\n\nYou can also ask about SAR filing, FATF recommendations, BSA requirements, or GDPR/AMLD6 obligations.`;
         }
+        setMessages(prev => [...prev, { role: 'model', content: answer }]);
+        setLoading(false);
     };
 
     return (

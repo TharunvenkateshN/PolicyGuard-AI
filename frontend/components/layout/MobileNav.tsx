@@ -1,20 +1,22 @@
 "use client"
 
 import React, { useState } from 'react';
-import { Menu, X, Shield } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Sidebar } from '@/components/layout/Sidebar';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function MobileNav() {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div className="fixed top-0 w-full z-50 lg:hidden flex items-center justify-between p-4 border-b border-white/10 bg-[#0B0F19] text-white">
+        <div className="fixed top-0 w-full z-50 lg:hidden flex items-center justify-between p-4 border-b border-[rgba(26,255,140,0.1)] bg-[#070c0a]/90 dark:bg-[#070c0a]/90 backdrop-blur-xl">
             <div className="flex items-center gap-2">
-                <Shield className="h-6 w-6 text-[#7C3AED]" /> {/* Purple Icon */}
-                <span className="text-lg font-bold tracking-tight">PolicyGuard AI</span>
+                <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+                    <path d="M16 7L23 11V21L16 25L9 21V11L16 7Z" fill="rgba(26,255,140,0.08)" stroke="#1aff8c" strokeWidth="1.5" strokeLinejoin="round" />
+                    <path d="M13 11V21H22" stroke="#1aff8c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="text-base font-bold tracking-widest text-white">LEX<span className="text-[#1aff8c]">INEL</span></span>
             </div>
 
             <Button variant="ghost" size="icon" onClick={() => setIsOpen(true)} className="text-white hover:bg-white/10">
@@ -28,13 +30,16 @@ export function MobileNav() {
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="fixed inset-0 z-50 bg-[#0B0F19] flex flex-col overflow-y-auto"
+                        className="fixed inset-0 z-50 bg-[#070c0a] dark:bg-[#070c0a] bg-[#f0faf5] flex flex-col overflow-y-auto"
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between p-4 border-b border-white/5">
+                        <div className="flex items-center justify-between p-4 border-b border-[rgba(26,255,140,0.1)]">
                             <div className="flex items-center gap-2">
-                                <Shield className="h-6 w-6 text-[#7C3AED]" />
-                                <span className="text-lg font-bold tracking-tight text-white">PolicyGuard AI</span>
+                                <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+                                    <path d="M16 7L23 11V21L16 25L9 21V11L16 7Z" fill="rgba(26,255,140,0.08)" stroke="#1aff8c" strokeWidth="1.5" strokeLinejoin="round" />
+                                    <path d="M13 11V21H22" stroke="#1aff8c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                                <span className="text-base font-bold tracking-widest text-white">LEX<span className="text-[#1aff8c]">INEL</span></span>
                             </div>
                             <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-white hover:bg-white/10">
                                 <X className="w-6 h-6" />
@@ -60,7 +65,11 @@ export function MobileNav() {
                                 <div className="text-center">
                                     <a href="/login" className="text-gray-300 hover:text-white font-medium">Login</a>
                                 </div>
-                                <Button className="w-full bg-[#5B21B6] hover:bg-[#4C1D95] text-white h-12 text-lg font-bold rounded-xl shadow-[0_0_20px_rgba(124,58,237,0.3)]">
+                                <Button
+                                    className="w-full h-12 text-base font-bold rounded-xl text-[#070c0a] transition-all"
+                                    style={{ background: '#1aff8c', boxShadow: '0 0 20px rgba(26,255,140,0.3)' }}
+                                    onClick={() => setIsOpen(false)}
+                                >
                                     Get Started
                                 </Button>
                             </div>
@@ -95,7 +104,7 @@ export function MobileNav() {
                         </div>
 
                         <div className="p-6 border-t border-white/5 text-center text-xs text-gray-600">
-                            © 2026 PolicyGuard AI. All rights reserved.
+                            © 2026 Lexinel. All rights reserved.
                         </div>
 
                     </motion.div>

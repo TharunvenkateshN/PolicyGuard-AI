@@ -54,7 +54,7 @@ export default function LandingPage() {
             "Initializing Test Protocol...",
             "Bypassing SSO...",
             "Granting 'Judge' Permissions...",
-            "ACCESS_GRANTED: Welcome to PolicyGuard AI."
+            "ACCESS_GRANTED: Welcome to Lexinel."
         ];
 
         for (const line of lines) {
@@ -337,7 +337,7 @@ export default function LandingPage() {
                 <div className="max-w-[1400px] mx-auto px-6">
                     <div className="text-center mb-20">
                         <h2 className="text-4xl md:text-5xl font-outfit font-black uppercase mb-6">Built for <span className="text-cyan-500">Compliance.</span></h2>
-                        <p className="text-zinc-500 text-lg font-medium max-w-2xl mx-auto">PolicyGuard mapped to the world's most rigorous security frameworks.</p>
+                        <p className="text-zinc-500 text-lg font-medium max-w-2xl mx-auto">Lexinel mapped to the world's most rigorous security frameworks.</p>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -374,7 +374,7 @@ export default function LandingPage() {
                                 <span className="text-cyan-500">BETWEEN AI & APPS.</span>
                             </h2>
                             <p className="text-zinc-400 text-xl font-medium leading-relaxed mb-12">
-                                PolicyGuard operates at the network periphery, intercepting and inspecting every token in milliseconds.
+                                Lexinel operates at the network periphery, intercepting and inspecting every token in milliseconds.
                                 We enable enterprises to deploy agents with the confidence that their core values and security protocols are hard-coded into the infrastructure.
                             </p>
                             <div className="flex gap-10">
@@ -409,7 +409,7 @@ export default function LandingPage() {
                     <div className="col-span-2">
                         <div className="flex items-center gap-3 mb-8">
                             <Shield className="w-8 h-8 text-cyan-500" />
-                            <span className="text-xl font-black uppercase tracking-tighter">PolicyGuard AI</span>
+                            <span className="text-xl font-black uppercase tracking-tighter">Lexinel</span>
                         </div>
                         <p className="text-zinc-500 text-sm max-w-sm leading-relaxed">
                             A specialized observability and governance core for securing
@@ -436,7 +436,7 @@ export default function LandingPage() {
                     </div>
                 </div>
                 <div className="max-w-[1400px] mx-auto px-6 mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between gap-6 text-[10px] font-bold uppercase tracking-widest text-zinc-700">
-                    <p>© 2026 PolicyGuard AI Framework. All rights reserved.</p>
+                    <p>© 2026 Lexinel Framework. All rights reserved.</p>
                     <div className="flex gap-10">
                         <span className="hover:text-zinc-400 cursor-pointer">Privacy Protocol</span>
                         <span className="hover:text-zinc-400 cursor-pointer">SLA Agreement</span>

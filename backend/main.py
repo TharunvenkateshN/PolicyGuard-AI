@@ -14,9 +14,9 @@ import uvicorn
 import traceback
 
 app = FastAPI(
-    title="PolicyGuard AI Control Plane",
-    description="Backend for PolicyGuard AI - Pre-deployment Policy Governance",
-    version="0.1.0",
+    title="Lexinel AML Enforcement API",
+    description="Backend for Lexinel - AI-native AML Compliance Engine",
+    version="1.0.0",
 )
 
 # CORS - Load from env for deployment flexibility
@@ -68,7 +68,7 @@ async def root():
     from services.storage import policy_db
     mode = "Firebase (Production)" if policy_db._use_firebase else "Local (Development)"
     return {
-        "message": "PolicyGuard AI Control Plane Online",
+        "message": "Lexinel AML Enforcement API Online",
         "status": "active",
         "storage_mode": mode,
         "firebase_connected": policy_db.db is not None

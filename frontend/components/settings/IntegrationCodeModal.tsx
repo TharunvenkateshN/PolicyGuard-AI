@@ -26,7 +26,7 @@ SYSTEM_PROMPT = "You are a helpful assistant..."
 @app.post("/system/update-prompt")
 async def update_system_prompt(request: dict = Body(...)):
     """
-    Self-Healing Endpoint: Receives patched prompts from PolicyGuard
+    Self-Healing Endpoint: Receives patched prompts from Lexinel
     """
     global SYSTEM_PROMPT
     new_prompt = request.get("system_prompt")
@@ -67,7 +67,7 @@ let SYSTEM_PROMPT = "You are a helpful assistant...";
 
 app.post('/system/update-prompt', (req, res) => {
   /**
-   * Self-Healing Endpoint: Receives patched prompts from PolicyGuard
+   * Self-Healing Endpoint: Receives patched prompts from Lexinel
    */
   const { system_prompt } = req.body;
   
@@ -122,7 +122,7 @@ public class SystemController {
     @PostMapping("/system/update-prompt")
     public Map<String, Object> updatePrompt(@RequestBody Map<String, String> request) {
         /**
-         * Self-Healing Endpoint: Receives patched prompts from PolicyGuard
+         * Self-Healing Endpoint: Receives patched prompts from Lexinel
          */
         String newPrompt = request.get("system_prompt");
         
@@ -250,7 +250,7 @@ export function IntegrationCodeModal({ open, onClose }: IntegrationCodeModalProp
                     </DialogTitle>
                     <DialogDescription>
                         Add this endpoint to your Stream 2 agent to enable autonomous self-healing.
-                        PolicyGuard will call this endpoint to deploy patched system prompts when vulnerabilities are detected.
+                        Lexinel will call this endpoint to deploy patched system prompts when vulnerabilities are detected.
                     </DialogDescription>
                 </DialogHeader>
 

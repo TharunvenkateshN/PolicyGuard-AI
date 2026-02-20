@@ -445,7 +445,7 @@ class PolicyStorage:
             traces.append({
                 "id": trace_id,
                 "timestamp": log['timestamp'],
-                "agent": "PolicyGuard-Proxy",
+                "agent": "Lexinel-Sentinel",
                 "action": log['event'],
                 "status": 'pass' if status == 'pass' else ('block' if status == 'block' else 'warn'),
                 "details": log.get('details') or "Live traffic intercepted"

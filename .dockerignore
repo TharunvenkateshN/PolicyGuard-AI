@@ -1,39 +1,9 @@
-# Git and Docker
-.git
-.gitignore
-.dockerignore
-
-# Dependencies
+# Lexinel Docker Ignore
 node_modules
-venv
-*/node_modules
-*/venv
+.next
 __pycache__
 *.pyc
-*.pyo
-
-# Environment
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
-*.env
-*.env.*
-
-# Build Artifacts
-.next
-.nuxt
-dist
-build
-coverage
-
-# IDE
-.vscode
-.idea
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
+.git
+*.log
