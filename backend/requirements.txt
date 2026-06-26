@@ -13,11 +13,14 @@ pypdf
 python-docx
 gunicorn
 
+# Security & Reliability
+slowapi>=0.1.9         # Rate limiting for FastAPI (in-memory, no Redis required)
+
 # Enterprise Features (Phase 2)
 networkx>=3.0          # GraphRAG: in-memory knowledge graph
 PyGithub>=2.4.0        # GitHub PR auto-generation
 langchain-core>=0.3.0  # LangGraph closed-loop evaluation
-langgraph>=0.2.0       # LangGraph closed-loop evaluation
+langgraph>=0.3.0       # LangGraph StateGraph with checkpointing (0.3.x API)
 
 # Optional: Unstructured.io for smart document parsing (large install ~200MB)
 # Uncomment if your Render plan allows larger slugs:

@@ -10,6 +10,7 @@ load_dotenv(env_path)
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi.errors import RateLimitExceeded
 import uvicorn
 import traceback
 
@@ -57,6 +58,11 @@ from api.proxy import router as proxy_router
 from api.test_region import router as test_region_router
 from services.storage import policy_db
 from services.metrics import metrics_store
+from middleware.rate_limiter import limiter, rate_limit_exceeded_handler
+
+# Attach rate limiter to app state and register 429 handler
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
 # Attach DB to metrics after both are initialized to avoid circular imports
 metrics_store.set_db(policy_db.db)

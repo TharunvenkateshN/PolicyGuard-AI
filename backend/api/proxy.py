@@ -9,6 +9,8 @@ from services.policy_engine import policy_engine
 from services.metrics import metrics_store
 import asyncio
 from config import settings
+from middleware.rate_limiter import limiter
+from middleware.circuit_breaker import upstream_circuit_breaker, CircuitBreakerOpenError
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +22,7 @@ async def proxy_health():
     return {"status": "Proxy Online", "service": "PolicyGuard Zero-Trust Interceptor"}
 
 @router.post("/api/proxy/{full_path:path}")
+@limiter.limit("60/minute")
 async def gemini_proxy(full_path: str, request: Request, background_tasks: BackgroundTasks):
     """
     Zero-Trust Proxy for Gemini API.
@@ -103,7 +106,25 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
             new_contents = [{"parts": [{"text": processed_prompt}]}]
             body["contents"] = new_contents
 
-        # 5. FORWARD TO UPSTREAM
+        # 5. CIRCUIT BREAKER CHECK
+        if not upstream_circuit_breaker.allow_request():
+            status = upstream_circuit_breaker.get_status()
+            logger.warning("[PROXY] Circuit OPEN — upstream blocked. TraceID: %s Status: %s", trace_id, status)
+            metrics_store.record_audit_log(
+                f"CIRCUIT OPEN: upstream blocked. Will retry in {status['recovery_timeout_s']}s",
+                status="WARN", log_id=trace_id
+            )
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "error": "upstream_circuit_open",
+                    "message": "Upstream service temporarily unavailable. Please retry shortly.",
+                    "retry_after_seconds": int(status["recovery_timeout_s"]),
+                },
+                headers={"Retry-After": str(int(status["recovery_timeout_s"]))},
+            )
+
+        # 6. FORWARD TO UPSTREAM
         async with httpx.AsyncClient() as client:
             # Fetch Dynamic Gatekeeper Settings (Non-blocking)
             from services.storage import policy_db
@@ -154,10 +175,14 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
                 json=body,
                 timeout=30.0
             )
-            
-            if response.status_code != 200:
-                print(f"[PROXY UPSTREAM ERROR] Status: {response.status_code} Body: {response.text[:200]}", flush=True)
+
+            # Record circuit breaker outcome
+            if response.status_code >= 500 or response.status_code == 429:
+                upstream_circuit_breaker.record_failure()
+                logger.warning("[PROXY UPSTREAM ERROR] Status: %d TraceID: %s", response.status_code, trace_id)
                 metrics_store.record_audit_log(f"UPSTREAM ERROR: {response.status_code}", status="WARN", log_id=trace_id)
+            else:
+                upstream_circuit_breaker.record_success()
 
             
             # --- EGRESS FILTERING (Response Audit) ---
