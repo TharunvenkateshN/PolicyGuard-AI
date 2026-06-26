@@ -147,7 +147,13 @@ class PolicyStorage:
             print(f"Error saving to local JSON: {e}")
 
     # --- CRUD Operations ---
-    def add_policy(self, policy: PolicyDocument):
+    def add_policy(self, policy: PolicyDocument, tenant_id: str = "default"):
+        """
+        Persist a policy document. tenant_id is stored as a field on the document
+        for query-time isolation (ARCH-4). Existing callers without tenant_id use
+        "default" for backwards compatibility.
+        """
+        policy.tenant_id = tenant_id
         self._policies.append(policy)
         if self.db:
             try:
@@ -262,20 +268,37 @@ class PolicyStorage:
         scores.sort(key=lambda x: x[0], reverse=True)
         return [s[1] for s in scores[:top_k]]
 
-    def get_all_policies(self) -> List[PolicyDocument]:
-        # Return immediately - Firebase loading happens in background
-        # Policies will be populated as they load
-        return self._policies
+    def get_all_policies(self, tenant_id: str = "default") -> List[PolicyDocument]:
+        """
+        Return policies for a specific tenant. tenant_id="default" returns only
+        policies that predate ARCH-4 (backwards-compatible). Passing a real
+        tenant_id returns only that tenant's policies.
 
-    def delete_policy(self, policy_id: str) -> bool:
-        initial_count = len(self._policies)
+        Note: the in-memory list is populated at startup from Firestore/JSON.
+        New policies written via add_policy() carry the correct tenant_id immediately.
+        """
+        return [p for p in self._policies if p.tenant_id == tenant_id]
+
+    def delete_policy(self, policy_id: str, tenant_id: str = "default") -> bool:
+        """
+        Delete a policy by ID within a tenant namespace.
+        Cross-tenant deletions are rejected: a policy belonging to tenant A cannot
+        be deleted by a request carrying tenant B's context.
+        """
+        target = next((p for p in self._policies if p.id == policy_id), None)
+        if target is None:
+            return False
+        if target.tenant_id != tenant_id:
+            logger.warning(
+                "[STORAGE] Cross-tenant delete rejected: policy %s (tenant=%s) by tenant=%s",
+                policy_id, target.tenant_id, tenant_id,
+            )
+            return False
+
         self._policies = [p for p in self._policies if p.id != policy_id]
-        
-        if len(self._policies) < initial_count:
-            if self.db:
-                self.db.collection('policies').document(policy_id).delete()
-            return True
-        return False
+        if self.db:
+            self.db.collection('policies').document(policy_id).delete()
+        return True
 
     def update_policy_status(self, policy_id: str, status: str) -> bool:
         for p in self._policies:
@@ -490,11 +513,13 @@ class PolicyStorage:
         }
 
     # --- Settings Management ---
-    def get_settings(self) -> PolicySettings:
+    def get_settings(self, tenant_id: str = "default") -> PolicySettings:
         print("[STORAGE] Fetching global policy settings...")
         if self._use_firebase:
             try:
-                doc = self.db.collection('settings').document('global').get()
+                # Tenant-scoped settings path; falls back to global for "default"
+                coll = "settings" if tenant_id == "default" else f"tenants/{tenant_id}/settings"
+                doc = self.db.collection(coll).document('global').get()
                 if doc.exists:
                     return PolicySettings(**doc.to_dict())
             except Exception as e:
@@ -666,27 +691,29 @@ class PolicyStorage:
                     logger.error("[STORAGE] Failed to read local healing history: %s", exc)
         return history
                 
-    async def save_settings(self, settings: PolicySettings):
+    async def save_settings(self, settings: PolicySettings, tenant_id: str = "default"):
         print("[STORAGE] save_settings requested")
         def _save():
             print("[STORAGE] Internal _save (global) starting...")
             if self.db:
                 try:
-                    self.db.collection('settings').document('global').set(settings.model_dump())
+                    coll = "settings" if tenant_id == "default" else f"tenants/{tenant_id}/settings"
+                    self.db.collection(coll).document('global').set(settings.model_dump())
                     return True
                 except Exception as e:
                     print(f"Failed to save settings to Firebase: {e}")
                     return False
             else:
-                # Local fallback for general settings
+                # Local fallback — namespace by tenant_id in filename
+                filename = "settings_store.json" if tenant_id == "default" else f"settings_{tenant_id}.json"
                 try:
-                    with open("settings_store.json", "w") as f:
+                    with open(filename, "w") as f:
                         json.dump(settings.model_dump(), f, indent=2)
                     return True
                 except Exception as e:
                     print(f"Failed to save local settings: {e}")
                     return False
-        
+
         return await asyncio.to_thread(_save)
 
 # Global instance

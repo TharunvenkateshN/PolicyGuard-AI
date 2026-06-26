@@ -67,12 +67,15 @@ class WorkflowRequest(BaseModel):
 # --- Policies ---
 
 @router.get("/policies", response_model=List[PolicyDocument])
-async def get_policies():
+async def get_policies(user: UserContext = Depends(get_current_user)):
     print("[API] GET /policies requested")
-    return await asyncio.to_thread(policy_db.get_all_policies)
+    return await asyncio.to_thread(policy_db.get_all_policies, user.tenant_id)
 
 @router.post("/policies/upload")
-async def upload_policy(file: UploadFile = File(...)):
+async def upload_policy(
+    file: UploadFile = File(...),
+    user: UserContext = Depends(get_current_user),
+):
     try:
         content = await file.read()
         
@@ -122,8 +125,8 @@ async def upload_policy(file: UploadFile = File(...)):
         try:
             # Correcting sync call handling
             await asyncio.wait_for(
-                asyncio.to_thread(policy_db.add_policy, policy),
-                timeout=20.0 
+                asyncio.to_thread(policy_db.add_policy, policy, user.tenant_id),
+                timeout=20.0
             )
         except Exception as e:
             print(f"[WARN] Policy storage non-critical failure: {e}")
@@ -190,8 +193,8 @@ async def delete_policy(
     policy_id: str,
     _user: UserContext = Depends(require_role(Role.CISO)),
 ):
-    # Use to_thread for sync DB operations
-    success = await asyncio.to_thread(policy_db.delete_policy, policy_id)
+    # Tenant-scoped delete — cross-tenant deletes are rejected by storage layer
+    success = await asyncio.to_thread(policy_db.delete_policy, policy_id, _user.tenant_id)
     if success:
         return {"status": "deleted"}
     raise HTTPException(status_code=404, detail="Policy not found")
@@ -836,7 +839,7 @@ async def update_settings(
     _user: UserContext = Depends(require_role(Role.CISO)),
 ):
     print("[API] POST /settings requested")
-    await asyncio.wait_for(policy_db.save_settings(settings), timeout=25.0)
+    await asyncio.wait_for(policy_db.save_settings(settings, _user.tenant_id), timeout=25.0)
     return {"status": "saved"}
 
 @router.get("/settings/gatekeeper")

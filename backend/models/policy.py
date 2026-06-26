@@ -37,6 +37,9 @@ class PolicyDocument(BaseModel):
     pii_config: Dict[str, PIIAction] = {} # e.g. {"email": "redact", "credit_card": "mask"}
     tags: List[str] = [] # For scoping (agent_id, route, etc)
     regression_score: float = 100.0 # Compliance vs previous version
+    # Multi-tenancy namespace (ARCH-4). Default = "default" for backwards compatibility
+    # with existing data that pre-dates tenant namespacing.
+    tenant_id: str = "default"
     
 class WorkflowDefinition(BaseModel):
     name: str

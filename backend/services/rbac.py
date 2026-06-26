@@ -75,6 +75,10 @@ class UserContext:
     email: Optional[str]
     role: Role
     is_anonymous: bool = False
+    # Multi-tenancy namespace (ARCH-4). Extracted from Firebase custom claim
+    # {"role": "CISO", "tenant_id": "acme-corp"}. Defaults to uid when the
+    # claim is absent — each user is implicitly their own single-user tenant.
+    tenant_id: str = "default"
 
 
 # ---------------------------------------------------------------------------
@@ -85,7 +89,7 @@ _bearer_scheme = HTTPBearer(auto_error=False)
 
 
 async def _verify_firebase_token(token: str) -> UserContext:
-    """Decode a Firebase ID token and extract the custom role claim."""
+    """Decode a Firebase ID token and extract custom role + tenant_id claims."""
     try:
         from firebase_admin import auth
         decoded = auth.verify_id_token(token)
@@ -95,10 +99,13 @@ async def _verify_firebase_token(token: str) -> UserContext:
         except ValueError:
             logger.warning("[RBAC] Unknown role claim '%s' — defaulting to VIEWER", role_str)
             role = Role.VIEWER
+        # tenant_id falls back to uid so single-user installs need no special setup
+        tenant_id = decoded.get("tenant_id") or decoded["uid"]
         return UserContext(
             uid=decoded["uid"],
             email=decoded.get("email"),
             role=role,
+            tenant_id=tenant_id,
         )
     except Exception as exc:
         logger.warning("[RBAC] Token verification failed: %s", exc)
@@ -107,7 +114,7 @@ async def _verify_firebase_token(token: str) -> UserContext:
 
 def _dev_user() -> UserContext:
     """Return a permissive developer context when Firebase is disabled."""
-    return UserContext(uid="dev-local", email="dev@localhost", role=Role.ADMIN, is_anonymous=True)
+    return UserContext(uid="dev-local", email="dev@localhost", role=Role.ADMIN, is_anonymous=True, tenant_id="dev")
 
 
 async def get_current_user(
@@ -118,6 +125,11 @@ async def get_current_user(
     FastAPI dependency that resolves the current user.
     When USE_FIREBASE=false (dev mode), returns an ADMIN context unconditionally.
     When USE_FIREBASE=true, validates the Firebase ID token from the Authorization header.
+
+    Multi-tenancy (ARCH-4): If the client sends an x-tenant-id header, it must
+    match the tenant_id from the user's Firebase custom claim. This prevents
+    a user authenticated as tenant A from accessing tenant B's data by simply
+    changing a header value.
     """
     if not _USE_FIREBASE:
         return _dev_user()
@@ -125,7 +137,21 @@ async def get_current_user(
     if credentials is None or not credentials.credentials:
         raise HTTPException(status_code=401, detail="Authentication required")
 
-    return await _verify_firebase_token(credentials.credentials)
+    user = await _verify_firebase_token(credentials.credentials)
+
+    # Validate x-tenant-id header if present
+    requested_tenant = request.headers.get("x-tenant-id")
+    if requested_tenant and requested_tenant != user.tenant_id:
+        logger.warning(
+            "[RBAC] Tenant mismatch: user %s (tenant=%s) requested access to tenant=%s",
+            user.uid, user.tenant_id, requested_tenant,
+        )
+        raise HTTPException(
+            status_code=403,
+            detail=f"x-tenant-id '{requested_tenant}' does not match your account's tenant.",
+        )
+
+    return user
 
 
 def require_role(minimum_role: Role):
