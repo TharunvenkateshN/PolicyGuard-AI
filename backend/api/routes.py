@@ -14,6 +14,8 @@ from services.graph_rag import graph_service
 from services.mitre_atlas import atlas_mapper
 from services.nist_rmf import nist_rmf_mapper
 from services.tee_provider import tee_provider
+from services.rbac import require_role, get_current_user, set_user_role, list_users, Role, UserContext
+from fastapi import Depends
 from services.langgraph_loop import run_loop
 from services.github_service import github_service
 import json
@@ -184,7 +186,10 @@ async def upload_policy(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/policies/{policy_id}")
-async def delete_policy(policy_id: str):
+async def delete_policy(
+    policy_id: str,
+    _user: UserContext = Depends(require_role(Role.CISO)),
+):
     # Use to_thread for sync DB operations
     success = await asyncio.to_thread(policy_db.delete_policy, policy_id)
     if success:
@@ -302,7 +307,11 @@ async def evaluate_workflow(request: WorkflowRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/redteam/simulate", response_model=ThreatReport)
-async def simulate_threat(request: WorkflowRequest, campaign: str = Query("default")):
+async def simulate_threat(
+    request: WorkflowRequest,
+    campaign: str = Query("default"),
+    _user: UserContext = Depends(require_role(Role.AUDITOR)),
+):
     """
     Run adversarial simulation. Supports campaigns: 'pii_exfil', 'soc2_compliance', 'jailbreak_injection'.
     """
@@ -822,7 +831,10 @@ async def get_settings():
     return await asyncio.wait_for(asyncio.to_thread(policy_db.get_settings), timeout=25.0)
 
 @router.post("/settings")
-async def update_settings(settings: PolicySettings):
+async def update_settings(
+    settings: PolicySettings,
+    _user: UserContext = Depends(require_role(Role.CISO)),
+):
     print("[API] POST /settings requested")
     await asyncio.wait_for(policy_db.save_settings(settings), timeout=25.0)
     return {"status": "saved"}
@@ -1689,5 +1701,90 @@ async def get_tee_status():
         "is_hardware_backed": tee_provider.provider_name not in ("InMemory",),
         "available_providers": list(_REGISTRY.keys()),
         "configuration_env_var": "TEE_PROVIDER",
+    }
+
+
+# ---------------------------------------------------------------------------
+# RBAC & Admin Panel endpoints — FEAT-10
+# ---------------------------------------------------------------------------
+
+class SetRoleRequest(BaseModel):
+    uid: str
+    role: str  # Must be one of Role enum values
+
+
+@router.get("/admin/users")
+async def admin_list_users(user: UserContext = Depends(require_role(Role.ADMIN))):
+    """
+    List all Firebase users with their assigned roles.
+    Requires ADMIN role.
+    """
+    users = await list_users(page_size=100)
+    return {"users": users, "total": len(users)}
+
+
+@router.post("/admin/users/role")
+async def admin_set_user_role(
+    request: SetRoleRequest,
+    user: UserContext = Depends(require_role(Role.ADMIN)),
+):
+    """
+    Assign a role to a Firebase user by UID.
+    Requires ADMIN role. The user must sign out and sign in again for the new
+    role to take effect in their ID token.
+
+    Valid roles: ADMIN, CISO, AUDITOR, DEVELOPER, VIEWER
+    """
+    try:
+        role = Role(request.role.upper())
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid role '{request.role}'. Valid roles: {[r.value for r in Role]}"
+        )
+
+    success = await set_user_role(uid=request.uid, role=role)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to update user role. Check server logs.")
+
+    return {
+        "success": True,
+        "uid": request.uid,
+        "new_role": role.value,
+        "note": "User must sign out and sign in again for the new role to take effect.",
+    }
+
+
+@router.get("/admin/roles")
+async def list_available_roles(_user: UserContext = Depends(require_role(Role.CISO))):
+    """Return the available roles and their permission levels. Requires CISO or higher."""
+    return {
+        "roles": [
+            {"role": "ADMIN",     "level": 4, "description": "Full access including user management"},
+            {"role": "CISO",      "level": 3, "description": "Full governance access; no user management"},
+            {"role": "AUDITOR",   "level": 2, "description": "Audit, evaluate, red-team, export reports"},
+            {"role": "DEVELOPER", "level": 1, "description": "Evaluate and remediate own agents"},
+            {"role": "VIEWER",    "level": 0, "description": "Read-only dashboard and policy list"},
+        ]
+    }
+
+
+@router.get("/auth/me")
+async def get_current_user_info(user: UserContext = Depends(get_current_user)):
+    """Return the authenticated user's profile and role. Used by the frontend to render role-gated UI."""
+    return {
+        "uid": user.uid,
+        "email": user.email,
+        "role": user.role.value,
+        "is_anonymous": user.is_anonymous,
+        "permissions": {
+            "can_manage_users":    user.role == Role.ADMIN,
+            "can_change_settings": user.role in (Role.ADMIN, Role.CISO),
+            "can_run_redteam":     user.role in (Role.ADMIN, Role.CISO, Role.AUDITOR),
+            "can_evaluate":        user.role in (Role.ADMIN, Role.CISO, Role.AUDITOR, Role.DEVELOPER),
+            "can_remediate":       user.role in (Role.ADMIN, Role.CISO, Role.AUDITOR, Role.DEVELOPER),
+            "can_export_reports":  user.role in (Role.ADMIN, Role.CISO, Role.AUDITOR),
+            "can_view_dashboard":  True,
+        }
     }
 
