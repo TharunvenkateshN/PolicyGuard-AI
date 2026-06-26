@@ -34,6 +34,18 @@ class Settings(BaseModel):
         "sla_forecasting": 8   # Accurate pattern analysis
     }
     
+    # Shannon Entropy (Logic Drift Detection)
+    # Normal English: ~4.0-5.0 bits/word. Repetitive injection attacks: ~0.5.
+    # Threshold below which a prompt is flagged as "Entropy Collapse" and BLOCKED.
+    # Formula: H = -Σ p(x) log₂ p(x) over word frequency distribution.
+    # Tune per deployment: lower values = more permissive (allows more repetition),
+    # higher values = stricter (blocks more aggressively, risk of false positives).
+    # Typical safe range: 2.5 (permissive) to 3.5 (strict). Default: 3.2.
+    ENTROPY_COLLAPSE_THRESHOLD: float = float(os.getenv("ENTROPY_COLLAPSE_THRESHOLD", "3.2"))
+    # Minimum prompt length (words) before entropy check is applied.
+    # Short prompts (<20 words) naturally have lower entropy — don't penalise them.
+    ENTROPY_MIN_WORDS: int = int(os.getenv("ENTROPY_MIN_WORDS", "20"))
+
     # Governance Targets
     DEFAULT_SLA_UPTIME: float = 99.9
     DEFAULT_PII_BLOCK_LEVEL: str = "strict" # strict | warn | log

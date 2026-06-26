@@ -1,12 +1,24 @@
 """
 PolicyGuard-AI: Graph RAG Service
-Builds an in-memory knowledge graph from policy documents using networkx.
-Detects cross-document conflicts and longitudinal harm without a database server.
+Builds a knowledge graph from policy documents using networkx.
+The graph is persisted to disk after every ingestion using atomic rename
+(write-to-temp → rename) so a crash mid-write never corrupts the store.
+On startup the graph is reloaded from disk, surviving pod restarts.
 """
 
 import re
+import os
+import json
+import tempfile
+import logging
 import networkx as nx
+from networkx.readwrite import json_graph
 from typing import List, Dict, Any
+
+logger = logging.getLogger(__name__)
+
+# Path relative to the backend working directory (where uvicorn/gunicorn runs)
+_GRAPH_STORE_PATH = os.getenv("GRAPH_STORE_PATH", "graph_store.json")
 
 # MITRE ATLAS-aligned PII / conflict keywords
 CONFLICT_SIGNALS = [
@@ -57,13 +69,15 @@ def _clause_denies(clause: str, keyword: str) -> bool:
 
 class PolicyGraphService:
     """
-    Builds a knowledge graph of policy clauses and detects cross-document conflicts.
-    Uses networkx for in-memory graph traversal (no external DB required).
+    Builds a persistent knowledge graph of policy clauses and detects cross-document
+    conflicts. Uses NetworkX for in-memory traversal; persists to disk after every
+    ingestion so the graph survives pod restarts. No external database required.
     """
 
     def __init__(self):
         self.graph = nx.DiGraph()
         self._policy_index: List[Dict] = []
+        self._load_from_disk()  # Restore graph on startup
 
     def build_graph(self, policy_texts: List[str], policy_names: List[str] = None) -> Dict:
         """
@@ -100,11 +114,13 @@ class PolicyGraphService:
         # Build conflict edges between nodes
         self._detect_conflicts()
 
-        return {
+        stats = {
             "total_nodes": self.graph.number_of_nodes(),
             "total_edges": self.graph.number_of_edges(),
             "policies": policy_names,
         }
+        self._save_to_disk()
+        return stats
 
     def _detect_conflicts(self):
         """Find conflicting clause pairs and add red 'CONFLICT' edges."""
@@ -170,6 +186,53 @@ class PolicyGraphService:
             for u, v, d in self.graph.edges(data=True)
         ]
         return {"nodes": nodes, "edges": edges}
+
+    def _save_to_disk(self):
+        """
+        Atomically persist the graph and policy index to disk.
+        Writes to a temp file first, then renames — a crash mid-write
+        leaves the previous snapshot intact rather than producing corruption.
+        """
+        payload = {
+            "graph": json_graph.node_link_data(self.graph),
+            "policy_index": self._policy_index,
+        }
+        store_dir = os.path.dirname(os.path.abspath(_GRAPH_STORE_PATH)) or "."
+        try:
+            fd, tmp_path = tempfile.mkstemp(dir=store_dir, suffix=".tmp")
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                json.dump(payload, f, ensure_ascii=False)
+            os.replace(tmp_path, _GRAPH_STORE_PATH)  # atomic rename
+            logger.info(
+                "[GraphRAG] Graph persisted: %d nodes, %d edges → %s",
+                self.graph.number_of_nodes(), self.graph.number_of_edges(), _GRAPH_STORE_PATH
+            )
+        except Exception as exc:
+            logger.error("[GraphRAG] Failed to persist graph: %s", exc)
+            if os.path.exists(tmp_path):
+                try:
+                    os.remove(tmp_path)
+                except Exception:
+                    pass
+
+    def _load_from_disk(self):
+        """Restore graph and policy index from disk on startup."""
+        if not os.path.exists(_GRAPH_STORE_PATH):
+            logger.info("[GraphRAG] No persisted graph found at %s — starting empty.", _GRAPH_STORE_PATH)
+            return
+        try:
+            with open(_GRAPH_STORE_PATH, "r", encoding="utf-8") as f:
+                payload = json.load(f)
+            self.graph = json_graph.node_link_graph(payload["graph"], directed=True)
+            self._policy_index = payload.get("policy_index", [])
+            logger.info(
+                "[GraphRAG] Restored graph from disk: %d nodes, %d edges",
+                self.graph.number_of_nodes(), self.graph.number_of_edges()
+            )
+        except Exception as exc:
+            logger.error("[GraphRAG] Failed to load persisted graph: %s — starting empty.", exc)
+            self.graph = nx.DiGraph()
+            self._policy_index = []
 
     def query(self, question: str) -> str:
         """Find clauses most relevant to a question based on keyword overlap."""

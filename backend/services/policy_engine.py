@@ -73,33 +73,34 @@ class PolicyEngine:
                 context_policies.append(p)
 
         # -- DETERMINISTIC CORE: Logic Drift (Shannon Entropy Engine) --
-        # We calculate structural entropy to detect repetitive injection patterns.
-        # Threshold: < 3.2 bits/word in long prompts indicates 'Entropy Collapse'.
+        # Calculates word-frequency Shannon entropy to detect repetitive injection patterns.
+        # Normal English: ~4.0-5.0 bits/word. Repetitive attacks ("ignore ignore..."): ~0.5.
+        # Threshold and minimum word count are configurable via settings / env vars:
+        #   ENTROPY_COLLAPSE_THRESHOLD (default 3.2) and ENTROPY_MIN_WORDS (default 20).
         words = prompt.split()
-        if len(words) > 20: 
+        if len(words) >= settings.ENTROPY_MIN_WORDS:
             import math
             from collections import Counter
-            
-            # 1. Calculate Shannon Entropy: H = -Σ p(x) log2 p(x)
+
             counts = Counter(words)
             total = len(words)
-            entropy = -sum((c/total) * math.log2(c/total) for c in counts.values())
-            
+            entropy = -sum((c / total) * math.log2(c / total) for c in counts.values())
+
             metadata["drift"]["entropy"] = round(entropy, 4)
-            
-            # 2. Logic Drift Validation
-            # Normal English text is typically 4.0 - 5.0 bits per word.
-            # Repetitive attacks (e.g. 'ignore ignore ignore') collapse to ~0.5.
-            if entropy < 3.2: 
+
+            if entropy < settings.ENTROPY_COLLAPSE_THRESHOLD:
                 metadata["drift"].update({
-                    "detected": True, 
-                    "p_value": round(math.exp(-entropy), 6), # Statistical significance hook
-                    "reason": f"Entropy collapse detected ({metadata['drift']['entropy']} bits/word)."
+                    "detected": True,
+                    "p_value": round(math.exp(-entropy), 6),
+                    "reason": (
+                        f"Entropy collapse detected ({metadata['drift']['entropy']:.4f} bits/word, "
+                        f"threshold {settings.ENTROPY_COLLAPSE_THRESHOLD})."
+                    ),
                 })
                 findings.append({
-                    "action": "BLOCK", 
-                    "reason": "Logic Drift: Information density too low for legitimate natural language.", 
-                    "source": "Information Theory Engine"
+                    "action": "BLOCK",
+                    "reason": "Logic Drift: Information density too low for legitimate natural language.",
+                    "source": "Information Theory Engine",
                 })
 
         # -- POLICY SCAN --
