@@ -465,6 +465,91 @@ class GeminiService:
             
         return np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
 
+    async def analyze_image_policy(
+        self,
+        image_bytes: bytes,
+        image_mime: str,
+        active_policies: list,
+    ) -> dict:
+        """
+        Visual AI Governance — analyze an image (screenshot, UI mockup, dashboard)
+        against active policies using Gemini's native multimodal capabilities.
+
+        Args:
+            image_bytes: Raw image content (PNG, JPEG, WEBP, etc.)
+            image_mime:  MIME type string, e.g. "image/png"
+            active_policies: List of active PolicyDocument objects
+
+        Returns:
+            dict with keys: verdict, violations, risk_score, evidence, recommendations
+        """
+        from google.genai import types as genai_types
+
+        if not active_policies:
+            return {
+                "verdict": "SKIPPED",
+                "reason": "No active policies to evaluate against.",
+                "violations": [],
+                "risk_score": 0,
+                "evidence": [],
+                "recommendations": [],
+            }
+
+        policy_summary = "\n".join(
+            f"- [{p.category}] {p.name}: {getattr(p, 'summary', p.content[:200])}"
+            for p in active_policies
+        )
+
+        system_prompt = f"""You are an AI governance auditor performing visual policy compliance review.
+
+You will receive an image (screenshot, UI element, diagram, or document scan).
+Your task is to identify any content in the image that violates the corporate policies listed below.
+
+ACTIVE POLICIES:
+{policy_summary}
+
+Analyse the image carefully. Look for:
+1. PII visible on screen (emails, names, account numbers, SSNs, phone numbers)
+2. Sensitive data exposure (passwords, API keys, internal system names, IP addresses)
+3. Policy-violating content (prohibited messaging, unsafe output, regulatory violations)
+4. Accessibility or brand guideline violations if policies cover them
+
+Respond ONLY with this JSON:
+{{
+  "verdict": "PASS" | "WARN" | "BLOCK",
+  "risk_score": <0-100 integer>,
+  "violations": [
+    {{
+      "policy": "<policy name>",
+      "finding": "<what was found in the image>",
+      "severity": "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
+      "location": "<describe where in the image>"
+    }}
+  ],
+  "evidence": ["<direct observation from the image that supports each finding>"],
+  "recommendations": ["<specific remediation step>"]
+}}
+"""
+        image_part = genai_types.Part.from_bytes(data=image_bytes, mime_type=image_mime)
+        contents = [system_prompt, image_part]
+
+        response = await self._generate_with_retry(
+            contents=contents,
+            task_type="deep_audit",
+            config={"temperature": 0.3},
+        )
+
+        raw = self.clean_json_text(response.text)
+        result = json.loads(raw)
+
+        # Normalise — ensure required keys exist even if the model omits them
+        result.setdefault("verdict", "WARN")
+        result.setdefault("risk_score", 50)
+        result.setdefault("violations", [])
+        result.setdefault("evidence", [])
+        result.setdefault("recommendations", [])
+        return result
+
     async def analyze_sla(self, metrics: dict) -> str:
         prompt = f"""
         You are 'Gemini 3 Pro', an advanced Service Level Agreement (SLA) Analytics Engine.

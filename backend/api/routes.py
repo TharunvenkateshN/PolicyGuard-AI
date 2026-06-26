@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Body
+from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Body, Request
 import asyncio
 import httpx
 from config import settings
@@ -12,6 +12,8 @@ from services.gemini import GeminiService
 from services.storage import policy_db
 from services.graph_rag import graph_service
 from services.mitre_atlas import atlas_mapper
+from services.nist_rmf import nist_rmf_mapper
+from services.tee_provider import tee_provider
 from services.langgraph_loop import run_loop
 from services.github_service import github_service
 import json
@@ -389,6 +391,68 @@ async def get_latest_evaluation():
         print(f"Error fetching latest report: {e}")
     
     raise HTTPException(status_code=404, detail="No evaluation history found.")
+
+
+# ---------------------------------------------------------------------------
+# Visual AI Governance — FEAT-7
+# ---------------------------------------------------------------------------
+
+_ALLOWED_VISUAL_MIMES = {"image/png", "image/jpeg", "image/webp", "image/gif"}
+_MAX_IMAGE_BYTES = 10 * 1024 * 1024  # 10 MB
+
+
+@router.post("/evaluate/visual")
+async def evaluate_visual(
+    file: UploadFile = File(..., description="Screenshot or image to audit (PNG/JPEG/WEBP, max 10 MB)"),
+):
+    """
+    Visual AI Governance: upload a screenshot or UI image and receive a policy
+    compliance audit powered by Gemini's native multimodal vision capabilities.
+
+    Use cases:
+    - Audit an AI agent's chat UI for PII leakage
+    - Check a dashboard screenshot for sensitive data exposure
+    - Verify a generated document against content policies
+    """
+    if file.content_type not in _ALLOWED_VISUAL_MIMES:
+        raise HTTPException(
+            status_code=415,
+            detail=f"Unsupported image type '{file.content_type}'. Accepted: {sorted(_ALLOWED_VISUAL_MIMES)}"
+        )
+
+    image_bytes = await file.read()
+    if len(image_bytes) > _MAX_IMAGE_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Image too large ({len(image_bytes) // 1024} KB). Maximum: {_MAX_IMAGE_BYTES // 1024 // 1024} MB"
+        )
+    if not image_bytes:
+        raise HTTPException(status_code=400, detail="Empty file uploaded.")
+
+    active_policies = [p for p in policy_db.get_all_policies() if p.is_active]
+
+    try:
+        result = await asyncio.wait_for(
+            gemini.analyze_image_policy(
+                image_bytes=image_bytes,
+                image_mime=file.content_type,
+                active_policies=active_policies,
+            ),
+            timeout=45.0,
+        )
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="Visual analysis timed out. Try a smaller image.")
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Visual analysis failed: {str(exc)[:200]}")
+
+    return {
+        "filename": file.filename,
+        "content_type": file.content_type,
+        "size_bytes": len(image_bytes),
+        "policies_evaluated": len(active_policies),
+        "analysis": result,
+    }
+
 
 def _build_audit_pdf(report_data: dict, eval_record: dict = None) -> bytes:
     """
@@ -1510,4 +1574,120 @@ async def download_report(report_id: str):
 
     # Fallback
     raise HTTPException(status_code=404, detail="Report not found")
+
+
+# ---------------------------------------------------------------------------
+# NIST AI RMF endpoints — FEAT-8
+# ---------------------------------------------------------------------------
+
+class NistMappingRequest(BaseModel):
+    threats: List[dict]  # List of {threat_type: str, ...} dicts
+
+
+@router.post("/governance/nist-rmf/map")
+async def map_threats_to_nist_rmf(request: NistMappingRequest):
+    """
+    Enrich a list of PolicyGuard threats with NIST AI RMF 1.0 control mappings.
+    Returns each threat augmented with its GOVERN/MAP/MEASURE/MANAGE function,
+    control category, and recommended action.
+    """
+    if not request.threats:
+        raise HTTPException(status_code=400, detail="threats list must not be empty")
+    enriched = nist_rmf_mapper.map_threats(request.threats)
+    function_summary = nist_rmf_mapper.get_function_summary(request.threats)
+    action_plan = nist_rmf_mapper.generate_action_plan(request.threats)
+    return {
+        "framework": "NIST AI RMF 1.0",
+        "reference_url": "https://airc.nist.gov/Docs/1",
+        "threats_mapped": len(enriched),
+        "enriched_threats": enriched,
+        "function_summary": function_summary,
+        "action_plan": action_plan,
+    }
+
+
+@router.get("/governance/nist-rmf/controls")
+async def list_nist_rmf_controls():
+    """Return the full NIST AI RMF control mapping table for reference."""
+    from services.nist_rmf import NIST_RMF_MAP, FUNCTION_DESCRIPTIONS
+    return {
+        "framework": "NIST AI RMF 1.0",
+        "functions": FUNCTION_DESCRIPTIONS,
+        "controls": NIST_RMF_MAP,
+        "total_controls": len(NIST_RMF_MAP),
+    }
+
+
+# ---------------------------------------------------------------------------
+# TEE provider endpoints — FEAT-9
+# ---------------------------------------------------------------------------
+
+class TEEEnforceRequest(BaseModel):
+    input_text: str
+    agent_id: str = "default"
+
+
+@router.post("/tee/enforce")
+async def tee_enforce_policy(request: TEEEnforceRequest):
+    """
+    Evaluate input_text against active policies inside the configured TEE.
+    In the default (InMemory) provider, this is equivalent to the policy engine
+    but returns a structured result with an attestation nonce for audit trails.
+    Set TEE_PROVIDER=sgx or TEE_PROVIDER=trustzone to route to hardware backends.
+    """
+    try:
+        result = await tee_provider.enforce_policy(
+            input_text=request.input_text,
+            agent_id=request.agent_id,
+        )
+        return {
+            "allowed": result.allowed,
+            "agent_id": result.agent_id,
+            "verdict": result.policy_verdict,
+            "violations": result.violations,
+            "redacted_input": result.redacted_input,
+            "execution_environment": result.execution_environment,
+            "attestation_nonce": result.attestation_nonce,
+        }
+    except NotImplementedError as exc:
+        raise HTTPException(status_code=501, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"TEE enforcement error: {str(exc)[:200]}")
+
+
+@router.get("/tee/attestation")
+async def get_tee_attestation():
+    """
+    Request an attestation report from the configured TEE provider.
+    In the InMemory provider, returns a SIMULATED attestation with is_simulated=True.
+    In a hardware provider, returns a signed quote suitable for remote verification.
+    """
+    try:
+        attestation = await tee_provider.get_attestation()
+        return {
+            "provider": attestation.provider,
+            "measurement": attestation.measurement,
+            "nonce": attestation.nonce,
+            "timestamp": attestation.timestamp,
+            "signature": attestation.signature,
+            "is_simulated": attestation.is_simulated,
+            "warning": (
+                "This is a SIMULATED attestation. Set TEE_PROVIDER=sgx or TEE_PROVIDER=trustzone "
+                "and configure the appropriate hardware for real attestation."
+            ) if attestation.is_simulated else None,
+        }
+    except NotImplementedError as exc:
+        raise HTTPException(status_code=501, detail=str(exc))
+
+
+@router.get("/tee/status")
+async def get_tee_status():
+    """Return current TEE provider configuration and capabilities."""
+    from services.tee_provider import _REGISTRY
+    return {
+        "active_provider": tee_provider.provider_name,
+        "is_hardware_backed": tee_provider.provider_name not in ("InMemory",),
+        "available_providers": list(_REGISTRY.keys()),
+        "configuration_env_var": "TEE_PROVIDER",
+    }
 
