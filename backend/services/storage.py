@@ -2,12 +2,15 @@ import json
 import os
 import asyncio
 import threading
+import logging
 from typing import List
 from models.policy import PolicyDocument
 from models.settings import PolicySettings, GatekeeperSettings
 from config import settings
 import firebase_admin
 from firebase_admin import credentials, firestore
+
+logger = logging.getLogger(__name__)
 
 class PolicyStorage:
     def __init__(self):
@@ -605,35 +608,62 @@ class PolicyStorage:
         return await asyncio.to_thread(_save)
     
     # --- Self-Healing History ---
-    
+
     async def add_healing_record(self, healing_record: dict):
-        """Save self-healing operation to history"""
+        """Save self-healing operation to history. Raises on failure so the caller can retry."""
+        import datetime
+        if "timestamp" not in healing_record:
+            healing_record["timestamp"] = datetime.datetime.now().isoformat()
+
         if self._use_firebase:
-            try:
-                if "timestamp" not in healing_record:
-                    import datetime
-                    healing_record["timestamp"] = datetime.datetime.now().isoformat()
-                
-                self.db.collection('healing_history').add(healing_record)
-                print(f"[STORAGE] Saved healing record: {healing_record.get('healing_id')}")
-            except Exception as e:
-                print(f"[STORAGE] Failed to save healing record: {e}")
-    
+            if not self.db:
+                raise RuntimeError("Firebase not connected")
+            # Firestore calls are synchronous — run in thread to avoid blocking the event loop
+            await asyncio.to_thread(self.db.collection('healing_history').add, healing_record)
+            logger.info("[STORAGE] Saved healing record: %s", healing_record.get("healing_id"))
+        else:
+            # Local JSON append
+            path = "healing_history.json"
+            def _append():
+                existing = []
+                if os.path.exists(path):
+                    try:
+                        with open(path, "r", encoding="utf-8") as f:
+                            existing = json.load(f)
+                    except Exception:
+                        existing = []
+                existing.append(healing_record)
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump(existing[-200:], f, indent=2)  # Keep last 200 records
+            await asyncio.to_thread(_append)
+            logger.info("[STORAGE] Saved healing record locally: %s", healing_record.get("healing_id"))
+
     async def get_healing_history(self, limit: int = 20) -> list:
-        """Get recent self-healing operations"""
+        """Get recent self-healing operations."""
         history = []
-        if self._use_firebase:
+        if self._use_firebase and self.db:
             try:
-                from firebase_admin import firestore
-                docs = self.db.collection('healing_history')\
-                    .order_by('timestamp', direction=firestore.Query.DESCENDING)\
-                    .limit(limit).stream()
-                
-                for doc in docs:
-                    history.append(doc.to_dict())
-            except Exception as e:
-                print(f"[STORAGE] Failed to fetch healing history: {e}")
-        
+                from firebase_admin import firestore as _fs
+                docs = await asyncio.to_thread(
+                    lambda: list(
+                        self.db.collection('healing_history')
+                        .order_by('timestamp', direction=_fs.Query.DESCENDING)
+                        .limit(limit)
+                        .stream()
+                    )
+                )
+                history = [doc.to_dict() for doc in docs]
+            except Exception as exc:
+                logger.error("[STORAGE] Failed to fetch healing history: %s", exc)
+        else:
+            path = "healing_history.json"
+            if os.path.exists(path):
+                try:
+                    with open(path, "r", encoding="utf-8") as f:
+                        all_records = json.load(f)
+                    history = list(reversed(all_records[-limit:]))
+                except Exception as exc:
+                    logger.error("[STORAGE] Failed to read local healing history: %s", exc)
         return history
                 
     async def save_settings(self, settings: PolicySettings):

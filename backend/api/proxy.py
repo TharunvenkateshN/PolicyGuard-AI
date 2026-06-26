@@ -3,11 +3,14 @@ from fastapi.responses import JSONResponse
 import httpx
 import json
 import time
+import logging
 from services.gemini import GeminiService
 from services.policy_engine import policy_engine
 from services.metrics import metrics_store
 import asyncio
 from config import settings
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 gemini = GeminiService()
@@ -39,12 +42,27 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
         
         # Identity-based policy routing
         metrics_store.record_audit_log(f"Intercepting request for Agent: {agent_id}", status="INFO", log_id=trace_id)
-            
-        # Get Key from Header (x-goog-api-key) or Query Param (key)
-        api_key = request.headers.get("x-goog-api-key") or request.query_params.get("key") or settings.GOOGLE_API_KEY
-        
+
+        # SEC: Always use the server-side key. Client-supplied keys are never accepted.
+        # A client attempting to supply a key via header or query param is logged as a
+        # security event but the request is not rejected — we simply ignore the supplied key
+        # and use our own. This prevents key probing / quota abuse while remaining transparent.
+        if request.headers.get("x-goog-api-key") or request.query_params.get("key"):
+            logger.warning(
+                "[SECURITY] Client attempted to supply an API key — ignored. "
+                "Only server-side keys are used. TraceID: %s AgentID: %s",
+                trace_id, agent_id
+            )
+            metrics_store.record_audit_log(
+                f"SECURITY: Client attempted to supply API key (ignored). Agent: {agent_id}",
+                status="WARN",
+                log_id=trace_id
+            )
+
+        api_key = settings.GOOGLE_API_KEY
         if not api_key:
-            raise HTTPException(status_code=401, detail="Authentication Required: Missing Google API Key")
+            logger.error("[PROXY] Server API key not configured. TraceID: %s", trace_id)
+            raise HTTPException(status_code=503, detail="Proxy not configured: contact administrator")
             
         # 2. Extract Prompt
         contents = body.get("contents", [])
@@ -116,15 +134,12 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
                     if str(request.query_params):
                         google_url += f"?{request.query_params}"
 
-                # Ensure the upstream key is applied. 
-                # If key is already in the URL, we replace it.
-                if "key=" in google_url:
-                    # Replace existing key with our authorized key (Stream 1 or env key)
-                    import re
-                    google_url = re.sub(r'key=[^&]+', f'key={upstream_key}', google_url)
-                else:
-                    connector = "&" if "?" in google_url else "?"
-                    google_url += f"{connector}key={upstream_key}"
+                # Strip any client-supplied key from the forwarded URL, then append ours.
+                # This ensures no client key ever reaches Google's endpoint.
+                import re
+                google_url = re.sub(r'[?&]key=[^&]+', '', google_url)
+                connector = "&" if "?" in google_url else "?"
+                google_url += f"{connector}key={upstream_key}"
             else:
                 # Custom upstream (Stream 2 or alternative)
                 google_url = f"{upstream_url.rstrip('/')}/v1/models/{cleaned_model}:generateContent"
@@ -157,8 +172,8 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
                         for part in parts:
                             if "text" in part:
                                 generated_text += part["text"]
-                except:
-                    pass # Failed to parse response, fail open or log
+                except Exception as parse_exc:
+                    logger.warning("[PROXY] Failed to parse upstream response for egress filter. TraceID: %s Error: %s", trace_id, parse_exc)
 
                 # Audit the Response
                 is_blocked_egress, _, egress_meta = policy_engine.evaluate_prompt(generated_text, agent_id=agent_id)

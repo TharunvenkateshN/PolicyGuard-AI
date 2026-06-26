@@ -5,17 +5,21 @@ Orchestrates autonomous AI agent self-healing by:
 1. Analyzing vulnerabilities detected in agent responses
 2. Generating patched system prompts using Gemini
 3. Deploying patches to Stream 2 agents
-4. Tracking healing history in Firestore
+4. Tracking healing history in Firestore with reliable retry semantics
 """
 
 import httpx
 import json
+import logging
+import asyncio
 from typing import List, Dict, Optional
 from datetime import datetime
 import uuid
 
 from services.gemini import GeminiService
 from services.storage import PolicyStorage
+
+logger = logging.getLogger(__name__)
 
 
 class SelfHealingService:
@@ -144,17 +148,45 @@ class SelfHealingService:
     
     async def track_healing_history(self, healing_record: Dict):
         """
-        Store healing operation in Firestore history
-        
-        Args:
-            healing_record: Complete record of the healing operation
+        Store healing operation in history with exponential-backoff retry and local fallback.
+        Never silently swallows failures — every failure is logged at WARNING or ERROR level.
         """
+        healing_id = healing_record.get("healing_id", "unknown")
+        max_retries = 3
+        base_delay = 1.0  # seconds
+
+        for attempt in range(1, max_retries + 1):
+            try:
+                await self.db.add_healing_record(healing_record)
+                logger.info("[Self-Healing] Recorded healing: %s (attempt %d)", healing_id, attempt)
+                return
+            except Exception as exc:
+                if attempt < max_retries:
+                    wait = base_delay * (2 ** (attempt - 1))
+                    logger.warning(
+                        "[Self-Healing] Failed to record healing %s (attempt %d/%d): %s — retrying in %.1fs",
+                        healing_id, attempt, max_retries, exc, wait
+                    )
+                    await asyncio.sleep(wait)
+                else:
+                    logger.error(
+                        "[Self-Healing] All %d attempts to record healing %s failed: %s — writing to local fallback",
+                        max_retries, healing_id, exc
+                    )
+                    await self._write_fallback_record(healing_record)
+
+    async def _write_fallback_record(self, healing_record: Dict):
+        """Last-resort: append healing record to a local NDJSON file so no record is ever lost."""
+        import os
+        fallback_path = os.path.join(os.path.dirname(__file__), "..", "healing_history_fallback.ndjson")
         try:
-            # Add to Firestore healing_history collection
-            await self.db.add_healing_record(healing_record)
-            print(f"[Self-Healing] Recorded healing: {healing_record.get('healing_id')}")
-        except Exception as e:
-            print(f"[Self-Healing] Failed to track history: {e}")
+            healing_record["_fallback"] = True
+            healing_record["_fallback_ts"] = datetime.now().isoformat()
+            with open(fallback_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(healing_record) + "\n")
+            logger.warning("[Self-Healing] Healing record %s written to fallback file: %s", healing_record.get("healing_id"), fallback_path)
+        except Exception as fallback_exc:
+            logger.error("[Self-Healing] CRITICAL: fallback write also failed for %s: %s", healing_record.get("healing_id"), fallback_exc)
     
     async def get_healing_history(self, limit: int = 20) -> List[Dict]:
         """
