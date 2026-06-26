@@ -39,6 +39,8 @@ class MetricsStore:
         self.start_time = datetime.now()
         self.total_downtime_seconds = 0.0  # Track total downtime for uptime calculations
         self.db = None
+        # SSE subscriber queues — one asyncio.Queue per connected /audit/stream client
+        self._sse_queues: list = []
     def set_db(self, db):
         """Manually attach database client to avoid circular imports"""
         self.db = db
@@ -151,12 +153,30 @@ class MetricsStore:
             # Local mode: Mark dirty for debounced periodic save
             self._dirty = True
 
+    # -----------------------------------------------------------------------
+    # SSE subscription management
+    # -----------------------------------------------------------------------
+
+    def subscribe_sse(self):
+        """Create and register an asyncio.Queue for a new SSE client."""
+        import asyncio
+        q = asyncio.Queue(maxsize=200)
+        self._sse_queues.append(q)
+        return q
+
+    def unsubscribe_sse(self, q) -> None:
+        """Remove a disconnected SSE client's queue."""
+        try:
+            self._sse_queues.remove(q)
+        except ValueError:
+            pass
+
     def record_audit_log(self, event: str, status: str = "INFO", details: Optional[str] = None, log_id: str = None):
         """Record a real-time audit event"""
         import uuid
         if not log_id:
             log_id = f"log-{uuid.uuid4().hex[:8]}"
-            
+
         print(f"[METRICS] Audit: {event} ({status}) [ID: {log_id}]")
         log = AuditLog(
             id=log_id,
@@ -166,6 +186,16 @@ class MetricsStore:
             details=details
         )
         self.audit_logs.append(log)
+
+        # Fan out to all connected SSE clients (put_nowait is safe here because
+        # record_audit_log is always called from within the event-loop thread).
+        if self._sse_queues:
+            log_dict = asdict(log)
+            for q in list(self._sse_queues):
+                try:
+                    q.put_nowait(log_dict)
+                except Exception:
+                    pass
         
         # Persist audit logs
         if self.db:

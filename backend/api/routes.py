@@ -1413,6 +1413,53 @@ async def get_proxy_logs():
     """Get recent proxy audit logs"""
     return metrics_store.get_audit_logs()
 
+
+@router.get("/audit/stream")
+async def audit_log_stream(request: Request):
+    """
+    Server-Sent Events stream for real-time audit log events (ARCH-5).
+
+    Replaces polling of /proxy/logs. On connect the client receives all
+    buffered events (up to the last 50), then live events as they arrive.
+    A heartbeat comment is sent every 15 s to keep the connection alive
+    through proxies and load balancers.
+
+    EventSource usage:
+        const es = new EventSource('/audit/stream');
+        es.onmessage = (e) => console.log(JSON.parse(e.data));
+    """
+    queue = metrics_store.subscribe_sse()
+
+    async def _generate():
+        try:
+            # Backfill: send all buffered events so the client starts with context
+            for log in metrics_store.get_audit_logs():
+                yield f"data: {json.dumps(log)}\n\n"
+
+            # Stream live events
+            while True:
+                if await request.is_disconnected():
+                    break
+                try:
+                    event = await asyncio.wait_for(queue.get(), timeout=15.0)
+                    yield f"data: {json.dumps(event)}\n\n"
+                except asyncio.TimeoutError:
+                    # SSE heartbeat keeps connection alive through proxies
+                    yield ": heartbeat\n\n"
+        finally:
+            metrics_store.unsubscribe_sse(queue)
+
+    return StreamingResponse(
+        _generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache, no-transform",
+            "X-Accel-Buffering": "no",   # disable nginx response buffering
+            "Connection": "keep-alive",
+        },
+    )
+
+
 @router.post("/sla/uptime")
 async def get_uptime_stats():
     """Get detailed uptime statistics"""
