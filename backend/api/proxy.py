@@ -17,6 +17,28 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 gemini = GeminiService()
 
+# ---------------------------------------------------------------------------
+# Gatekeeper settings in-process TTL cache (ARCH-6)
+# Avoids a Firestore/disk read on every proxied request. TTL = 30 s.
+# Note on latency expectations:
+#   - Deterministic path (policy engine only, no upstream): typically <50 ms
+#   - Full proxy round-trip (including Gemini upstream): typically 500 ms – 5 s
+#   Per-stage latencies are logged in every proxied request's audit trail.
+# ---------------------------------------------------------------------------
+_GK_CACHE: dict = {"settings": None, "expires": 0.0}
+_GK_TTL_S: float = float(settings.__dict__.get("GK_CACHE_TTL_SECONDS", 30.0))
+
+
+async def _get_gatekeeper_settings_cached():
+    """Return gatekeeper settings, refreshing from storage at most once per TTL."""
+    now = time.time()
+    if _GK_CACHE["settings"] is None or now > _GK_CACHE["expires"]:
+        from services.storage import policy_db
+        _GK_CACHE["settings"] = await asyncio.to_thread(policy_db.get_gatekeeper_settings)
+        _GK_CACHE["expires"] = now + _GK_TTL_S
+        logger.debug("[PROXY] Gatekeeper settings refreshed from storage")
+    return _GK_CACHE["settings"]
+
 @router.get("/api/proxy/health")
 async def proxy_health():
     return {"status": "Proxy Online", "service": "PolicyGuard Zero-Trust Interceptor"}
@@ -42,7 +64,8 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
         # 1. Extract Payload & Identity
         body = await request.json()
         agent_id = request.headers.get("x-policyguard-agent-id", "default")
-        
+        t0 = start_time  # alias for clarity in stage calculations
+
         # Identity-based policy routing
         metrics_store.record_audit_log(f"Intercepting request for Agent: {agent_id}", status="INFO", log_id=trace_id)
 
@@ -75,9 +98,10 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
                 if "text" in part:
                     user_prompt += part["text"] + "\n"
         
-        # 3. ZERO-TRUST POLICY EVALUATION
+        # 3. ZERO-TRUST POLICY EVALUATION (deterministic; typically <50 ms)
         is_blocked, processed_prompt, metadata = policy_engine.evaluate_prompt(user_prompt, agent_id=agent_id)
-        
+        t_ingress = time.time()  # checkpoint: ingress filter complete
+
         if is_blocked:
             print(f"[PROXY] [BLOCK] BLOCK: {metadata['reason']}")
             metrics_store.record_audit_log(f"BLOCK: {metadata['reason']}", status="BLOCK", log_id=trace_id)
@@ -126,9 +150,8 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
 
         # 6. FORWARD TO UPSTREAM
         async with httpx.AsyncClient() as client:
-            # Fetch Dynamic Gatekeeper Settings (Non-blocking)
-            from services.storage import policy_db
-            gk_settings = await asyncio.to_thread(policy_db.get_gatekeeper_settings)
+            # Fetch Dynamic Gatekeeper Settings — served from a 30 s TTL cache
+            gk_settings = await _get_gatekeeper_settings_cached()
             
             # Use dynamic URL and key
             upstream_url = gk_settings.stream1_url
@@ -175,6 +198,7 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
                 json=body,
                 timeout=30.0
             )
+            t_upstream = time.time()  # checkpoint: upstream call complete
 
             # Record circuit breaker outcome
             if response.status_code >= 500 or response.status_code == 429:
@@ -224,14 +248,32 @@ async def gemini_proxy(full_path: str, request: Request, background_tasks: Backg
                         }
                     )
             
-            # Post-flight Metrics
+            # Post-flight Metrics — record per-stage latencies in audit trail
+            t_end = time.time()
+            stage_ms = {
+                "ingress_filter_ms":  round((t_ingress - t0) * 1000, 1),
+                "upstream_call_ms":   round((t_upstream - t_ingress) * 1000, 1),
+                "egress_filter_ms":   round((t_end - t_upstream) * 1000, 1),
+                "total_ms":           round((t_end - t0) * 1000, 1),
+            }
+            logger.info("[PROXY] stage_latencies TraceID=%s %s", trace_id, stage_ms)
             metrics_store.record_request(
-                duration_ms=(time.time() - start_time) * 1000,
+                duration_ms=stage_ms["total_ms"],
                 status_code=response.status_code,
                 endpoint=full_path,
                 request_id=trace_id
             )
-            
+            metrics_store.record_audit_log(
+                f"COMPLETE: {full_path} {response.status_code} | "
+                f"ingress={stage_ms['ingress_filter_ms']}ms "
+                f"upstream={stage_ms['upstream_call_ms']}ms "
+                f"egress={stage_ms['egress_filter_ms']}ms "
+                f"total={stage_ms['total_ms']}ms",
+                status="INFO",
+                log_id=f"{trace_id}-done",
+                details=json.dumps(stage_ms),
+            )
+
             return JSONResponse(status_code=response.status_code, content=response.json())
             
     except Exception as e:
