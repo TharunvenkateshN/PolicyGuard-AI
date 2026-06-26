@@ -1054,6 +1054,97 @@ async def create_guardrail_pr(request: CreatePRRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ---------------------------------------------------------------------------
+# Draft PR Lifecycle endpoints — SEC-14
+# ---------------------------------------------------------------------------
+
+@router.get("/github/prs/stale")
+async def list_stale_prs(
+    ttl_days: Optional[int] = None,
+    _user: UserContext = Depends(require_role(Role.CISO)),
+):
+    """
+    List open draft PRs created by PolicyGuard that have exceeded the TTL
+    without being promoted to a ready PR.
+
+    ttl_days defaults to GUARDRAIL_PR_TTL_DAYS (env var, default: 7).
+    Requires CISO or higher.
+    """
+    effective_ttl = ttl_days if ttl_days is not None else settings.GUARDRAIL_PR_TTL_DAYS
+    stale = await asyncio.to_thread(github_service.detect_stale_prs, effective_ttl)
+    return {
+        "stale_prs": stale,
+        "count": len(stale),
+        "ttl_days": effective_ttl,
+        "github_available": github_service.is_available(),
+    }
+
+
+@router.post("/github/prs/{pr_number}/close")
+async def close_stale_pr_endpoint(
+    pr_number: int,
+    reason: str = "Manual close via PolicyGuard admin",
+    _user: UserContext = Depends(require_role(Role.CISO)),
+):
+    """
+    Comment on and close a stale PolicyGuard draft PR.
+    The branch is preserved so the patch can be recovered manually.
+    Requires CISO or higher.
+    """
+    if not github_service.is_available():
+        raise HTTPException(
+            status_code=503,
+            detail="GitHub integration not configured. Set GITHUB_TOKEN and GITHUB_REPO."
+        )
+    result = await asyncio.to_thread(github_service.close_stale_pr, pr_number, reason)
+    if result.get("status") == "error":
+        raise HTTPException(status_code=500, detail=result.get("reason", "Unknown error"))
+    return result
+
+
+@router.post("/github/prs/stale/close-all")
+async def close_all_stale_prs(
+    ttl_days: Optional[int] = None,
+    dry_run: bool = True,
+    _user: UserContext = Depends(require_role(Role.ADMIN)),
+):
+    """
+    Detect and bulk-close all stale PolicyGuard draft PRs.
+
+    dry_run=true (default) returns what would be closed without taking action.
+    dry_run=false performs the closes. Requires ADMIN role to prevent accidents.
+    """
+    effective_ttl = ttl_days if ttl_days is not None else settings.GUARDRAIL_PR_TTL_DAYS
+    stale = await asyncio.to_thread(github_service.detect_stale_prs, effective_ttl)
+
+    if dry_run:
+        return {
+            "dry_run": True,
+            "would_close": len(stale),
+            "prs": stale,
+            "message": "Set dry_run=false to actually close these PRs.",
+        }
+
+    results = []
+    for pr in stale:
+        result = await asyncio.to_thread(
+            github_service.close_stale_pr,
+            pr["pr_number"],
+            f"Bulk auto-close: exceeded {effective_ttl}-day TTL",
+        )
+        results.append(result)
+
+    closed = [r for r in results if r.get("status") == "closed"]
+    errors = [r for r in results if r.get("status") == "error"]
+    return {
+        "dry_run": False,
+        "attempted": len(results),
+        "closed": len(closed),
+        "errors": len(errors),
+        "details": results,
+    }
+
+
 @router.post("/system/freeze")
 async def system_kill_switch(state: dict = Body(...)):
     """

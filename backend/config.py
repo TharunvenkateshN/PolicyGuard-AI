@@ -46,6 +46,11 @@ class Settings(BaseModel):
     # Short prompts (<20 words) naturally have lower entropy — don't penalise them.
     ENTROPY_MIN_WORDS: int = int(os.getenv("ENTROPY_MIN_WORDS", "20"))
 
+    # Draft PR Lifecycle (SEC-14)
+    # Auto-close draft guardrail PRs that have not been reviewed after this many days.
+    # Set to 0 to disable auto-close (staleness detection still runs but will not close).
+    GUARDRAIL_PR_TTL_DAYS: int = int(os.getenv("GUARDRAIL_PR_TTL_DAYS", "7"))
+
     # Governance Targets
     DEFAULT_SLA_UPTIME: float = 99.9
     DEFAULT_PII_BLOCK_LEVEL: str = "strict" # strict | warn | log

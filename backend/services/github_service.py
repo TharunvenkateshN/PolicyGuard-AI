@@ -2,11 +2,20 @@
 PolicyGuard-AI: GitHub Service
 Auto-generates Pull Requests with new Guardrail code changes,
 enabling human-in-the-loop review before production deployment.
+
+PR Lifecycle (SEC-14):
+  Draft PRs are auto-created by the self-healing engine. Without lifecycle
+  management they accumulate indefinitely. Use detect_stale_prs() to find
+  draft PRs older than GUARDRAIL_PR_TTL_DAYS (default: 7) and
+  close_stale_pr() to comment-and-close them.
 """
 import os
 import base64
 import datetime
-from typing import Dict, Optional
+import logging
+from typing import Dict, List, Optional
+
+logger = logging.getLogger(__name__)
 
 try:
     from github import Github, GithubException
@@ -110,6 +119,100 @@ class GithubService:
                 "reason": str(e),
                 "pr_url": None
             }
+
+    def detect_stale_prs(self, ttl_days: Optional[int] = None) -> List[Dict]:
+        """
+        Return a list of open draft PRs whose branches start with 'policyguard/'
+        and whose age exceeds ttl_days. If ttl_days is None, reads from config.
+
+        Each entry:  {pr_number, title, branch, created_at, age_days, html_url}
+        Returns [] when GitHub integration is not configured.
+        """
+        from config import settings
+        if ttl_days is None:
+            ttl_days = settings.GUARDRAIL_PR_TTL_DAYS
+
+        if not self.is_available():
+            logger.info("[GitHub] detect_stale_prs: integration not configured")
+            return []
+
+        threshold = datetime.datetime.utcnow() - datetime.timedelta(days=ttl_days)
+        stale: List[Dict] = []
+        try:
+            for pr in self._repo.get_pulls(state="open", sort="created", direction="asc"):
+                if not pr.draft:
+                    continue
+                if not pr.head.ref.startswith("policyguard/"):
+                    continue
+                # PyGithub returns naive UTC datetimes
+                created = pr.created_at
+                if created < threshold:
+                    stale.append({
+                        "pr_number": pr.number,
+                        "title": pr.title,
+                        "branch": pr.head.ref,
+                        "created_at": created.isoformat() + "Z",
+                        "age_days": (datetime.datetime.utcnow() - created).days,
+                        "html_url": pr.html_url,
+                        "is_draft": pr.draft,
+                    })
+        except Exception as exc:
+            logger.error("[GitHub] detect_stale_prs failed: %s", exc)
+
+        logger.info("[GitHub] detect_stale_prs: %d stale PR(s) found (ttl=%d days)", len(stale), ttl_days)
+        return stale
+
+    def close_stale_pr(self, pr_number: int, reason: str = "auto") -> Dict:
+        """
+        Add a staleness comment to the PR and close it.
+
+        Closing is irreversible via the API but the branch is NOT deleted —
+        the maintainer can reopen or cherry-pick manually.
+
+        Returns {status, pr_number, html_url} or {status: "error", reason}.
+        """
+        if not self.is_available():
+            return {"status": "skipped", "reason": "GitHub integration not configured"}
+
+        try:
+            pr = self._repo.get_pull(pr_number)
+            if pr.state != "open":
+                return {
+                    "status": "skipped",
+                    "reason": f"PR #{pr_number} is already {pr.state}",
+                    "pr_number": pr_number,
+                    "html_url": pr.html_url,
+                }
+
+            from config import settings
+            ttl = settings.GUARDRAIL_PR_TTL_DAYS
+            age = (datetime.datetime.utcnow() - pr.created_at).days
+
+            comment_body = (
+                f"## ⏱️ PolicyGuard: Draft PR Expired\n\n"
+                f"This draft PR was auto-closed after **{age} day(s)** "
+                f"(TTL: `GUARDRAIL_PR_TTL_DAYS={ttl}`). "
+                f"It has not been promoted to a ready PR for review.\n\n"
+                f"**Reason**: `{reason}`\n\n"
+                f"The branch `{pr.head.ref}` has been preserved. "
+                f"If this patch is still relevant, open a new PR from that branch.\n\n"
+                f"> Automated by PolicyGuard Self-Healing Engine"
+            )
+            pr.create_issue_comment(comment_body)
+            pr.edit(state="closed")
+
+            logger.info("[GitHub] Closed stale PR #%d (%d days old)", pr_number, age)
+            return {
+                "status": "closed",
+                "pr_number": pr_number,
+                "age_days": age,
+                "html_url": pr.html_url,
+                "branch_preserved": pr.head.ref,
+            }
+
+        except Exception as exc:
+            logger.error("[GitHub] close_stale_pr #%d failed: %s", pr_number, exc)
+            return {"status": "error", "reason": str(exc), "pr_number": pr_number}
 
     def _build_pr_body(self, violation_summary: str, healing_id: str, language: str) -> str:
         return f"""## 🛡️ PolicyGuard Autonomous Guardrail Patch
